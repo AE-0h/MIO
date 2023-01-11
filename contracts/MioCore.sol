@@ -84,7 +84,8 @@ contract MIOCore is ERC721 {
 
 //--------------------------FUNCTIONS-------------------------------------
 
-function tokenURI(uint256) public pure virtual override returns (string memory) {}
+function tokenURI(uint256 _userNFTID) public pure virtual override returns (string memory) {
+}
 
 // Create a new mioPost 
     function addPost(string memory _content, string memory _media) public payable {
