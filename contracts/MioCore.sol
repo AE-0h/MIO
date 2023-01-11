@@ -20,7 +20,6 @@ contract MIOCore is ERC721 {
     mapping(uint256 => mioPost) public mioPosts;
     // Mapping of mioCountID to each like address
     // that liked the mioPost
-    mapping(uint256 => string[] ) public mioPostIDToLikers;
 //--------------------------Events--------------------------------------------------------
 
     // event fired when a new mioPost is written
@@ -172,15 +171,21 @@ function tokenURI(uint256) public pure virtual override returns (string memory) 
         users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner, userNFTID);
     }
 
-     function createUser(uint256 _userId) public {
+     function createUser(uint256 _userId) public payable{
+        //require that the user does not exist
+        require(users[msg.sender].userNFTID == 0, "User already exists");
+        //require that .01 matic is sent
+        require(msg.value == (1000000 gwei), "You must pay 1 matic to become a user");
         //increment userNFTID
         userNFTID++;
         //user id is userNFTID
         _userId = userNFTID;
         //mint user Nft with id
-        _mint(msg.sender, _userId);
+        _safeMint(msg.sender, _userId);
         //emit event
         emit userCreated(msg.sender, _userId);
+        // pay out "owner" or deployer of contract for user creation gas fee
+        payable(owner).transfer(msg.value);
     }
 
 // Get user
