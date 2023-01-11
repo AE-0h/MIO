@@ -12,6 +12,8 @@ contract MIOCore is ERC721 {
     uint256 public mioCountID = 0; 
     // userNft unique id
     uint256 public userNFTID = 0;
+    // mapping of user address to user nft ID
+    mapping (address => bool) public minted;
     // Mapping of user address to user nft ID
     mapping(address => uint256) public userAddressToNFTID;
      // Mapping of user address to user struct
@@ -30,7 +32,7 @@ contract MIOCore is ERC721 {
     // - the user that wrote the mioPostl
     // - date/time the mioPost was created
     event postCreated(
-        uint256 id,
+        uint256 indexed id,
         string content, 
         string media, 
         address indexed author, 
@@ -43,7 +45,11 @@ contract MIOCore is ERC721 {
     // - user nft ID
     event userCreated(
         address indexed userAddress,
-        uint256 userNFTID
+        uint indexed userNFTID,
+        string username, 
+        string bio, 
+        string profilePic, 
+        string profileBanner
     );
 
     // event fired when a mioPost is liked, true means mioPost has been liked
@@ -53,7 +59,6 @@ contract MIOCore is ERC721 {
     // - boolean that represents if the user has liked the tweet or not
     event postLiked(address indexed liker, uint256 postID, bool state_of_like);
 
-        
 //--------------------------CONSTRUCTOR-------------------------------------
     // Establish the owner of the contract as the deployer
     // Set mioPost counter at 0
@@ -94,16 +99,38 @@ function tokenURI(uint256 _userNFTID) public pure virtual override returns (stri
         //require that the content is not too long
         require(bytes(_content).length <= 280, "Content is too long");
         //require that the msg has a value of 0.01 ether
-        require(msg.value == (10000 gwei), "You must pay 0.01 matic to make it offical");
-        // Increment the post count
-        mioCountID++;
+        require(msg.value == (10000 gwei), "You must pay 10000 gwei to make it offical");
+      // Emit the event and increment mioCount
+        emit postCreated(mioCountID++, _content, _media, msg.sender, block.timestamp);
         // Create the post
         mioPosts[mioCountID] = mioPost(mioCountID, _content, _media,block.timestamp, msg.sender);
-        // Emit the event
-        emit postCreated(mioCountID, _content, _media, msg.sender, block.timestamp);
         // pay out "owner" or deployer of contract for mio post gas fee
         payable(owner).transfer(msg.value);
     }
+
+// Update user
+    function updateUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public {
+        // Update the user
+        users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner, userNFTID);
+    }
+
+     function createUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public payable{
+        //require that the user does not exist
+        require(!minted[msg.sender], "User already exists");
+        //require that .01 matic is sent
+        require(msg.value == (1000000000 wei), "You must pay 1000000000 wei to become a user");
+
+        users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner, userNFTID);
+        // Increment the userNFTID and emit event
+        emit userCreated(msg.sender, userNFTID++, _username, _bio, _profilePic, _profileBanner);
+        //mint user Nft with id
+        _safeMint(msg.sender, userNFTID);
+        //set minted to true
+        minted[msg.sender] = true;
+        // pay out "owner" or deployer of contract for user creation gas fee
+        payable(owner).transfer(msg.value);
+    }
+
       
 // Get a mioPost by counterID
     function getPost(uint256 _id) public view returns (string memory, string memory, address) {
@@ -115,7 +142,7 @@ function tokenURI(uint256 _userNFTID) public pure virtual override returns (stri
     }    
 
 // Get all mioPosts by a user
-    function getAllUsermioPosts() public view returns(mioPost[] memory){
+    function getAllUserMioPosts() public view returns(mioPost[] memory){
         // Create a temporary array to store the mioPosts
         mioPost[] memory result = new mioPost[](mioCountID);
         // Create a counter to keep track of the index
@@ -143,7 +170,7 @@ function tokenURI(uint256 _userNFTID) public pure virtual override returns (stri
 
 
 // Get all mioPosts
-    function  getAllmioPosts() public view returns(mioPost[] memory){
+    function  getAllMioPosts() public view returns(mioPost[] memory){
         // Create a temporary array to store the mioPosts
         mioPost[] memory result = new mioPost[](mioCountID);
         // Create a counter to keep track of the index
@@ -164,38 +191,13 @@ function tokenURI(uint256 _userNFTID) public pure virtual override returns (stri
         }
         // Return the array
         return _mioPosts;
-    }    
-
-// Update user
-    function updateUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public {
-        // Update the user
-        users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner, userNFTID);
-    }
-
-     function createUser(uint256 _userId) public payable{
-        //require that the user does not exist
-        require(users[msg.sender].userNFTID == 0, "User already exists");
-        //require that .01 matic is sent
-        require(msg.value == (1000000 gwei), "You must pay 1 matic to become a user");
-        //increment userNFTID
-        userNFTID++;
-        //user id is userNFTID
-        _userId = userNFTID;
-        //mint user Nft with id
-        _safeMint(msg.sender, _userId);
-        //emit event
-        emit userCreated(msg.sender, _userId);
-        // pay out "owner" or deployer of contract for user creation gas fee
-        payable(owner).transfer(msg.value);
-    }
-
+    } 
+       
 // Get user
-
     function getUser(address _userAddress) public view returns (string memory , string memory, string memory, string memory) {
         // Fetch the user
         user memory _user = users[_userAddress];
         // Return the user
         return (_user.username, _user.bio, _user.profilePic, _user.profileBanner);
     }
-
 }
