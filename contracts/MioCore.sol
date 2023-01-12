@@ -99,7 +99,7 @@ function tokenURI(uint256 _userNFTID) public pure virtual override returns (stri
         //require that the content is not too long
         require(bytes(_content).length <= 280, "Content is too long");
         //require that the msg has a value of 0.01 ether
-        require(msg.value == (10000 gwei), "You must pay 10000 gwei to make it offical");
+        require(msg.value == (1 ether), "You must pay 1 matic to make it offical");
       // Emit the event and increment mioCount
         emit postCreated(mioCountID++, _content, _media, msg.sender, block.timestamp);
         // Create the post
@@ -118,7 +118,7 @@ function tokenURI(uint256 _userNFTID) public pure virtual override returns (stri
         //require that the user does not exist
         require(!minted[msg.sender], "User already exists");
         //require that .01 matic is sent
-        require(msg.value == (1000000000 wei), "You must pay 1000000000 wei to become a user");
+        require(msg.value == (1 ether), "You must pay 1 matic to become a user");
 
         users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner, userNFTID);
         // Increment the userNFTID and emit event
@@ -133,7 +133,7 @@ function tokenURI(uint256 _userNFTID) public pure virtual override returns (stri
 
       
 // Get a mioPost by counterID
-    function getPost(uint256 _id) public view returns (string memory, string memory, address) {
+    function getPost(uint256 _id) public view returns (string memory _content, string memory _media, address _author) {
         require(_id < mioCountID, "This was never made official");
         // Fetch the mioPost
         mioPost memory _mioPost = mioPosts[_id];

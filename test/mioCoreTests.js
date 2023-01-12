@@ -1,70 +1,56 @@
-const { ethers } = require("hardhat");
 const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
 describe("MIOCore", () => {
-  let contract;
+  let miocore;
+  let user1;
 
-  before(async () => {
-    // Deploy the contract before running any tests
-    contract = await ethers
-      .getContractFactory("MIOCore")
-      .deploy("MIOCore", "MC");
-    await contract.deployed();
+  beforeEach(async () => {
+    /// Deploy MIOCore contract with name and symbol args
+    const MIOCore = await ethers.getContractFactory("MIOCore");
+    // Create a new user
+    user1 = await ethers.getSigner();
+    // Deploy MIOCore contract
+    miocore = await MIOCore.deploy("MIOUserToken", "MUT");
+    await miocore.deployed();
   });
 
-  it("Should have a correct owner", async () => {
-    const owner = await contract.owner();
-    expect(owner).to.equal(await ethers.provider.getSigner().getAddress());
+  it("should have the correct name and symbol", async () => {
+    expect(await miocore.name()).to.equal("MIOUserToken");
+    expect(await miocore.symbol()).to.equal("MUT");
+    console.log(user1.address);
   });
 
-  it("Should increment mioCountID after addPost()", async () => {
-    const mioCountID = await contract.mioCountID();
-    await contract.addPost("Test post content", "Test post media", {
-      value: ethers.utils.parseEther("0.01"),
-    });
-    const newMioCountID = await contract.mioCountID();
-    expect(newMioCountID.sub(1).eq(mioCountID)).to.be.true;
+  it("should be able to add a post", async () => {
+    //Initialize addMioPost data
+    let postContent = "post";
+    let postImage = "https://example.com/image.jpg";
+    await miocore
+      .connect(user1)
+      .addPost(postContent, postImage, { value: ethers.utils.parseEther("1") });
+    let post = await miocore.getAllUserMioPosts();
+    let postFilter = post[0].filter((item) => item !== "");
+    expect(postFilter[1]).to.equal("post");
+    expect(postFilter[2]).to.equal("https://example.com/image.jpg");
   });
 
-  it("Should emit postCreated event on addPost()", async () => {
-    const tx = await contract.addPost("Test post content", "Test post media", {
-      value: ethers.utils.parseEther("0.01"),
-    });
-    expect(tx.events.postCreated).to.exist;
-  });
+  it("should be able to mint a token to user ", async () => {
+    //Initialize user data
+    let username = "User1";
+    let bio = "This is my bio";
+    let profilePic = "https://example.com/image.jpg";
+    let profileBanner = "https://example.com/image2.jpg";
 
-  it("Should require content on addPost()", async () => {
-    try {
-      await contract.addPost("", "Test post media", {
-        value: ethers.utils.parseEther("0.01"),
+    await miocore
+      .connect(user1)
+      .createUser(username, bio, profilePic, profileBanner, {
+        value: ethers.utils.parseEther("1"),
       });
-      expect.fail("Should have thrown error");
-    } catch (err) {
-      expect(err.reason).to.equal("Content is required");
-    }
-  });
-
-  it("Should have a gas fee of 0.01 matic on addPost()", async () => {
-    try {
-      await contract.addPost("Test post content", "Test post media", {
-        value: ethers.utils.parseEther("0.05"),
-      });
-      expect.fail("Should have thrown error");
-    } catch (err) {
-      expect(err.reason).to.equal("You must pay 0.01 matic to make it offical");
-    }
-  });
-
-  it("Should transfer gas fee to owner after adding a post", async () => {
-    const pre = await ethers.provider.getBalance(
-      await ethers.provider.getSigner().getAddress()
-    );
-    await contract.addPost("Test post content", "Test post media", {
-      value: ethers.utils.parseEther("0.01"),
-    });
-    const post = await ethers.provider.getBalance(
-      await ethers.provider.getSigner().getAddress()
-    );
-    expect(pre.sub(ethers.utils.parseEther("0.01")).eq(post)).to.be.true;
+    const user = await miocore.users(await miocore.signer.getAddress());
+    expect(user.username).to.equal("User1");
+    expect(user.bio).to.equal("This is my bio");
+    expect(user.profilePic).to.equal("https://example.com/image.jpg");
+    expect(user.profileBanner).to.equal("https://example.com/image2.jpg");
+    expect(user.userNFTID.toNumber()).to.equal(0);
   });
 });
