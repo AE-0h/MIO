@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
- import {ERC721} from "solmate/src/tokens/ERC721.sol";
+import {ERC721} from "solmate/src/tokens/ERC721.sol";
+import {MioTokenizedPostInterface} from "./interfaces/MioTokenizedPostInterface.sol";
+import {Owned} from "solmate/src/auth/Owned.sol";
 
-contract MIOCore is ERC721 {
+
+contract MIOCore is ERC721, Owned(msg.sender) {
 
     //--------------------------STATE VARIABLES-------------------------------------
-    // deployer of the contract
-    address public owner;
     // mioPost unique id
-    uint256 public mioCountID = 0; 
+    uint256 public mioCountID; 
     // userNft unique id
     uint256 public userNFTID = 0;
     // mapping of user address to user nft ID
@@ -22,7 +23,7 @@ contract MIOCore is ERC721 {
     mapping(uint256 => mioPost) public mioPosts;
     // Mapping of mioCountID to each like address
     // that liked the mioPost
-//--------------------------Events--------------------------------------------------------
+ //--------------------------Events--------------------------------------------------------
 
     // event fired when a new mioPost is written
     // contains: -
@@ -43,9 +44,12 @@ contract MIOCore is ERC721 {
     // contains: -
     // - the address of the user
     // - user nft ID
+    // - the username of the user
+    // - the bio of the user
+    // - the profile pic of the user
+    // - the profile banner of the user
     event userCreated(
         address indexed userAddress,
-        uint indexed userNFTID,
         string username, 
         string bio, 
         string profilePic, 
@@ -56,20 +60,16 @@ contract MIOCore is ERC721 {
     // contains:
     // - the address of the liker
     // - the mioPost ID
-    // - boolean that represents if the user has liked the tweet or not
-    event postLiked(address indexed liker, uint256 postID, bool state_of_like);
-
-//--------------------------CONSTRUCTOR-------------------------------------
+ //--------------------------CONSTRUCTOR-------------------------------------
     // Establish the owner of the contract as the deployer
     // Set mioPost counter at 0
     constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {
-        owner = msg.sender;
         mioCountID = 0;
         
     }
 
-//--------------------------STRUCTS-------------------------------------
-// Define a struct mioPost with the following fields: to be used for messege structure
+ //--------------------------STRUCTS-------------------------------------
+ // Define a struct mioPost with the following fields: to be used for messege structure
     struct mioPost {
         uint256 id;
         string content;
@@ -87,12 +87,12 @@ contract MIOCore is ERC721 {
     }
 
 
-//--------------------------FUNCTIONS-------------------------------------
+ //--------------------------FUNCTIONS-------------------------------------
 
-function tokenURI(uint256 _userNFTID) public pure virtual override returns (string memory) {
-}
+ function tokenURI(uint256 _userNFTID) public pure virtual override returns (string memory) {
+ }
 
-// Create a new mioPost 
+ // Create a new mioPost 
     function addPost(string memory _content, string memory _media) public payable {
         //require that the content is not empty
         require(bytes(_content).length > 0, "Content is required");
@@ -103,18 +103,18 @@ function tokenURI(uint256 _userNFTID) public pure virtual override returns (stri
       // Emit the event and increment mioCount
         emit postCreated(mioCountID++, _content, _media, msg.sender, block.timestamp);
         // Create the post
-        mioPosts[mioCountID] = mioPost(mioCountID, _content, _media,block.timestamp, msg.sender);
+        mioPosts[mioCountID] =  mioPost(mioCountID, _content, _media,block.timestamp, msg.sender);
         // pay out "owner" or deployer of contract for mio post gas fee
         payable(owner).transfer(msg.value);
     }
 
-// Update user
+ // Update user
     function updateUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public {
         // Update the user
         users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner, userNFTID);
     }
 
-     function createUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public payable{
+     function createUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public payable returns (uint256 _userNFTID){
         //require that the user does not exist
         require(!minted[msg.sender], "User already exists");
         //require that .01 matic is sent
@@ -129,19 +129,24 @@ function tokenURI(uint256 _userNFTID) public pure virtual override returns (stri
         minted[msg.sender] = true;
         // pay out "owner" or deployer of contract for user creation gas fee
         payable(owner).transfer(msg.value);
+        return userNFTID;
     }
 
       
-// Get a mioPost by counterID
-    function getPost(uint256 _id) public view returns (string memory _content, string memory _media, address _author) {
-        require(_id < mioCountID, "This was never made official");
-        // Fetch the mioPost
-        mioPost memory _mioPost = mioPosts[_id];
-        // Return the mioPost
-        return ( _mioPost.content, _mioPost.media, _mioPost.author);
-    }    
+ // Get a mioPost by counterID
+   function getPost(uint256 _id) public view returns (string memory _content, string memory _media, address _author) {
+    require(_id <= mioCountID, "Invalid ID");
+    // Fetch the mioPost
+    mioPost storage _mioPost = mioPosts[_id];
+    // Return the mioPost
+    _content = _mioPost.content;
+    _media = _mioPost.media;
+    _author = _mioPost.author;
+    return (_content, _media, _author);
+    }
+   
 
-// Get all mioPosts by a user
+ // Get all mioPosts by a user
     function getAllUserMioPosts() public view returns(mioPost[] memory){
         // Create a temporary array to store the mioPosts
         mioPost[] memory result = new mioPost[](mioCountID);
@@ -174,7 +179,7 @@ function tokenURI(uint256 _userNFTID) public pure virtual override returns (stri
         // Create a temporary array to store the mioPosts
         mioPost[] memory result = new mioPost[](mioCountID);
         // Create a counter to keep track of the index
-        uint256 counter = 0;
+        uint256  counter = 0;
         // Loop through all the mioPosts
         for (uint256 i = 1; i <= mioCountID; i++) {
             // Check if the mioPost is not deleted

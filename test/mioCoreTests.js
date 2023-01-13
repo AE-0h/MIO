@@ -18,39 +18,68 @@ describe("MIOCore", () => {
   it("should have the correct name and symbol", async () => {
     expect(await miocore.name()).to.equal("MIOUserToken");
     expect(await miocore.symbol()).to.equal("MUT");
-    console.log(user1.address);
+
+    console.log(
+      `MioUserToken{ Name: ${await miocore.name()} Symbol: ${await miocore.symbol()}}`
+    );
   });
 
-  it("should be able to add a post", async () => {
+  //it should save msg.sender as owner in contructor
+
+  it("it should save msg.sender as owner in contructor", async () => {
+    expect(await miocore.owner()).to.equal(await miocore.signer.getAddress());
+    console.log(`Owner: ${await miocore.owner()}`);
+  });
+
+  it("should be able to add a post and retrieve single post data from postID", async () => {
     //Initialize addMioPost data
-    let postContent = "post";
-    let postImage = "https://example.com/image.jpg";
+    let postContent = "post1";
+    let postImage = "https://blah.com/image1.jpg";
     await miocore
       .connect(user1)
       .addPost(postContent, postImage, { value: ethers.utils.parseEther("1") });
-    let post = await miocore.getAllUserMioPosts();
-    let postFilter = post[0].filter((item) => item !== "");
-    expect(postFilter[1]).to.equal("post");
-    expect(postFilter[2]).to.equal("https://example.com/image.jpg");
+    let postFromID = await miocore.getPost(1);
+    expect(postFromID[0]).to.equal("post1");
+    expect(postFromID[1]).to.equal("https://blah.com/image1.jpg");
+
+    console.log(`Post Content: ${postFromID[0]} Post Image: ${postFromID[1]}`);
   });
 
-  it("should be able to mint a token to user ", async () => {
+  it("should be able to add a post and retrieve all post data for user", async () => {
+    //Initialize addMioPost data
+    let postContent = "post2";
+    let postImage = "https://blah.com/image2.jpg";
+    await miocore
+      .connect(user1)
+      .addPost(postContent, postImage, { value: ethers.utils.parseEther("1") });
+    let allUserPost = await miocore.getAllUserMioPosts();
+    let postFilter = allUserPost[0].filter((item) => item !== "");
+    expect(postFilter[1]).to.equal("post2");
+    expect(postFilter[2]).to.equal("https://blah.com/image2.jpg");
+
+    console.log(`Post Content: ${postFilter[1]} Post Image: ${postFilter[2]}`);
+  });
+
+  it("should be able to create a user and retrieve user data from user address", async () => {
     //Initialize user data
-    let username = "User1";
+    let username = "User2";
     let bio = "This is my bio";
-    let profilePic = "https://example.com/image.jpg";
-    let profileBanner = "https://example.com/image2.jpg";
+    let profilePic = "https://blah.com/pp.jpg";
+    let profileBanner = "https://blah.com/pb.jpg";
 
     await miocore
       .connect(user1)
       .createUser(username, bio, profilePic, profileBanner, {
         value: ethers.utils.parseEther("1"),
       });
-    const user = await miocore.users(await miocore.signer.getAddress());
-    expect(user.username).to.equal("User1");
-    expect(user.bio).to.equal("This is my bio");
-    expect(user.profilePic).to.equal("https://example.com/image.jpg");
-    expect(user.profileBanner).to.equal("https://example.com/image2.jpg");
-    expect(user.userNFTID.toNumber()).to.equal(0);
+
+    const user = await miocore.getUser(await miocore.signer.getAddress());
+    expect(user[0]).to.equal("User2");
+    expect(user[1]).to.equal("This is my bio");
+    expect(user[2]).to.equal("https://blah.com/pp.jpg");
+    expect(user[3]).to.equal("https://blah.com/pb.jpg");
+    console.log(
+      `Username: ${user[0]} Bio: ${user[1]} Profile Pic: ${user[2]} Profile Banner: ${user[3]}`
+    );
   });
 });
