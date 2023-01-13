@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
-import {mioNFT} from "./interfaces/mioNFT.sol";
+import {MioNFTInterface} from "./interfaces/MioNFTInterface.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 
 
@@ -8,7 +8,10 @@ import {Owned} from "solmate/src/auth/Owned.sol";
 contract MIOCore is Owned(msg.sender){
 
     //--------------------------STATE VARIABLES-------------------------------------
-    mioNFT mioNFT = mioNFT(0x5FbDB2315678afecb367f032d93F642f64180aa3);
+
+    address public mioNFTAddress;
+    // MioNFTInterface instance
+    MioNFTInterface mioNFT = MioNFTInterface(mioNFTAddress);
     // mioPost unique id
     uint256 public mioCountID; 
     // mapping of user address to user nft ID
