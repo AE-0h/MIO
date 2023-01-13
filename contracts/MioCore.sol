@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
-import {MioTokenizedPostInterface} from "./interfaces/MioTokenizedPostInterface.sol";
+import {mioNFT} from "./interfaces/mioNFT.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 
 
@@ -8,7 +8,7 @@ import {Owned} from "solmate/src/auth/Owned.sol";
 contract MIOCore is Owned(msg.sender){
 
     //--------------------------STATE VARIABLES-------------------------------------
-    MioTokenizedPostInterface mioTokenizedPost = MioTokenizedPostInterface(0x5FbDB2315678afecb367f032d93F642f64180aa3);
+    mioNFT mioNFT = mioNFT(0x5FbDB2315678afecb367f032d93F642f64180aa3);
     // mioPost unique id
     uint256 public mioCountID; 
     // mapping of user address to user nft ID
@@ -87,24 +87,24 @@ contract MIOCore is Owned(msg.sender){
 
     function createNFT() public payable {
         require(msg.value == (1 ether), "You must pay 1 matic to become a user");
-        mioTokenizedPost.mintNFT(msg.sender);
+        mioNFT.mintNFT(msg.sender);
         // pay out "owner" or deployer of contract for user creation gas fee
         payable(owner).transfer(msg.value);
     }
 
     // transfer an NFT to another user
     function transferNFT(address _to, uint256 _postNFTID) public {
-        mioTokenizedPost.transferNFT(_to, _postNFTID);
+        mioNFT.transferNFT(_to, _postNFTID);
     }
 
     // burn an NFT
     function burnNFT(uint256 _postNFTID) public {
-        mioTokenizedPost.burnNFT(_postNFTID);
+        mioNFT.burnNFT(_postNFTID);
     }
 
     // get the NFT ID
     function getNFTID() public view returns (uint256) {
-        return mioTokenizedPost.getNFTID();
+        return mioNFT.getNFTID();
     }
 
 

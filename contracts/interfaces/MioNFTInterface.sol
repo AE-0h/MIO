@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-interface MioTokenizedPostInterface {
+interface MioNFTInterface {
     function tokenURI(uint256 _userNFTID) external view returns (string memory);
     function setTokenURI(uint256 _userNFTID, string memory _ipfsHash) external;
     function mintNFT(address _to) external;

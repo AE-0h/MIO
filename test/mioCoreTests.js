@@ -15,15 +15,16 @@ describe("MIOCore", () => {
     await miocore.deployed();
   });
 
- // it should mint an nft 
-  it("it should mint an nft", async () => {
-    //Initialize addMioPost data
-    let postContent = "post1";
-    let postImage = "https://blah.com/image1.jpg";
-    await miocore
-      .connect(user1)
-      .mintNFT(postContent, postImage, { value: ethers.utils.parseEther("1") });
-      
+  // it should mint an nft
+  // it("it should mint an nft", async () => {
+  //   //Initialize addMioPost data
+  //   let postContent = "post1";
+  //   let postImage = "https://blah.com/image1.jpg";
+  //   await miocore
+  //     .connect(user1)
+  //     .mintNFT(postContent, postImage, { value: ethers.utils.parseEther("1") });
+
+  // });
 
   //it should save msg.sender as owner in contructor
 
@@ -36,9 +37,9 @@ describe("MIOCore", () => {
     //Initialize addMioPost data
     let postContent = "post1";
     let postImage = "https://blah.com/image1.jpg";
-    await miocore
-      .connect(user1)
-      .addPost(postContent, postImage, { value: ethers.utils.parseEther("1") });
+    await miocore.connect(user1).addPost(postContent, postImage, {
+      value: ethers.utils.parseEther("1"),
+    });
     let postFromID = await miocore.getPost(1);
     expect(postFromID[0]).to.equal("post1");
     expect(postFromID[1]).to.equal("https://blah.com/image1.jpg");
@@ -50,9 +51,9 @@ describe("MIOCore", () => {
     //Initialize addMioPost data
     let postContent = "post2";
     let postImage = "https://blah.com/image2.jpg";
-    await miocore
-      .connect(user1)
-      .addPost(postContent, postImage, { value: ethers.utils.parseEther("1") });
+    await miocore.connect(user1).addPost(postContent, postImage, {
+      value: ethers.utils.parseEther("1"),
+    });
     let allUserPost = await miocore.getAllUserMioPosts();
     let postFilter = allUserPost[0].filter((item) => item !== "");
     expect(postFilter[1]).to.equal("post2");

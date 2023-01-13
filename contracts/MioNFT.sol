@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 import {ERC721} from "solmate/src/tokens/ERC721.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 
-contract MioTokenizedPost is ERC721, Owned(msg.sender) {
+contract MioNFT is ERC721, Owned(msg.sender) {
 
     //--------------------------Events-------------------------------------
 
