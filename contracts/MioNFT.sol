@@ -14,45 +14,54 @@ contract MioTokenizedPost is ERC721, Owned(msg.sender) {
     // - user nft ID
     // 
     event postMinted(
-        address indexed _userAddress,
-        uint indexed _userNFTID
+        uint indexed _userNFTID,
+        address author
     );
 
     //--------------------------STATE VARIABLES-------------------------------------
 
     // userNft unique id
-    uint256 public postNFTID;
-    //mapping of user address to posts
-    mapping(address => uint256[]) public userAddressToPostID;
+    uint256 public nftID;
+    // mapping nftID to description
+    mapping(uint256 => string) public ipfsHashFromNFTID;
 
     //--------------------------CONSTRUCTOR-------------------------------------
 
 
     constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {
-        postNFTID = 0;
+        nftID = 0;
         owner = msg.sender;
+
     }
     //--------------------------FUNCTIONS-------------------------------------
     //external function that safemints a new NFT
 
-    function tokenURI(uint256 _userNFTID) public pure virtual override returns (string memory) {
+    function setTokenURI(uint256 _userNFTID, string memory _ipfsHash) external {
+        ipfsHashFromNFTID[_userNFTID] = _ipfsHash;
+    }
+    function tokenURI(uint256 _userNFTID) public override view returns (string memory) {
+        string memory baseURI = "https://gateway.pinata.cloud/ipfs/";
+        string memory _tokenURI = string(abi.encodePacked(baseURI, ipfsHashFromNFTID[_userNFTID] ));
+        return _tokenURI;
+
     }
 
     function mintNFT(address _to) external {
-        emit postMinted(_to, postNFTID++);
-        _safeMint(_to, postNFTID);
+        emit postMinted(nftID++, _to);
+        _safeMint(_to, nftID );
     }
 
-    function burnPostNFT(uint256 _postNFTID) external {
+    function burnNFT(uint256 _postNFTID) external {
         _burn(_postNFTID);
     }
 
-    function transferPostNFT(address _to, uint256 _postNFTID) external {
+    function transferNFT(address _to, uint256 _postNFTID) external {
         safeTransferFrom(msg.sender, _to, _postNFTID);
         emit Transfer(msg.sender, _to, _postNFTID);
     }
 
-    function getPostNFTID() public view returns (uint256) {
-        return postNFTID;
+    function getNFTID() public view returns (uint256) {
+        return nftID;
     }
+
 }

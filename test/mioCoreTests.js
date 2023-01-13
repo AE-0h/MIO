@@ -11,18 +11,19 @@ describe("MIOCore", () => {
     // Create a new user
     user1 = await ethers.getSigner();
     // Deploy MIOCore contract
-    miocore = await MIOCore.deploy("MIOUserToken", "MUT");
+    miocore = await MIOCore.deploy();
     await miocore.deployed();
   });
 
-  it("should have the correct name and symbol", async () => {
-    expect(await miocore.name()).to.equal("MIOUserToken");
-    expect(await miocore.symbol()).to.equal("MUT");
-
-    console.log(
-      `MioUserToken{ Name: ${await miocore.name()} Symbol: ${await miocore.symbol()}}`
-    );
-  });
+ // it should mint an nft 
+  it("it should mint an nft", async () => {
+    //Initialize addMioPost data
+    let postContent = "post1";
+    let postImage = "https://blah.com/image1.jpg";
+    await miocore
+      .connect(user1)
+      .mintNFT(postContent, postImage, { value: ethers.utils.parseEther("1") });
+      
 
   //it should save msg.sender as owner in contructor
 

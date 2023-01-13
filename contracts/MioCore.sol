@@ -1,22 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
-
-import {ERC721} from "solmate/src/tokens/ERC721.sol";
 import {MioTokenizedPostInterface} from "./interfaces/MioTokenizedPostInterface.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 
 
-contract MIOCore is ERC721, Owned(msg.sender) {
+
+contract MIOCore is Owned(msg.sender){
 
     //--------------------------STATE VARIABLES-------------------------------------
+    MioTokenizedPostInterface mioTokenizedPost = MioTokenizedPostInterface(0x5FbDB2315678afecb367f032d93F642f64180aa3);
     // mioPost unique id
     uint256 public mioCountID; 
-    // userNft unique id
-    uint256 public userNFTID = 0;
     // mapping of user address to user nft ID
-    mapping (address => bool) public minted;
-    // Mapping of user address to user nft ID
-    mapping(address => uint256) public userAddressToNFTID;
+    mapping (address => bool) public userExists;
      // Mapping of user address to user struct
     mapping(address => user) public users;
     // Mapping of mioPost ID to mioPost struct 
@@ -63,7 +59,7 @@ contract MIOCore is ERC721, Owned(msg.sender) {
  //--------------------------CONSTRUCTOR-------------------------------------
     // Establish the owner of the contract as the deployer
     // Set mioPost counter at 0
-    constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {
+    constructor()  {
         mioCountID = 0;
         
     }
@@ -74,7 +70,6 @@ contract MIOCore is ERC721, Owned(msg.sender) {
         uint256 id;
         string content;
         string media;
-        uint256 timestamp;
         address author;
     }
     // Define a struct 'user' with the following fields: to be used for user structure
@@ -83,14 +78,37 @@ contract MIOCore is ERC721, Owned(msg.sender) {
         string bio;
         string profilePic;
         string profileBanner;
-        uint256 userNFTID;
     }
 
 
  //--------------------------FUNCTIONS-------------------------------------
 
- function tokenURI(uint256 _userNFTID) public pure virtual override returns (string memory) {
- }
+ /// create an art or music NFT
+
+    function createNFT() public payable {
+        require(msg.value == (1 ether), "You must pay 1 matic to become a user");
+        mioTokenizedPost.mintNFT(msg.sender);
+        // pay out "owner" or deployer of contract for user creation gas fee
+        payable(owner).transfer(msg.value);
+    }
+
+    // transfer an NFT to another user
+    function transferNFT(address _to, uint256 _postNFTID) public {
+        mioTokenizedPost.transferNFT(_to, _postNFTID);
+    }
+
+    // burn an NFT
+    function burnNFT(uint256 _postNFTID) public {
+        mioTokenizedPost.burnNFT(_postNFTID);
+    }
+
+    // get the NFT ID
+    function getNFTID() public view returns (uint256) {
+        return mioTokenizedPost.getNFTID();
+    }
+
+
+
 
  // Create a new mioPost 
     function addPost(string memory _content, string memory _media) public payable {
@@ -103,33 +121,31 @@ contract MIOCore is ERC721, Owned(msg.sender) {
       // Emit the event and increment mioCount
         emit postCreated(mioCountID++, _content, _media, msg.sender, block.timestamp);
         // Create the post
-        mioPosts[mioCountID] =  mioPost(mioCountID, _content, _media,block.timestamp, msg.sender);
+        mioPosts[mioCountID] =  mioPost(mioCountID, _content, _media, msg.sender);
         // pay out "owner" or deployer of contract for mio post gas fee
         payable(owner).transfer(msg.value);
     }
 
+
  // Update user
     function updateUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public {
         // Update the user
-        users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner, userNFTID);
+        users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner);
     }
 
      function createUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public payable returns (uint256 _userNFTID){
         //require that the user does not exist
-        require(!minted[msg.sender], "User already exists");
+        require(!userExists[msg.sender], "User already exists");
         //require that .01 matic is sent
         require(msg.value == (1 ether), "You must pay 1 matic to become a user");
-
-        users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner, userNFTID);
+        //create the user
+        users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner);
         // Increment the userNFTID and emit event
-        emit userCreated(msg.sender, userNFTID++, _username, _bio, _profilePic, _profileBanner);
-        //mint user Nft with id
-        _safeMint(msg.sender, userNFTID);
+        emit userCreated(msg.sender, _username, _bio, _profilePic, _profileBanner);
         //set minted to true
-        minted[msg.sender] = true;
+        userExists[msg.sender] = true;
         // pay out "owner" or deployer of contract for user creation gas fee
         payable(owner).transfer(msg.value);
-        return userNFTID;
     }
 
       
