@@ -12,9 +12,9 @@ contract MioNFTFactory {
         string calldata symbol
     ) external returns (MioNFT cardAddress) {
 
-        MioNFT newCards = new MioNFT(name, symbol);
+        MioNFT userMint = new MioNFT(name, symbol);
 
-        tokenAddress.push(address(newCards));
-        return newCards;
+        tokenAddress.push(address(userMint));
+        return userMint;
     }
 }
