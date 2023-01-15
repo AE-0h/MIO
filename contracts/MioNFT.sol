@@ -36,7 +36,7 @@ contract MioNFT is ERC721, Owned(msg.sender) {
     //--------------------------FUNCTIONS-------------------------------------
     //external function that safemints a new NFT
 
-    function setTokenURI(uint256 _userNFTID, string memory _ipfsHash) external {
+    function setTokenURI(uint256 _userNFTID, string calldata _ipfsHash) external {
         ipfsHashFromNFTID[_userNFTID] = _ipfsHash;
     }
     function tokenURI(uint256 _userNFTID) public override view returns (string memory) {

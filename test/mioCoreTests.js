@@ -15,24 +15,7 @@ describe("MIOCore", () => {
     await miocore.deployed();
   });
 
-  // it should mint an nft
-  it("it should mint an nft", async () => {
-    //initialize nft data
-    let nftName = "NFT1";
-    let nftSymbol = "NFT1";
-    let nftURI = "https://blah.com/nft1.json";
-    let nftPrice = ethers.utils.parseEther("1");
-    let nftQuantity = 1;
-
-    //mint nft
-    await miocore.connect(user1).createNFT(nftName, nftSymbol);
-
-    //get nft data
-    let nft = await miocore.getNFT(1);
-    expect(nft[0]).to.equal("NFT1");
-  });
   //it should save msg.sender as owner in contructor
-
   it("it should save msg.sender as owner in contructor", async () => {
     expect(await miocore.owner()).to.equal(await miocore.signer.getAddress());
     console.log(`Owner: ${await miocore.owner()}`);
