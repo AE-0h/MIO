@@ -5,16 +5,17 @@ import {MioNFT} from "./MioNFT.sol";
 
 
 contract MioNFTFactory {
-   address[] tokenAddress;
+    //--------------------------Events-------------------------------------
+   event MioNFTDeployed(address deployedAddress, string name, string symbol);
  
-    function deploy721Contract(
+    //--------------------------FUNCTIONS-----------------------------------
+    function deployMioNFT(
         string calldata name,
         string calldata symbol
-    ) external returns (MioNFT cardAddress) {
+    ) external returns (MioNFT deployedAddress) {
 
-        MioNFT userMint = new MioNFT(name, symbol);
-
-        tokenAddress.push(address(userMint));
-        return userMint;
+        deployedAddress = new MioNFT(name, symbol);
+        emit MioNFTDeployed(address(deployedAddress), name, symbol);
+        return deployedAddress;
     }
 }

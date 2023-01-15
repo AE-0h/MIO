@@ -25,9 +25,7 @@ describe("MIOCore", () => {
     let nftQuantity = 1;
 
     //mint nft
-    await miocore
-      .connect(user1)
-      .mintNFT(nftName, nftSymbol, nftURI, nftPrice, nftQuantity);
+    await miocore.connect(user1).createNFT(nftName, nftSymbol);
 
     //get nft data
     let nft = await miocore.getNFT(1);
