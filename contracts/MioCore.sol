@@ -2,10 +2,11 @@
 pragma solidity ^0.8.9;
 import {MioNFTInterface} from "./interfaces/MioNFTInterface.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
+import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
 
 
 
-contract MIOCore is Owned(msg.sender){
+contract MIOCore is Owned(msg.sender), ReentrancyGuard{
 
     //--------------------------STATE VARIABLES-------------------------------------
 
@@ -64,6 +65,8 @@ contract MIOCore is Owned(msg.sender){
     // Set mioPost counter at 0
     constructor()  {
         mioCountID = 0;
+        owner  = payable(msg.sender);
+
         
     }
 
@@ -88,8 +91,17 @@ contract MIOCore is Owned(msg.sender){
 
  /// create an art or music NFT
 
-    function createNFT() public payable {
-        require(msg.value == (1 ether), "You must pay 1 matic to become a user");
+    function setMIONFTAddress(address _mioNFTAddress) public {
+        mioNFTAddress = _mioNFTAddress;
+        mioNFT = MioNFTInterface(mioNFTAddress);
+    }
+
+    function getMIONFTAddress() public view returns (address) {
+        return mioNFTAddress;
+    }
+    
+    function createNFT() public payable nonReentrant   {
+        require(msg.value == (1 ether), "You must pay 1 matic to mint an NFT");
         mioNFT.mintNFT(msg.sender);
         // pay out "owner" or deployer of contract for user creation gas fee
         payable(owner).transfer(msg.value);
@@ -114,7 +126,7 @@ contract MIOCore is Owned(msg.sender){
 
 
  // Create a new mioPost 
-    function addPost(string memory _content, string memory _media) public payable {
+    function addPost(string memory _content, string memory _media) public payable nonReentrant {
         //require that the content is not empty
         require(bytes(_content).length > 0, "Content is required");
         //require that the content is not too long
@@ -136,7 +148,7 @@ contract MIOCore is Owned(msg.sender){
         users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner);
     }
 
-     function createUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public payable returns (uint256 _userNFTID){
+     function createUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public payable nonReentrant{
         //require that the user does not exist
         require(!userExists[msg.sender], "User already exists");
         //require that .01 matic is sent
@@ -197,24 +209,17 @@ contract MIOCore is Owned(msg.sender){
     function  getAllMioPosts() public view returns(mioPost[] memory){
         // Create a temporary array to store the mioPosts
         mioPost[] memory result = new mioPost[](mioCountID);
-        // Create a counter to keep track of the index
+        //Create a counter to keep track of the index
         uint256  counter = 0;
         // Loop through all the mioPosts
         for (uint256 i = 1; i <= mioCountID; i++) {
-            // Check if the mioPost is not deleted
                 // Add the mioPost to the array
                 result[counter] = mioPosts[i];
                 // Increment the counter
                 counter++;
         }
-        // Create a new array with the correct size
-        mioPost[] memory _mioPosts = new mioPost[](counter);
-        // Copy the mioPosts to the new array
-        for (uint256 i = 0; i < counter; i++) {
-            _mioPosts[i] = result[i];
-        }
-        // Return the array
-        return _mioPosts;
+      
+        return result;
     } 
        
 // Get user

@@ -23,6 +23,7 @@
     "wagmi": "^0.9.6"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^2.0.0"
+    "@nomicfoundation/hardhat-chai-matchers": "^1.0.5",
+    "@nomicfoundation/hardhat-toolbox": "^1.0.2"
   }
 }
