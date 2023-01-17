@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@chainlink/contracts": "^0.6.0",
     "@next/font": "13.1.1",
     "@rainbow-me/rainbowkit": "^0.8.1",
     "dotenv": "^16.0.3",

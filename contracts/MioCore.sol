@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 import {MioNFTInterface} from "./interfaces/MioNFTInterface.sol";
+import {MioNFTFactoryInterface} from "./interfaces/MioNFTFactoryInterface.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
 
@@ -9,12 +10,11 @@ import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
 contract MIOCore is Owned(msg.sender), ReentrancyGuard{
 
     //--------------------------STATE VARIABLES-------------------------------------
-
-    address public mioNFTAddress;
-    // MioNFTInterface instance
-    MioNFTInterface mioNFT = MioNFTInterface(mioNFTAddress);
+    // address of the MioNFTFactory contract
+    address immutable MIO_NFT_FACTORY = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
+    address mioNFTAddress;
     // mioPost unique id
-    uint256 public mioCountID; 
+    uint256 private mioCountID; 
     // mapping of user address to user nft ID
     mapping (address => bool) public userExists;
      // Mapping of user address to user struct
@@ -89,37 +89,28 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
 
  //--------------------------FUNCTIONS-------------------------------------
 
- /// create an art or music NFT
 
-    function setMIONFTAddress(address _mioNFTAddress) public {
-        mioNFTAddress = _mioNFTAddress;
-        mioNFT = MioNFTInterface(mioNFTAddress);
-    }
-
-    function getMIONFTAddress() public view returns (address) {
-        return mioNFTAddress;
-    }
-    
-    function createNFT() public payable nonReentrant   {
+    function createNFT(address _to, string memory _name, string memory _symbol) public payable nonReentrant   {
         require(msg.value == (1 ether), "You must pay 1 matic to mint an NFT");
-        mioNFT.mintNFT(msg.sender);
+        mioNFTAddress = MioNFTFactoryInterface(MIO_NFT_FACTORY).deployMioNFT(_name, _symbol);
+        MioNFTInterface(mioNFTAddress).mintNFT(_to);
         // pay out "owner" or deployer of contract for user creation gas fee
         payable(owner).transfer(msg.value);
     }
 
     // transfer an NFT to another user
     function transferNFT(address _to, uint256 _postNFTID) public {
-        mioNFT.transferNFT(_to, _postNFTID);
+        MioNFTInterface(mioNFTAddress).transferNFT(_to, _postNFTID);
     }
 
     // burn an NFT
     function burnNFT(uint256 _postNFTID) public {
-        mioNFT.burnNFT(_postNFTID);
+        MioNFTInterface(mioNFTAddress).burnNFT(_postNFTID);
     }
 
     // get the NFT ID
     function getNFTID() public view returns (uint256) {
-        return mioNFT.getNFTID();
+        MioNFTInterface(mioNFTAddress).getNFTID();
     }
 
 
@@ -194,14 +185,9 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
                     counter++;
                 }
         }
-        // Create a new array with the correct size
-        mioPost[] memory _mioPosts = new mioPost[](counter);
-        // Copy the mioPosts to the new array
-        for (uint256 i = 0; i < counter; i++) {
-            _mioPosts[i] = result[i];
-        }
+      
         // Return the array
-        return _mioPosts;
+        return result;
     }
 
 
