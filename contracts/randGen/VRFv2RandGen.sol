@@ -35,13 +35,14 @@ contract VRFv2RandGen is RandGen, VRFConsumerBaseV2, ConfirmedOwner(msg.sender) 
         vrfCoordinator = VRFCoordinatorV2Interface(_vrfCoordinator);
         keyHash = _keyHash;
         fee = _fee;
+        LINK = _link;
     }
 
     // Requests randomness from a user-provided seed  
     //todo needs correct fuction call
     function requestRandomBytes() external override returns (bytes32 requestId) {
         require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK - fill contract with faucet");
-        requestId = requestRandomness(keyHash, fee);
+        // requestId = requestRandomness(keyHash, fee);
         requesters[requestId] = msg.sender;
         requestBlockNumbers[requestId] = block.number;
         emit RandomBytesRequested(requestId);
