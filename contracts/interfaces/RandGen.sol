@@ -10,5 +10,5 @@ interface RandGen{
    //---------------------------Functions-------------------------------
  
     // Requests randomness from a user-provided seed
-    function requestRandomBytes() external returns (bytes32 requestId);
+    function requestRandomBytes() external returns (uint256 requestId);
 }
