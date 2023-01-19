@@ -55,7 +55,6 @@ contract VRFv2RandGen is RandGen, VRFConsumerBase{
 
     ///VRF response by calling back into the MIOCore contract.
     function fulfillRandomness(bytes32 requestId, uint256 randomness) internal override {
-
         emit RandomBytesReturned(requestId, randomness);
         MIO_CORE.acceptRandomSeed(requestId, randomness);
     }

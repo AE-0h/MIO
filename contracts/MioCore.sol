@@ -64,7 +64,8 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         string username, 
         string bio, 
         string profilePic, 
-        string profileBanner
+        string profileBanner,
+        uint256 userID
     );
 
     // event fired when a userID is created
@@ -99,9 +100,15 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
 
 
  //--------------------------FUNCTIONS-------------------------------------
+    function requestRandomSeed() external returns (bytes32) {
+        // Request a random seed from the randomness provider.
+        return randGen.requestRandomBytes();
+
+    }
      function acceptRandomSeed(bytes32, uint256 randomness) external returns (uint256 _userID) {
         // The caller must be the randomness provider, revert in the case it's not.
         if (msg.sender != address( randGen)) revert NotRandGen();
+        // Emit the event and return the randomness.
         emit userIDGenerated(_userID = randomness);
         lastUserID = _userID;
     }
@@ -163,11 +170,12 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         require(!userExists[msg.sender], "User already exists");
         //require that .01 matic is sent
         require(msg.value == (1 ether), "You must pay 1 matic to become a user");
+
         //generate a random userID
         //create the user
         users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner, users[msg.sender].userID = lastUserID);
         // Increment the userNFTID and emit event
-        emit userCreated(msg.sender, _username, _bio, _profilePic, _profileBanner);
+        emit userCreated(msg.sender, _username, _bio, _profilePic, _profileBanner, users[msg.sender].userID);
         //set minted to true
         userExists[msg.sender] = true;
         // pay out "owner" or deployer of contract for user creation gas fee
