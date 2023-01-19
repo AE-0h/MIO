@@ -5,7 +5,7 @@ import {MIOCore} from "../MioCore.sol";
 
 import {RandGen} from "../interfaces/RandGen.sol";
 
-import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
+import {VRFConsumerBase} from "../libs/chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
 
 
 contract VRFv2RandGen is RandGen, VRFConsumerBase{
