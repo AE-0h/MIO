@@ -40,7 +40,7 @@ contract MioNFT is ERC721, Owned(msg.sender) {
         ipfsHashFromNFTID[_nftID] = _ipfsHash;
     }
     function tokenURI(uint256 _nftID) public override view returns (string memory) {
-        string memory baseURI = "https://gateway.pinata.cloud/ipfs/";
+        string memory baseURI = "https://ipfs.io/ipfs/";
         string memory _tokenURI = string(abi.encodePacked(baseURI, ipfsHashFromNFTID[_nftID] ));
         return _tokenURI;
 

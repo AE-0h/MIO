@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 import {MioNFTInterface} from "./interfaces/MioNFTInterface.sol";
-import {MioNFTFactoryInterface} from "./interfaces/MioNFTFactoryInterface.sol";
+
+import {MioNFT} from "./MioNFT.sol";
+
+import {CREATE3} from "solmate/src/utils/CREATE3.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
 import {RandGen} from "./interfaces/RandGen.sol";
@@ -71,8 +74,11 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     // event fired when a userID is created
     // contains: -
     // - UserID aka randomness
+    event userIDGenerated(
+        uint256 UserId
+    );
 
-    event userIDGenerated(uint256 UserId);
+
  //--------------------------CONSTRUCTOR-------------------------------------
     // Establish the owner of the contract as the deployer
     // Set mioPost counter at 0
@@ -112,10 +118,13 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         emit userIDGenerated(_userID = randomness);
         lastUserID = _userID;
     }
-
+    //todo finish implementing Create3
     function createNFTContract( string memory _name, string memory _symbol) public payable nonReentrant   {
         require(msg.value == (1 ether), "You must pay 1 matic to mint an NFT");
-        mioNFTAddress = MioNFTFactoryInterface(MIO_NFT_FACTORY).deployMioNFT(_name, _symbol);
+        // create a new NFT contract
+        mioNFTAddress = CREATE3.deploy(bytes32(users[msg.sender].userID), type(MioNFT).creationCode, 0);
+        // set the NFT contract owner to the user
+
         payable(owner).transfer(msg.value);
     }
 
