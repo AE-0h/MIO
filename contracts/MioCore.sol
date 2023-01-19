@@ -17,9 +17,11 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     //--------------------------Immutables-------------------------------------
 
      address public immutable MIO_NFT_FACTORY = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
-     RandGen public immutable RAND_GEN;
+     RandGen public randGen;
 
     //--------------------------STATE VARIABLES-------------------------------------
+    //last UserID Generated
+    uint256 public lastUserID;
     // address of the MioNFTFactory contract
     address mioNFTAddress;
     // mioPost unique id
@@ -65,23 +67,17 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         string profileBanner
     );
 
-    // event fired when a mioPost is liked, true means mioPost has been liked
-    // contains:
-    // - the address of the liker
-    // - the mioPost ID
+    // event fired when a userID is created
+    // contains: -
+    // - UserID aka randomness
 
-    event RandomnessFulfilled(uint256 randomness);
+    event userIDGenerated(uint256 UserId);
  //--------------------------CONSTRUCTOR-------------------------------------
     // Establish the owner of the contract as the deployer
     // Set mioPost counter at 0
-    constructor(
-        RandGen _randGen
-    )  {
+    constructor()  {
         mioCountID = 0;
-        owner  = payable(msg.sender);
-        RAND_GEN = _randGen;
-
-        
+        owner  = payable(msg.sender);  
     }
 
  //--------------------------STRUCTS-------------------------------------
@@ -98,28 +94,27 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         string bio;
         string profilePic;
         string profileBanner;
+        uint256 userID;
     }
 
 
  //--------------------------FUNCTIONS-------------------------------------
-     function acceptRandomSeed(bytes32, uint256 randomness) external {
+     function acceptRandomSeed(bytes32, uint256 randomness) external returns (uint256 _userID) {
         // The caller must be the randomness provider, revert in the case it's not.
-        if (msg.sender != address(RAND_GEN)) revert NotRandGen();
-
-        // // The unchecked cast to uint64 is equivalent to moduloing the randomness by 2**64.
-        // gobblerRevealsData.randomSeed = uint64(randomness); // 64 bits of randomness is plenty.
-
-        // gobblerRevealsData.waitingForSeed = false; // We have the seed now, open up reveals.
-
-        emit RandomnessFulfilled(randomness);
+        if (msg.sender != address( randGen)) revert NotRandGen();
+        emit userIDGenerated(_userID = randomness);
+        lastUserID = _userID;
     }
 
-    function createNFT(address _to, string memory _name, string memory _symbol) public payable nonReentrant   {
+    function createNFTContract( string memory _name, string memory _symbol) public payable nonReentrant   {
         require(msg.value == (1 ether), "You must pay 1 matic to mint an NFT");
         mioNFTAddress = MioNFTFactoryInterface(MIO_NFT_FACTORY).deployMioNFT(_name, _symbol);
-        MioNFTInterface(mioNFTAddress).mintNFT(_to);
-        // pay out "owner" or deployer of contract for user creation gas fee
         payable(owner).transfer(msg.value);
+    }
+
+    // mint an NFT from specific user contract
+    function mintNFT(address _to) public {
+        MioNFTInterface(mioNFTAddress).mintNFT(_to);
     }
 
     // transfer an NFT to another user
@@ -160,7 +155,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
  // Update user
     function updateUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public {
         // Update the user
-        users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner);
+        users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner, users[msg.sender].userID);
     }
 
      function createUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public payable nonReentrant{
@@ -168,8 +163,9 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         require(!userExists[msg.sender], "User already exists");
         //require that .01 matic is sent
         require(msg.value == (1 ether), "You must pay 1 matic to become a user");
+        //generate a random userID
         //create the user
-        users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner);
+        users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner, users[msg.sender].userID = lastUserID);
         // Increment the userNFTID and emit event
         emit userCreated(msg.sender, _username, _bio, _profilePic, _profileBanner);
         //set minted to true
@@ -233,10 +229,10 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     } 
        
 // Get user
-    function getUser(address _userAddress) public view returns (string memory , string memory, string memory, string memory) {
+    function getUser(address _userAddress) public view returns (string memory , string memory, string memory, string memory, uint256) {
         // Fetch the user
         user memory _user = users[_userAddress];
         // Return the user
-        return (_user.username, _user.bio, _user.profilePic, _user.profileBanner);
+        return (_user.username, _user.bio, _user.profilePic, _user.profileBanner, _user.userID);
     }
 }
