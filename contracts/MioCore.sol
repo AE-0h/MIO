@@ -4,14 +4,23 @@ import {MioNFTInterface} from "./interfaces/MioNFTInterface.sol";
 import {MioNFTFactoryInterface} from "./interfaces/MioNFTFactoryInterface.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
+import {RandGen} from "./interfaces/RandGen.sol";
 
 
 
 contract MIOCore is Owned(msg.sender), ReentrancyGuard{
 
+    //--------------------------Errors-------------------------------------
+    error NotMioNFTFactory();
+    error NotRandGen();
+
+    //--------------------------Immutables-------------------------------------
+
+     address public immutable MIO_NFT_FACTORY = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
+     RandGen public immutable RAND_GEN;
+
     //--------------------------STATE VARIABLES-------------------------------------
     // address of the MioNFTFactory contract
-    address immutable MIO_NFT_FACTORY = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
     address mioNFTAddress;
     // mioPost unique id
     uint256 private mioCountID; 
@@ -60,12 +69,17 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     // contains:
     // - the address of the liker
     // - the mioPost ID
+
+    event RandomnessFulfilled(uint256 randomness);
  //--------------------------CONSTRUCTOR-------------------------------------
     // Establish the owner of the contract as the deployer
     // Set mioPost counter at 0
-    constructor()  {
+    constructor(
+        RandGen _randGen
+    )  {
         mioCountID = 0;
         owner  = payable(msg.sender);
+        RAND_GEN = _randGen;
 
         
     }
@@ -88,7 +102,17 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
 
 
  //--------------------------FUNCTIONS-------------------------------------
+     function acceptRandomSeed(bytes32, uint256 randomness) external {
+        // The caller must be the randomness provider, revert in the case it's not.
+        if (msg.sender != address(RAND_GEN)) revert NotRandGen();
 
+        // // The unchecked cast to uint64 is equivalent to moduloing the randomness by 2**64.
+        // gobblerRevealsData.randomSeed = uint64(randomness); // 64 bits of randomness is plenty.
+
+        // gobblerRevealsData.waitingForSeed = false; // We have the seed now, open up reveals.
+
+        emit RandomnessFulfilled(randomness);
+    }
 
     function createNFT(address _to, string memory _name, string memory _symbol) public payable nonReentrant   {
         require(msg.value == (1 ether), "You must pay 1 matic to mint an NFT");
