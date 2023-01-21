@@ -1,0 +1,812 @@
+{
+  "_format": "ethers-rs-sol-cache-3",
+  "paths": {
+    "artifacts": "out",
+    "build_infos": "out/build-info",
+    "sources": "contracts",
+    "tests": "test",
+    "scripts": "script",
+    "libraries": [
+      "lib",
+      "node_modules"
+    ]
+  },
+  "files": {
+    "contracts/.deps/npm/solmate/src/auth/Owned.sol": {
+      "lastModificationDate": 1674114569520,
+      "contentHash": "cbb684ea20bea675b7d97397da4bfd95",
+      "sourceName": "contracts/.deps/npm/solmate/src/auth/Owned.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {
+        "Owned": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "auth/Owned.sol/Owned.json"
+        }
+      }
+    },
+    "contracts/.deps/npm/solmate/src/tokens/ERC721.sol": {
+      "lastModificationDate": 1674114569566,
+      "contentHash": "ecc06cefc5404b9e1adbc2e459d5757e",
+      "sourceName": "contracts/.deps/npm/solmate/src/tokens/ERC721.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {
+        "ERC721": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "tokens/ERC721.sol/ERC721.json"
+        },
+        "ERC721TokenReceiver": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "tokens/ERC721.sol/ERC721TokenReceiver.json"
+        }
+      }
+    },
+    "contracts/.deps/npm/solmate/src/utils/ReentrancyGuard.sol": {
+      "lastModificationDate": 1673823066977,
+      "contentHash": "cf9480663950b4091d14b174c3ec0414",
+      "sourceName": "contracts/.deps/npm/solmate/src/utils/ReentrancyGuard.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {
+        "ReentrancyGuard": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "utils/ReentrancyGuard.sol/ReentrancyGuard.json"
+        }
+      }
+    },
+    "contracts/.deps/remix-tests/remix_accounts.sol": {
+      "lastModificationDate": 1674114281695,
+      "contentHash": "afcf7edb92969396967d5917e47e4fe6",
+      "sourceName": "contracts/.deps/remix-tests/remix_accounts.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.4.22, <0.9.0",
+      "artifacts": {
+        "TestsAccounts": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "remix_accounts.sol/TestsAccounts.json"
+        }
+      }
+    },
+    "contracts/.deps/remix-tests/remix_tests.sol": {
+      "lastModificationDate": 1674114281672,
+      "contentHash": "9939340d91a2f6b42d3593e329eb614e",
+      "sourceName": "contracts/.deps/remix-tests/remix_tests.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.4.22, <0.9.0",
+      "artifacts": {
+        "Assert": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "remix_tests.sol/Assert.json"
+        }
+      }
+    },
+    "contracts/MioCore.sol": {
+      "lastModificationDate": 1674116780010,
+      "contentHash": "39080677ff4b86fc05e7e7b6cd1fd21c",
+      "sourceName": "contracts/MioCore.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "contracts/MioNFT.sol",
+        "contracts/interfaces/MioNFTInterface.sol",
+        "contracts/interfaces/RandGen.sol",
+        "node_modules/solmate/src/auth/Owned.sol",
+        "node_modules/solmate/src/tokens/ERC721.sol",
+        "node_modules/solmate/src/utils/Bytes32AddressLib.sol",
+        "node_modules/solmate/src/utils/CREATE3.sol",
+        "node_modules/solmate/src/utils/ReentrancyGuard.sol"
+      ],
+      "versionRequirement": "^0.8.9",
+      "artifacts": {
+        "MIOCore": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "MioCore.sol/MIOCore.json"
+        }
+      }
+    },
+    "contracts/MioNFT.sol": {
+      "lastModificationDate": 1674116894158,
+      "contentHash": "6ed3c1514aa3b75304a0ebd8ddf7df4f",
+      "sourceName": "contracts/MioNFT.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "node_modules/solmate/src/auth/Owned.sol",
+        "node_modules/solmate/src/tokens/ERC721.sol"
+      ],
+      "versionRequirement": "^0.8.9",
+      "artifacts": {
+        "MioNFT": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "MioNFT.sol/MioNFT.json"
+        }
+      }
+    },
+    "contracts/MioNFTFactory.sol": {
+      "lastModificationDate": 1674164505496,
+      "contentHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "sourceName": "contracts/MioNFTFactory.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": null,
+      "artifacts": {
+        "MioNFTFactory": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "MioNFTFactory.sol/MioNFTFactory.json"
+        }
+      }
+    },
+    "contracts/interfaces/MioNFTInterface.sol": {
+      "lastModificationDate": 1673593116206,
+      "contentHash": "faa15b5597d9dbdd22a8afbf4d37ece1",
+      "sourceName": "contracts/interfaces/MioNFTInterface.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.9",
+      "artifacts": {
+        "MioNFTInterface": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "MioNFTInterface.sol/MioNFTInterface.json"
+        }
+      }
+    },
+    "contracts/interfaces/RandGen.sol": {
+      "lastModificationDate": 1674093626297,
+      "contentHash": "5a86203b02339b546f646926fe84e7ff",
+      "sourceName": "contracts/interfaces/RandGen.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.9",
+      "artifacts": {
+        "RandGen": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "RandGen.sol/RandGen.json"
+        }
+      }
+    },
+    "contracts/randGen/VRFRandGen.sol": {
+      "lastModificationDate": 1674150079933,
+      "contentHash": "4765e38750bdf5d60fce71636e86ebef",
+      "sourceName": "contracts/randGen/VRFRandGen.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "contracts/MioCore.sol",
+        "contracts/MioNFT.sol",
+        "contracts/interfaces/MioNFTInterface.sol",
+        "contracts/interfaces/RandGen.sol",
+        "lib/chainlink/contracts/src/v0.8/VRFConsumerBase.sol",
+        "lib/chainlink/contracts/src/v0.8/VRFRequestIDBase.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol",
+        "node_modules/solmate/src/auth/Owned.sol",
+        "node_modules/solmate/src/tokens/ERC721.sol",
+        "node_modules/solmate/src/utils/Bytes32AddressLib.sol",
+        "node_modules/solmate/src/utils/CREATE3.sol",
+        "node_modules/solmate/src/utils/ReentrancyGuard.sol"
+      ],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {
+        "VRFv2RandGen": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "VRFRandGen.sol/VRFv2RandGen.json"
+        }
+      }
+    },
+    "lib/chainlink/contracts/src/v0.8/VRFConsumerBase.sol": {
+      "lastModificationDate": 1674149691819,
+      "contentHash": "c05c2205d74e9eb8267d6ae133c98e73",
+      "sourceName": "lib/chainlink/contracts/src/v0.8/VRFConsumerBase.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/chainlink/contracts/src/v0.8/VRFRequestIDBase.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol"
+      ],
+      "versionRequirement": "^0.8.0",
+      "artifacts": {
+        "VRFConsumerBase": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "VRFConsumerBase.sol/VRFConsumerBase.json"
+        }
+      }
+    },
+    "lib/chainlink/contracts/src/v0.8/VRFRequestIDBase.sol": {
+      "lastModificationDate": 1674149691820,
+      "contentHash": "e7fc1c36cb6d9f4b7d64c59dfd2c6211",
+      "sourceName": "lib/chainlink/contracts/src/v0.8/VRFRequestIDBase.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.0",
+      "artifacts": {
+        "VRFRequestIDBase": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "VRFRequestIDBase.sol/VRFRequestIDBase.json"
+        }
+      }
+    },
+    "lib/chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol": {
+      "lastModificationDate": 1674149691833,
+      "contentHash": "da5a0c3bd86c896f6a407f909c57edf3",
+      "sourceName": "lib/chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.0",
+      "artifacts": {
+        "LinkTokenInterface": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "LinkTokenInterface.sol/LinkTokenInterface.json"
+        }
+      }
+    },
+    "node_modules/solmate/src/auth/Owned.sol": {
+      "lastModificationDate": 1673416099585,
+      "contentHash": "cbb684ea20bea675b7d97397da4bfd95",
+      "sourceName": "node_modules/solmate/src/auth/Owned.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {
+        "Owned": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "Owned.sol/Owned.json"
+        }
+      }
+    },
+    "node_modules/solmate/src/tokens/ERC721.sol": {
+      "lastModificationDate": 1673416099579,
+      "contentHash": "ecc06cefc5404b9e1adbc2e459d5757e",
+      "sourceName": "node_modules/solmate/src/tokens/ERC721.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {
+        "ERC721": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "ERC721.sol/ERC721.json"
+        },
+        "ERC721TokenReceiver": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "ERC721.sol/ERC721TokenReceiver.json"
+        }
+      }
+    },
+    "node_modules/solmate/src/utils/Bytes32AddressLib.sol": {
+      "lastModificationDate": 1673416099573,
+      "contentHash": "8a05c8576a41e44d3e96a6e169162327",
+      "sourceName": "node_modules/solmate/src/utils/Bytes32AddressLib.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {
+        "Bytes32AddressLib": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "Bytes32AddressLib.sol/Bytes32AddressLib.json"
+        }
+      }
+    },
+    "node_modules/solmate/src/utils/CREATE3.sol": {
+      "lastModificationDate": 1673416099574,
+      "contentHash": "0714614c146b2eeb737405c770da9f8a",
+      "sourceName": "node_modules/solmate/src/utils/CREATE3.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "node_modules/solmate/src/utils/Bytes32AddressLib.sol"
+      ],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {
+        "CREATE3": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "CREATE3.sol/CREATE3.json"
+        }
+      }
+    },
+    "node_modules/solmate/src/utils/ReentrancyGuard.sol": {
+      "lastModificationDate": 1673416099585,
+      "contentHash": "cf9480663950b4091d14b174c3ec0414",
+      "sourceName": "node_modules/solmate/src/utils/ReentrancyGuard.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {
+        "ReentrancyGuard": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "ReentrancyGuard.sol/ReentrancyGuard.json"
+        }
+      }
+    }
+  }
+}

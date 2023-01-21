@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
-
 import {ERC721} from "solmate/src/tokens/ERC721.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 
@@ -34,7 +33,6 @@ contract MioNFT is ERC721, Owned(msg.sender) {
 
     }
     //--------------------------FUNCTIONS-------------------------------------
-    //external function that safemints a new NFT
 
     function setTokenURI(uint256 _nftID, string calldata _ipfsHash) external {
         ipfsHashFromNFTID[_nftID] = _ipfsHash;
@@ -47,7 +45,8 @@ contract MioNFT is ERC721, Owned(msg.sender) {
     }
 
     function mintNFT(address _to) external payable onlyOwner{
-        require(msg.value == (1 ether), "You must pay 1 matic to become a user");
+
+        require(msg.value == (1 ether), "You must pay 1 matic to ");
         emit postMinted(nftID++, _to);
         _safeMint(_to, nftID );
         //transfer msg value to owner
