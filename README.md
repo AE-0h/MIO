@@ -6,5 +6,5 @@ A decentralized digital public square using IPFS, where all posts are stored for
 
 1. Clone the repo
 2. Run `npm install`
-3. run `forge build` to build the contracts
+3. Run `forge build` to build the contracts
 4. Run `npx hardhat test` to run the tests
