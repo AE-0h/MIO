@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 import {MioNFTInterface} from "./interfaces/MioNFTInterface.sol";
-
 import {MioNFT} from "./MioNFT.sol";
-
-import {CREATE3} from "solmate/src/utils/CREATE3.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
 import {RandGen} from "./interfaces/RandGen.sol";
@@ -18,8 +15,6 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     error NotRandGen();
 
     //--------------------------Immutables-------------------------------------
-
-     address public immutable MIO_NFT_FACTORY = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
      RandGen public randGen;
 
     //--------------------------STATE VARIABLES-------------------------------------
@@ -106,9 +101,9 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
 
 
  //--------------------------FUNCTIONS-------------------------------------
-    function requestRandomSeed() external returns (bytes32) {
+    function requestRandomSeed() internal returns (bytes32) {
         // Request a random seed from the randomness provider.
-        return randGen.requestRandomBytes();
+        randGen.requestRandomBytes();
 
     }
      function acceptRandomSeed(bytes32, uint256 randomness) external returns (uint256 _userID) {
@@ -117,15 +112,6 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         // Emit the event and return the randomness.
         emit userIDGenerated(_userID = randomness);
         lastUserID = _userID;
-    }
-    //todo finish implementing Create3
-    function createNFTContract( string memory _name, string memory _symbol) public payable nonReentrant   {
-        require(msg.value == (1 ether), "You must pay 1 matic to mint an NFT");
-        // create a new NFT contract
-        mioNFTAddress = CREATE3.deploy(bytes32(users[msg.sender].userID), type(MioNFT).creationCode, 0);
-        // set the NFT contract owner to the user
-
-        payable(owner).transfer(msg.value);
     }
 
     // mint an NFT from specific user contract
@@ -179,8 +165,6 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         require(!userExists[msg.sender], "User already exists");
         //require that .01 matic is sent
         require(msg.value == (1 ether), "You must pay 1 matic to become a user");
-
-        //generate a random userID
         //create the user
         users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner, users[msg.sender].userID = lastUserID);
         // Increment the userNFTID and emit event

@@ -12,9 +12,9 @@ contract MioNFT is ERC721, Owned(msg.sender) {
     // - the address of the user
     // - user nft ID
     // 
-    event postMinted(
-        uint indexed _userNFTID,
-        address author
+    event nftMinted(
+        address indexed owner,
+        uint256 indexed nftID
     );
 
     //--------------------------STATE VARIABLES-------------------------------------
@@ -34,6 +34,12 @@ contract MioNFT is ERC721, Owned(msg.sender) {
     }
     //--------------------------FUNCTIONS-------------------------------------
 
+  function initialize(string memory _name, string memory _symbol) public {
+    require(msg.sender == owner, "Only the contract owner can initialize the contract.");
+    name = _name;
+    symbol = _symbol;
+}
+
     function setTokenURI(uint256 _nftID, string calldata _ipfsHash) external {
         ipfsHashFromNFTID[_nftID] = _ipfsHash;
     }
@@ -45,9 +51,8 @@ contract MioNFT is ERC721, Owned(msg.sender) {
     }
 
     function mintNFT(address _to) external payable onlyOwner{
-
         require(msg.value == (1 ether), "You must pay 1 matic to ");
-        emit postMinted(nftID++, _to);
+        emit nftMinted(_to, ++nftID);
         _safeMint(_to, nftID );
         //transfer msg value to owner
         payable(owner).transfer(msg.value);
