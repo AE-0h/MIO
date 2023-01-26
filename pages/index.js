@@ -1,8 +1,17 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const [randoNum, setRandoNum] = useState(0);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    setUser(window.ethereum.selectedAddress);
+    console.log(user);
+    let x = process.env.NEXT_PUBLIC_ALCHEMY_ID;
+    console.log(x);
+  }, [user]);
+
   const handleClick = async () => {
     const jsonRES = {
       jsonrpc: "2.0",
