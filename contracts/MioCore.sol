@@ -131,11 +131,8 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     function burnNFT(uint256 _postNFTID) public {
         mioNFT.burnNFT(_postNFTID);
     }
-
-    // get the NFT ID
-    function getNFTID() public view returns (uint256) {
-        mioNFT.getNFTID();
-    }
+    //TODO: add args in NFT logic for amount in collection and price of NFT (research transmision and frankie solution VRGDA)
+    //TODO @https://github.com/transmissions11/VRGDAs/tree/c2f3afebcb1d449572b3e5ce3a6acb9cf4a957cd
 
  // Create a new mioPost 
     function addPost(string memory _content, string memory _media) public payable nonReentrant {
@@ -146,7 +143,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         //require that the msg has a value of 0.01 ether
         require(msg.value == (1 ether), "You must pay 1 matic to make it offical");
       // Emit the event and increment mioCount
-        emit postCreated(mioCountID++, _content, _media, msg.sender, block.timestamp);
+        emit postCreated(++mioCountID, _content, _media, msg.sender, block.timestamp);
         // Create the post
         mioPosts[mioCountID] =  mioPost(mioCountID, _content, _media, msg.sender);
         // pay out "owner" or deployer of contract for mio post gas fee
@@ -160,7 +157,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner);
     }
 
-     function createUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public payable nonReentrant returns (uint64 _userID){
+     function createUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public payable nonReentrant{
         //require that the user does not exist
         require(!userExists[msg.sender], "User already exists");
         //require that .01 matic is sent

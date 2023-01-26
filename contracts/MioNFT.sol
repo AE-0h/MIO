@@ -5,7 +5,7 @@ import {Owned} from "solmate/src/auth/Owned.sol";
 
 contract MioNFT is ERC721, Owned(msg.sender) {
 
-    //--------------------------Events-------------------------------------
+    //------------------------------Events---------------------------------------------//
 
     // event fired when a new post is made official by another user aside from it's owner
     // contains: -
@@ -17,13 +17,13 @@ contract MioNFT is ERC721, Owned(msg.sender) {
         uint256 indexed nftID
     );
 
-    //--------------------------STATE VARIABLES-------------------------------------
+    //--------------------------STATE VARIABLES---------------------------------------//
     // userNft unique id
     uint256 public nftID;
     // mapping nftID to description
     mapping(uint256 => string) public ipfsHashFromNFTID;
 
-    //--------------------------CONSTRUCTOR-------------------------------------
+    //---------------------------CONSTRUCTOR----------------------------------------//
 
 
     constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {
@@ -31,7 +31,7 @@ contract MioNFT is ERC721, Owned(msg.sender) {
         owner = msg.sender;
 
     }
-    //--------------------------FUNCTIONS-------------------------------------
+    //----------------------------FUNCTIONS-------------------------------------//
 
     function setOwner(address _newOwner) public virtual override onlyOwner {
         owner = _newOwner;
