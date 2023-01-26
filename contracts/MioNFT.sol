@@ -18,7 +18,6 @@ contract MioNFT is ERC721, Owned(msg.sender) {
     );
 
     //--------------------------STATE VARIABLES-------------------------------------
-
     // userNft unique id
     uint256 public nftID;
     // mapping nftID to description
@@ -34,12 +33,10 @@ contract MioNFT is ERC721, Owned(msg.sender) {
     }
     //--------------------------FUNCTIONS-------------------------------------
 
-  function initialize(string memory _name, string memory _symbol) public {
-    require(msg.sender == owner, "Only the contract owner can initialize the contract.");
-    name = _name;
-    symbol = _symbol;
-}
-
+    function setOwner(address _newOwner) public virtual override onlyOwner {
+        owner = _newOwner;
+        emit OwnerUpdated(msg.sender, _newOwner);
+    }
     function setTokenURI(uint256 _nftID, string calldata _ipfsHash) external {
         ipfsHashFromNFTID[_nftID] = _ipfsHash;
     }

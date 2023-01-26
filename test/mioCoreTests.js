@@ -4,9 +4,9 @@ const { ethers } = require("hardhat");
 describe("MIOCore", () => {
   let miocore;
   let user1;
-  let userID;
 
   beforeEach(async () => {
+    ///Deploy
     /// Deploy MIOCore contract with name and symbol args
     const MIOCore = await ethers.getContractFactory("MIOCore");
     // Create a new user
@@ -67,7 +67,7 @@ describe("MIOCore", () => {
     expect(user[1]).to.equal("This is my bio");
     expect(user[2]).to.equal("https://blah.com/pp.jpg");
     expect(user[3]).to.equal("https://blah.com/pb.jpg");
-    // expect(user[4]).to.equal(userID);
+
     console.log(
       `Username: ${user[0]} Bio: ${user[1]} Profile Pic: ${user[2]} Profile Banner: ${user[3]}`
     );
