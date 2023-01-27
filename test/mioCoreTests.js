@@ -3,16 +3,21 @@ const { ethers } = require("hardhat");
 
 describe("MIOCore", () => {
   let miocore;
+  let nftContract;
+  let nftContractFactory;
   let user1;
 
   beforeEach(async () => {
-    ///Deploy
-    /// Deploy MIOCore contract with name and symbol args
+    const NFTContract = await ethers.getContractFactory("MioNFT");
+    nftContract = await NFTContract.deploy("MIONFT", "MIO");
+    await nftContract.deployed();
+
+    const NFTContractFactory = await ethers.getContractFactory("MioNFTFactory");
+    nftContractFactory = await NFTContractFactory.deploy(nftContract.address);
+    await nftContractFactory.deployed();
     const MIOCore = await ethers.getContractFactory("MIOCore");
-    // Create a new user
     user1 = await ethers.getSigner();
-    // Deploy MIOCore contract
-    miocore = await MIOCore.deploy();
+    miocore = await MIOCore.deploy(nftContractFactory.address);
     await miocore.deployed();
   });
 

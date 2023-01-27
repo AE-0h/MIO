@@ -216,8 +216,8 @@
       }
     },
     "contracts/MioCore.sol": {
-      "lastModificationDate": 1674700294242,
-      "contentHash": "2977c980c5d68a81246d6977f8e75201",
+      "lastModificationDate": 1674800936659,
+      "contentHash": "4a33fddaeb604b2dd400c0f965ddde3d",
       "sourceName": "contracts/MioCore.sol",
       "solcConfig": {
         "settings": {
@@ -251,6 +251,7 @@
         "contracts/MioCore.sol",
         "contracts/MioNFT.sol",
         "contracts/MioNFTFactory.sol",
+        "contracts/interfaces/MioNFTInterface.sol",
         "node_modules/solmate/src/auth/Owned.sol",
         "node_modules/solmate/src/tokens/ERC721.sol",
         "node_modules/solmate/src/utils/ReentrancyGuard.sol"
@@ -263,8 +264,8 @@
       }
     },
     "contracts/MioNFT.sol": {
-      "lastModificationDate": 1674702851772,
-      "contentHash": "1e0b2675498e5c4e759f4c78523546ae",
+      "lastModificationDate": 1674782967070,
+      "contentHash": "1ab76e5b9b1b9ceaef401db1bcb5a901",
       "sourceName": "contracts/MioNFT.sol",
       "solcConfig": {
         "settings": {
@@ -306,8 +307,8 @@
       }
     },
     "contracts/MioNFTFactory.sol": {
-      "lastModificationDate": 1674699927268,
-      "contentHash": "3e8015a123824de05135db67156d14b5",
+      "lastModificationDate": 1674800037467,
+      "contentHash": "11ff610a216f907e4b706fc0c3d2e664",
       "sourceName": "contracts/MioNFTFactory.sol",
       "solcConfig": {
         "settings": {
@@ -341,6 +342,7 @@
         "contracts/MioCore.sol",
         "contracts/MioNFT.sol",
         "contracts/MioNFTFactory.sol",
+        "contracts/interfaces/MioNFTInterface.sol",
         "node_modules/solmate/src/auth/Owned.sol",
         "node_modules/solmate/src/tokens/ERC721.sol",
         "node_modules/solmate/src/utils/ReentrancyGuard.sol"
@@ -349,6 +351,46 @@
       "artifacts": {
         "MioNFTFactory": {
           "0.8.17+commit.8df45f5f.Darwin.appleclang": "MioNFTFactory.sol/MioNFTFactory.json"
+        }
+      }
+    },
+    "contracts/interfaces/MioNFTInterface.sol": {
+      "lastModificationDate": 1674782345012,
+      "contentHash": "faa15b5597d9dbdd22a8afbf4d37ece1",
+      "sourceName": "contracts/interfaces/MioNFTInterface.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.9",
+      "artifacts": {
+        "MioNFTInterface": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "MioNFTInterface.sol/MioNFTInterface.json"
         }
       }
     },

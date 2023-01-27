@@ -18,7 +18,6 @@
 pragma solidity ^0.8.9;
 import {MioNFTFactory} from "./MioNFTFactory.sol";
 import {MioNFTInterface} from "./interfaces/MioNFTInterface.sol";
-import {MioNFT} from "./MioNFT.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
 
@@ -93,6 +92,14 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         string profileBanner
     );
 
+    // event fired when user nft contract is created
+    // contains: -
+    // - the address of the user
+    // - the address of the user nft contract
+    event userNFTContractCreated(
+        address indexed userAddress,
+        address indexed userNFTContract
+    );
 
  //--------------------------CONSTRUCTOR-------------------------------------
     // Establish the owner of the contract as the deployer
@@ -127,9 +134,15 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
  //--------------------------FUNCTIONS-------------------------------------
 
     // Create a new user nft contract
-    function createUserNFTContract(string memory _name, string memory symbol) external {
+    function createUserNFTContract(string memory _name, string memory symbol) external{
+        //error msg.sender is an existing user
+        if(!userExists[msg.sender]){
+            revert UserDoesNotExist();
+        }
+
        address newcontract =  mioNFTFactory.deployUserContract(_name, symbol);
         userNFTContracts[msg.sender].push(newcontract);
+        emit userNFTContractCreated(msg.sender, newcontract);
     }
 
     // mint an NFT from specific user contract
@@ -176,12 +189,12 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         // Update the user
         users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner, msg.sender);
     }
-
+// Create a new user
      function createUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public payable nonReentrant{
         //require that the user does not exist
-        if(userExists[msg.sender] = true) { revert UserAlreadyExists(); }
+        if(userExists[msg.sender]) { revert UserAlreadyExists(); }
         //require that .01 matic is sent
-        if(msg.value == (1 ether)) { revert InsufficientFunds(); }
+        if(msg.value != (1 ether)) { revert InsufficientFunds(); }
         //create the user
         users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner, msg.sender);
         // Increment the userNFTID and emit event
@@ -208,7 +221,6 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     return (_content, _media, _author);
     }
    
-
  // Get all mioPosts by a user
     function getAllUserMioPosts() public view returns(mioPost[] memory){
         // Create a temporary array to store the mioPosts
@@ -228,7 +240,6 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         }
         return result;
     }
-
 
 // Get all mioPosts
     function  getAllMioPosts() public view returns(mioPost[] memory){
