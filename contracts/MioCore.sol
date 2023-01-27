@@ -17,17 +17,34 @@
 
 pragma solidity ^0.8.9;
 import {MioNFTFactory} from "./MioNFTFactory.sol";
+import {MioNFTInterface} from "./interfaces/MioNFTInterface.sol";
 import {MioNFT} from "./MioNFT.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
 
 contract MIOCore is Owned(msg.sender), ReentrancyGuard{
+    //----------------------------ERRORS-------------------------------------------
+    // error thrown when a user tries to create a user that already exists
+    error UserAlreadyExists();
+    // error thrown when a user doesnt exist
+    error UserDoesNotExist();
+    //error thrown when a user tries to update a profile that isn't theirs
+    error NotYourProfile();
+    // error thrown when no content is provided
+    error NoContent();
+    // error thrown when a post length in bytes is greater than 280
+    error PostTooLong();
+    //error thrown when createUserNFTContract is called by anyone except factory contract
+    error NotMioNFTFactory();
+    //throw error when innsufficient funds are sent to contract
+    error InsufficientFunds();
+    //throw error when a post doesnt exist
+    error PostDoesNotExist();
+
+
     //---------------------------IMMUTABLES----------------------------------------
     // address of the MioNFTFactory contract
     MioNFTFactory immutable mioNFTFactory;
-    // address of the MioNFT contract
-    MioNFT immutable mioNFT;
-
 
     //--------------------------STATE VARIABLES-------------------------------------
     //last UserID Generated
@@ -42,8 +59,8 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     mapping(address => user) public users;
     // Mapping of mioPost ID to mioPost struct 
     mapping(uint256 => mioPost) public mioPosts;
-    // Mapping of mioCountID to each like address
-    // that liked the mioPost
+    // mapping of user address to an array of nft contract address
+    mapping(address => address[]) public userNFTContracts;
  //--------------------------Events--------------------------------------------------------
 
     // event fired when a new mioPost is written
@@ -81,13 +98,11 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     // Establish the owner of the contract as the deployer
     // Set mioPost counter at 0
     constructor(
-        MioNFTFactory _mioNFTFactory,
-        MioNFT _mioNFT
+        MioNFTFactory _mioNFTFactory
     ) {
         mioCountID = 0;
         owner  = payable(msg.sender); 
         mioNFTFactory = _mioNFTFactory;
-        mioNFT = _mioNFT; 
 
     }
 
@@ -105,43 +120,43 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         string bio;
         string profilePic;
         string profileBanner;
+        address userAddress;
     }
 
 
  //--------------------------FUNCTIONS-------------------------------------
 
     // Create a new user nft contract
-    function createUserNFT(string memory _name, string memory symbol) external {
+    function createUserNFTContract(string memory _name, string memory symbol) external {
        address newcontract =  mioNFTFactory.deployUserContract(_name, symbol);
-        mioNFTAddress = newcontract;
-
+        userNFTContracts[msg.sender].push(newcontract);
     }
 
     // mint an NFT from specific user contract
     function mintNFT(address _to) public {
-        mioNFT.mintNFT(_to);
+        MioNFTInterface(mioNFTAddress).mintNFT(_to);
     }
 
     // transfer an NFT to another user
     function transferNFT(address _to, uint256 _postNFTID) public {
-        mioNFT.transferNFT(_to, _postNFTID);
+        MioNFTInterface(mioNFTAddress).transferNFT(_to, _postNFTID);
     }
 
     // burn an NFT
     function burnNFT(uint256 _postNFTID) public {
-        mioNFT.burnNFT(_postNFTID);
+        MioNFTInterface(mioNFTAddress).burnNFT(_postNFTID);
     }
     //TODO: add args in NFT logic for amount in collection and price of NFT (research transmision and frankie solution VRGDA)
     //TODO @https://github.com/transmissions11/VRGDAs/tree/c2f3afebcb1d449572b3e5ce3a6acb9cf4a957cd
 
  // Create a new mioPost 
     function addPost(string memory _content, string memory _media) public payable nonReentrant {
-        //require that the content is not empty
-        require(bytes(_content).length > 0, "Content is required");
+        //use error  content is not empty
+        if(bytes(_content).length == 0) revert NoContent();
         //require that the content is not too long
-        require(bytes(_content).length <= 280, "Content is too long");
+        if(bytes(_content).length > 280) revert PostTooLong();
         //require that the msg has a value of 0.01 ether
-        require(msg.value == (1 ether), "You must pay 1 matic to make it offical");
+        if(msg.value < 0.01 ether) revert InsufficientFunds();
       // Emit the event and increment mioCount
         emit postCreated(++mioCountID, _content, _media, msg.sender, block.timestamp);
         // Create the post
@@ -153,17 +168,22 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
 
  // Update user
     function updateUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public {
+        //require that the user exists
+        if(userExists[msg.sender] = false) { revert UserDoesNotExist(); }
+        //require user is updating only their own profile
+        if(users[msg.sender].userAddress != msg.sender) { revert NotYourProfile(); }
+
         // Update the user
-        users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner);
+        users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner, msg.sender);
     }
 
      function createUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public payable nonReentrant{
         //require that the user does not exist
-        require(!userExists[msg.sender], "User already exists");
+        if(userExists[msg.sender] = true) { revert UserAlreadyExists(); }
         //require that .01 matic is sent
-        require(msg.value == (1 ether), "You must pay 1 matic to become a user");
+        if(msg.value == (1 ether)) { revert InsufficientFunds(); }
         //create the user
-        users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner);
+        users[msg.sender] = user(_username, _bio, _profilePic, _profileBanner, msg.sender);
         // Increment the userNFTID and emit event
         emit userCreated(msg.sender, _username, _bio, _profilePic, _profileBanner);
         //set minted to true
@@ -175,7 +195,10 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
       
  // Get a mioPost by counterID
    function getPost(uint256 _id) public view returns (string memory _content, string memory _media, address _author) {
-    require(_id <= mioCountID, "Invalid ID");
+    // Check if the mioPost exists
+    if (mioPosts[_id].id > mioCountID || mioPosts[_id].id == 0) {
+        revert PostDoesNotExist();
+    }
     // Fetch the mioPost
     mioPost storage _mioPost = mioPosts[_id];
     // Return the mioPost
@@ -203,8 +226,6 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
                     counter++;
                 }
         }
-      
-        // Return the array
         return result;
     }
 
