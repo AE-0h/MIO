@@ -46,10 +46,8 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     MioNFTFactory immutable mioNFTFactory;
 
     //--------------------------STATE VARIABLES-------------------------------------
-    //last UserID Generated
-    uint64 public lastUserID;
-    // address of the MioNFTFactory contract
-    address mioNFTAddress;
+    // current nft contract being used by the user
+    address userNFTAddress;
     // mioPost unique id
     uint256 private mioCountID; 
     // mapping of user address to user nft ID
@@ -58,8 +56,8 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     mapping(address => user) public users;
     // Mapping of mioPost ID to mioPost struct 
     mapping(uint256 => mioPost) public mioPosts;
-    // mapping of user address to an array of nft contract address
-    mapping(address => address[]) public userNFTContracts;
+    // mapping of user address to an array of nft contract structs
+    mapping(address => userNFTContract[]) public userNFTContracts;
  //--------------------------Events--------------------------------------------------------
 
     // event fired when a new mioPost is written
@@ -130,34 +128,49 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         address userAddress;
     }
 
+    struct userNFTContract{
+        string name;
+        string symbol;
+        address contractAddress;
+    }
+
 
  //--------------------------FUNCTIONS-------------------------------------
 
     // Create a new user nft contract
     function createUserNFTContract(string memory _name, string memory symbol) external{
         //error msg.sender is an existing user
-        if(!userExists[msg.sender]){
-            revert UserDoesNotExist();
-        }
-
-       address newcontract =  mioNFTFactory.deployUserContract(_name, symbol);
-        userNFTContracts[msg.sender].push(newcontract);
+        if(!userExists[msg.sender]){revert UserDoesNotExist();}
+        address newcontract =  mioNFTFactory.deployUserContract(_name, symbol);
+        userNFTContracts[msg.sender].push(userNFTContract(_name, symbol, newcontract));
+        setNFTContractAddress(_name, symbol);
         emit userNFTContractCreated(msg.sender, newcontract);
     }
 
+    // get deployed nft contract address from name and symbol
+    function setNFTContractAddress(string memory _name, string memory _symbol) internal returns(address){
+        for(uint i = 0; i < userNFTContracts[msg.sender].length; i++){
+            if(keccak256(abi.encodePacked(userNFTContracts[msg.sender][i].name)) == keccak256(abi.encodePacked(_name)) && keccak256(abi.encodePacked(userNFTContracts[msg.sender][i].symbol)) == keccak256(abi.encodePacked(_symbol))){
+                userNFTAddress = userNFTContracts[msg.sender][i].contractAddress;
+                return userNFTContracts[msg.sender][i].contractAddress;
+            }
+        }
+    }
+
     // mint an NFT from specific user contract
-    function mintNFT(address _to) public {
-        MioNFTInterface(mioNFTAddress).mintNFT(_to);
+    function mintNFT(address _to) public payable {
+        if(msg.value < 0.01 ether){revert InsufficientFunds();}
+        MioNFTInterface(userNFTAddress).mintNFT(_to);
     }
 
     // transfer an NFT to another user
     function transferNFT(address _to, uint256 _postNFTID) public {
-        MioNFTInterface(mioNFTAddress).transferNFT(_to, _postNFTID);
+        MioNFTInterface(userNFTAddress).transferNFT(_to, _postNFTID);
     }
 
     // burn an NFT
     function burnNFT(uint256 _postNFTID) public {
-        MioNFTInterface(mioNFTAddress).burnNFT(_postNFTID);
+        MioNFTInterface(userNFTAddress).burnNFT(_postNFTID);
     }
     //TODO: add args in NFT logic for amount in collection and price of NFT (research transmision and frankie solution VRGDA)
     //TODO @https://github.com/transmissions11/VRGDAs/tree/c2f3afebcb1d449572b3e5ce3a6acb9cf4a957cd

@@ -216,8 +216,8 @@
       }
     },
     "contracts/MioCore.sol": {
-      "lastModificationDate": 1674800936659,
-      "contentHash": "4a33fddaeb604b2dd400c0f965ddde3d",
+      "lastModificationDate": 1674854671090,
+      "contentHash": "b5c33a25642fc4dd1325fe0bbf48f174",
       "sourceName": "contracts/MioCore.sol",
       "solcConfig": {
         "settings": {
@@ -251,6 +251,7 @@
         "contracts/MioCore.sol",
         "contracts/MioNFT.sol",
         "contracts/MioNFTFactory.sol",
+        "contracts/contract_libs/LibConst.sol",
         "contracts/interfaces/MioNFTInterface.sol",
         "node_modules/solmate/src/auth/Owned.sol",
         "node_modules/solmate/src/tokens/ERC721.sol",
@@ -307,8 +308,8 @@
       }
     },
     "contracts/MioNFTFactory.sol": {
-      "lastModificationDate": 1674800037467,
-      "contentHash": "11ff610a216f907e4b706fc0c3d2e664",
+      "lastModificationDate": 1674854465183,
+      "contentHash": "cd112c3ed4e939d8fe9568278e642c3c",
       "sourceName": "contracts/MioNFTFactory.sol",
       "solcConfig": {
         "settings": {
@@ -342,6 +343,7 @@
         "contracts/MioCore.sol",
         "contracts/MioNFT.sol",
         "contracts/MioNFTFactory.sol",
+        "contracts/contract_libs/LibConst.sol",
         "contracts/interfaces/MioNFTInterface.sol",
         "node_modules/solmate/src/auth/Owned.sol",
         "node_modules/solmate/src/tokens/ERC721.sol",
@@ -351,6 +353,46 @@
       "artifacts": {
         "MioNFTFactory": {
           "0.8.17+commit.8df45f5f.Darwin.appleclang": "MioNFTFactory.sol/MioNFTFactory.json"
+        }
+      }
+    },
+    "contracts/contract_libs/LibConst.sol": {
+      "lastModificationDate": 1674855019833,
+      "contentHash": "3cd033b42626efe6c85b1aa3c941c7e2",
+      "sourceName": "contracts/contract_libs/LibConst.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.9",
+      "artifacts": {
+        "LibConst": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "LibConst.sol/LibConst.json"
         }
       }
     },
