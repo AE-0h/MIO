@@ -7,9 +7,7 @@ describe("MIOCore", () => {
   let nftContract;
   let nftContractFactory;
   let user1;
-
   let mioUser;
- 
 
   beforeEach(async () => {
     //deploy NFT contract
@@ -29,7 +27,7 @@ describe("MIOCore", () => {
   });
 
   //it should save msg.sender as owner in contructor
-  it("it should save msg.sender as owner in contructor", async () => {
+  it("it should save msg.sender as owner in constructor", async () => {
     expect(await miocore.owner()).to.equal(await miocore.signer.getAddress());
     console.log(`Owner: ${await miocore.owner()}`);
   });
@@ -72,8 +70,7 @@ describe("MIOCore", () => {
     );
   });
 
-  //it should be able to create a user and add a post and retrieve all posts made official by user
-  it("should be able to add a post and retrieve all post data for user", async () => {
+  it("it should be able to create a user and add a post and retrieve all posts made official by user", async () => {
     mioUser = await miocore
       .connect(user1)
       .createUser(
@@ -104,7 +101,9 @@ describe("MIOCore", () => {
       gasLimit: 1000000,
     });
     //get all posts for user 1
-    let allUser1Post = await miocore.getAllUserMioPosts(user1.address);
+    let allUser1Post = await miocore.getAllUserMioPosts(
+      await mioUser.wait().then((x) => x.from)
+    );
     console.log(allUser1Post.length);
     //filter out empty array
     let post1Filter = allUser1Post[0].filter((item) => item !== "");

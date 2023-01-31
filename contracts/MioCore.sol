@@ -185,7 +185,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         //require that the content is not too long
         if(bytes(_content).length > 280) revert PostTooLong();
         //require that the msg has a value of 0.01 ether
-        // if(msg.value < 0.01 ether) revert InsufficientFunds();
+        if(msg.value < 0.01 ether) revert InsufficientFunds();
       // Emit the event and increment mioCount
         emit postCreated(++mioCountID, _content, _media, msg.sender);
         // Create the post
