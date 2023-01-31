@@ -39,6 +39,8 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     error InsufficientFunds();
     //throw error when a post doesnt exist
     error PostDoesNotExist();
+    //throws error when a user tries to get all of there posts and there are no posts
+    error NoPosts();
 
 
     //---------------------------IMMUTABLES----------------------------------------
@@ -71,8 +73,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         uint256 indexed id,
         string content, 
         string media, 
-        address indexed author, 
-        uint256 timestamp
+        address indexed author
     );
 
     // event fired when a new user is created
@@ -152,7 +153,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         for(uint i = 0; i < userNFTContracts[msg.sender].length; i++){
             if(keccak256(abi.encodePacked(userNFTContracts[msg.sender][i].name)) == keccak256(abi.encodePacked(_name)) && keccak256(abi.encodePacked(userNFTContracts[msg.sender][i].symbol)) == keccak256(abi.encodePacked(_symbol))){
                 userNFTAddress = userNFTContracts[msg.sender][i].contractAddress;
-                return userNFTContracts[msg.sender][i].contractAddress;
+                return userNFTAddress;
             }
         }
     }
@@ -177,14 +178,16 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
 
  // Create a new mioPost 
     function addPost(string memory _content, string memory _media) public payable nonReentrant {
+        //user must exist
+        if(!userExists[msg.sender]) revert UserDoesNotExist();
         //use error  content is not empty
         if(bytes(_content).length == 0) revert NoContent();
         //require that the content is not too long
         if(bytes(_content).length > 280) revert PostTooLong();
         //require that the msg has a value of 0.01 ether
-        if(msg.value < 0.01 ether) revert InsufficientFunds();
+        // if(msg.value < 0.01 ether) revert InsufficientFunds();
       // Emit the event and increment mioCount
-        emit postCreated(++mioCountID, _content, _media, msg.sender, block.timestamp);
+        emit postCreated(++mioCountID, _content, _media, msg.sender);
         // Create the post
         mioPosts[mioCountID] =  mioPost(mioCountID, _content, _media, msg.sender);
         // pay out "owner" or deployer of contract for mio post gas fee
@@ -235,7 +238,10 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     }
    
  // Get all mioPosts by a user
-    function getAllUserMioPosts() public view returns(mioPost[] memory){
+    function getAllUserMioPosts(address _user) public view returns(mioPost[] memory){
+        if (mioCountID == 0) {
+            revert NoPosts();
+        }
         // Create a temporary array to store the mioPosts
         mioPost[] memory result = new mioPost[](mioCountID);
         // Create a counter to keep track of the index
@@ -244,7 +250,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         for (uint256 i = 1; i <= mioCountID; i++) {
             // Check if the mioPost is not deleted
                 // Check if the mioPost is from the user
-                if (mioPosts[i].author == msg.sender) {
+                if (mioPosts[i].author == _user) {
                     // Add the mioPost to the array
                     result[counter] = mioPosts[i];
                     // Increment the counter

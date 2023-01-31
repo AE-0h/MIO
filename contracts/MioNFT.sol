@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 import {ERC721} from "solmate/src/tokens/ERC721.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
+import "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 
 contract MioNFT is ERC721, Owned(msg.sender) {
 
@@ -38,7 +39,7 @@ contract MioNFT is ERC721, Owned(msg.sender) {
         owner = _newOwner;
         emit OwnerUpdated(msg.sender, _newOwner);
     }
-    function setTokenURI(uint256 _nftID, bytes32  _ipfsHash) external {
+    function setTokenURI(uint256 _nftID, bytes32  _ipfsHash) external onlyOwner {
         ipfsHashFromNFTID[_nftID] = _ipfsHash;
     }
     function tokenURI(uint256 _nftID) public override view returns (string memory) {

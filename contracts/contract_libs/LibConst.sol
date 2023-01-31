@@ -4,6 +4,5 @@
 pragma solidity ^0.8.9;
 
 library LibConst {
-   //todo change to updated deployed address
-   address constant MIO_CORE_MUMBAI = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
+   address constant MIO_CORE_MUMBAI = 0x14a3660d6e528429499369e81E6453d3CC45722D;
 }
