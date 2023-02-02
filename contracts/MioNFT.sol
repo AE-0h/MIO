@@ -49,11 +49,11 @@ contract MioNFT is ERC721, Owned(msg.sender) {
 
     }
 
-    function mintNFT(address _to) external payable onlyOwner{
+    function mintNFT(address _to) external {
         emit nftMinted(_to, ++nftID, ipfsHashFromNFTID[nftID]);
         _safeMint(_to, nftID );
         //transfer msg value to owner
-        payable(owner).transfer(msg.value);
+        
     }
 
     function burnNFT(uint256 _postNFTID) external onlyOwner {

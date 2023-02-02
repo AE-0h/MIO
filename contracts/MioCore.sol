@@ -133,19 +133,23 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         string name;
         string symbol;
         address contractAddress;
+        // uint nonce
     }
 
 
  //--------------------------FUNCTIONS-------------------------------------
 
     // Create a new user nft contract
-    function createUserNFTContract(string memory _name, string memory symbol) external{
+    function createUserNFTContract(string memory _name, string memory symbol) external payable{
+        //must have msg.value of 1 ether
+        if(msg.value != 1 ether){revert InsufficientFunds();}
         //error msg.sender is an existing user
         if(!userExists[msg.sender]){revert UserDoesNotExist();}
         address newcontract =  mioNFTFactory.deployUserContract(_name, symbol);
         userNFTContracts[msg.sender].push(userNFTContract(_name, symbol, newcontract));
         setNFTContractAddress(_name, symbol);
         emit userNFTContractCreated(msg.sender, newcontract);
+        payable(owner).transfer(msg.value);
     }
 
     // get deployed nft contract address from name and symbol
@@ -159,9 +163,10 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     }
 
     // mint an NFT from specific user contract
-    function mintNFT(address _to) public payable {
-        if(msg.value < 0.01 ether){revert InsufficientFunds();}
+    function mintNFT(address _to) public  {
+        // if(msg.value < 1 ether){revert InsufficientFunds();}
         MioNFTInterface(userNFTAddress).mintNFT(_to);
+        
     }
 
     // transfer an NFT to another user
@@ -173,8 +178,6 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     function burnNFT(uint256 _postNFTID) public {
         MioNFTInterface(userNFTAddress).burnNFT(_postNFTID);
     }
-    //TODO: add args in NFT logic for amount in collection and price of NFT (research transmision and frankie solution VRGDA)
-    //TODO @https://github.com/transmissions11/VRGDAs/tree/c2f3afebcb1d449572b3e5ce3a6acb9cf4a957cd
 
  // Create a new mioPost 
     function addPost(string memory _content, string memory _media) public payable nonReentrant {
@@ -198,7 +201,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
  // Update user
     function updateUser(string memory _username, string memory _bio, string memory _profilePic, string memory _profileBanner) public {
         //require that the user exists
-        if(userExists[msg.sender] = false) { revert UserDoesNotExist(); }
+        if(!userExists[msg.sender]) revert UserDoesNotExist();
         //require user is updating only their own profile
         if(users[msg.sender].userAddress != msg.sender) { revert NotYourProfile(); }
 
@@ -224,6 +227,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
       
  // Get a mioPost by counterID
    function getPost(uint256 _id) public view returns (string memory _content, string memory _media, address _author) {
+    if(!userExists[msg.sender]) revert UserDoesNotExist();
     // Check if the mioPost exists
     if (mioPosts[_id].id > mioCountID || mioPosts[_id].id == 0) {
         revert PostDoesNotExist();
@@ -238,12 +242,13 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     }
    
  // Get all mioPosts by a user
-    function getAllUserMioPosts(address _user) public view returns(mioPost[] memory){
+    function getAllUserMioPosts(address _user) public view returns(mioPost[] memory result){
+        if(!userExists[msg.sender]) revert UserDoesNotExist();
         if (mioCountID == 0) {
             revert NoPosts();
         }
         // Create a temporary array to store the mioPosts
-        mioPost[] memory result = new mioPost[](mioCountID);
+        result = new mioPost[](mioCountID);
         // Create a counter to keep track of the index
         uint256 counter = 0;
         // Loop through all the mioPosts
@@ -261,9 +266,11 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
     }
 
 // Get all mioPosts
-    function  getAllMioPosts() public view returns(mioPost[] memory){
+    function  getAllMioPosts() public view returns(mioPost[] memory result){
+        //check if msg.sender is associated with a user account
+        if(!userExists[msg.sender]) revert UserDoesNotExist();
         // Create a temporary array to store the mioPosts
-        mioPost[] memory result = new mioPost[](mioCountID);
+        result = new mioPost[](mioCountID);
         //Create a counter to keep track of the index
         uint256  counter = 0;
         // Loop through all the mioPosts
@@ -279,6 +286,8 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
        
 // Get user
     function getUser(address _userAddress) public view returns (string memory , string memory, string memory, string memory) {
+        // Check if the user exists
+        if(!userExists[msg.sender]) revert UserDoesNotExist();
         // Fetch the user
         user memory _user = users[_userAddress];
         // Return the user

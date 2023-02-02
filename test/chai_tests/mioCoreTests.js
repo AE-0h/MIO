@@ -33,7 +33,7 @@ describe("MIOCore", () => {
   });
 
   //it should create a user and add a post while emmiting events for each creation event
-  it("should be able to add a post", async () => {
+  it("should be able to create a MIO user and add a post made official while emmiting both events", async () => {
     //Initialize createUser data
     let username = "Miouser1";
     let bio = "Hello world";
@@ -50,7 +50,7 @@ describe("MIOCore", () => {
       .to.emit(miocore, "userCreated")
       .withArgs(user1.address, username, bio, profilePic, profileBanner);
     console.log(
-      `event emitted{ userAddress: ${user1.address}, username: ${username}, bio: ${bio}, profilePic: ${profilePic}, profileBanner: ${profileBanner}}`
+      `NEW USER CREATED::{ userAddress: ${user1.address}, username: ${username}, bio: ${bio}, profilePic: ${profilePic}, profileBanner: ${profileBanner}}`
     );
     //Initialize addMioPost data
     let postContent = "post1";
@@ -66,11 +66,11 @@ describe("MIOCore", () => {
       .to.emit(miocore, "postCreated")
       .withArgs(1, postContent, postImage, user1.address);
     console.log(
-      `event emitted{ postID: 1, postContent: ${postContent}, postMedia: ${postImage}, author: ${user1.address}}`
+      `NEW POST MADE OFFICIAL::{ postID: 1, postContent: ${postContent}, postMedia: ${postImage}, author: ${user1.address}}`
     );
   });
 
-  it("it should be able to create a user and add a post and retrieve all posts made official by user", async () => {
+  it("it should be able to create a user, add a post made official while also retrieving all posts made official by user", async () => {
     mioUser = await miocore
       .connect(user1)
       .createUser(
@@ -84,6 +84,7 @@ describe("MIOCore", () => {
         }
       );
     //Initialize addMioPost data
+
     // 1st post user 1
     let postContent = "post2";
     let postImage = "https://blah.com/image2.jpg";
@@ -104,12 +105,13 @@ describe("MIOCore", () => {
     let allUser1Post = await miocore.getAllUserMioPosts(
       await mioUser.wait().then((x) => x.from)
     );
-    console.log(allUser1Post.length);
-    //filter out empty array
+    // filter out empty array
     let post1Filter = allUser1Post[0].filter((item) => item !== "");
     //filter out empty array
     let post2Filter = allUser1Post[1].filter((item) => item !== "");
 
+    //check array of user post length
+    expect(allUser1Post.length).to.equal(2);
     //check post 1
     expect(post1Filter.length).to.equal(4);
     expect(post1Filter[1]).to.equal("post2");
@@ -123,7 +125,7 @@ describe("MIOCore", () => {
   });
 
   //it should be able to create a user and retrieve user data via getUser() from user address
-  it("should be able to create a user and retrieve user data from user address", async () => {
+  it("should be able to create a user and retrieve user data from user address using getUser()", async () => {
     mioUser = await miocore
       .connect(user1)
       .createUser(
@@ -139,7 +141,7 @@ describe("MIOCore", () => {
     const user = await miocore.getUser(
       await mioUser.wait().then((x) => x.from)
     );
-    console.log(user);
+
     expect(user[0]).to.equal("MioUser2");
     expect(user[1]).to.equal("Hello world");
     expect(user[2]).to.equal("https://blah.com/pp.jpg");
@@ -147,5 +149,67 @@ describe("MIOCore", () => {
     console.log(
       `Username: ${user[0]} Bio: ${user[1]} Profile Pic: ${user[2]} Profile Banner: ${user[3]}`
     );
+  });
+
+  //it should be able to crreate a user and then create a new nft contract for that user and then mint a new nft for that user
+  it("should be able to create a user => then create a new nft contract for that user => then mint a new nft for that user", async () => {
+    let username = "MioUser2";
+    let bio = "Hello world";
+    let profilePic = "https://blah.com/pp.jpg";
+    let profileBanner = "https://blah.com/pb.jpg";
+    mioUser = await miocore
+      .connect(user1)
+      .createUser(username, bio, profilePic, profileBanner, {
+        value: ethers.utils.parseEther("1"),
+        gasLimit: 1000000,
+      });
+    await expect(mioUser)
+      .to.emit(miocore, "userCreated")
+      .withArgs(user1.address, username, bio, profilePic, profileBanner);
+    console.log(
+      `NEW USER CREATED::{ userAddress: ${user1.address}, username: ${username}, bio: ${bio}, profilePic: ${profilePic}, profileBanner: ${profileBanner}}`
+    );
+    //create nft contract
+    let nftContract = await miocore
+      .connect(user1)
+      .createUserNFTContract("MioNFT", "MIO", {
+        value: ethers.utils.parseEther("1"),
+        gasLimit: 2500000,
+      });
+    let nftContractAddress = await nftContract
+      .wait()
+      .then((x) => x.logs[0].address);
+    // get emitted event
+    await expect(nftContract)
+      .to.emit(miocore, "userNFTContractCreated")
+      .withArgs(user1.address, nftContractAddress);
+    console.log(
+      `NEW USER NFT CONTRACT CREATED::{ userAddress: ${user1.address}, nftContractAddress: ${nftContractAddress}}`
+    );
+    //mint nft
+    let nftMint = await miocore.connect(user1).mintNFT(user1.address, {
+      gasLimit: 25000000,
+    });
+    let nftMintTx = await nftMint.wait();
+    //get transaction hash
+    let nftMintTxHash = nftMintTx.transactionHash;
+    //get transaction receipt via getTransactionReceipt() passing in transaction hash from above
+    let nftMintTxReceipt = await ethers.provider.getTransactionReceipt(
+      nftMintTxHash
+    );
+    // transaction receipt formatted for console.log
+    console.log(`TRANSACTION RECEIPT:
+                    GAS USED : ${nftMintTxReceipt.gasUsed}
+                    CONTRACT ADDRESS : ${nftContractAddress}
+                    BLOCK NUMBER : ${nftMintTxReceipt.blockNumber}
+                    BLOCK HASH : ${nftMintTxReceipt.blockHash}
+                    TRANSACTION HASH : ${nftMintTxHash}
+                    FROM : ${nftMintTxReceipt.from}
+                    TO : ${nftMintTxReceipt.to}
+                    STATUS : ${nftMintTxReceipt.status}
+                    TRANSACTION INDEX : ${nftMintTxReceipt.transactionIndex}
+                    CUMULATIVE GAS USED : ${nftMintTxReceipt.cumulativeGasUsed}
+                    EFFECTIVE GAS PRICE : ${nftMintTxReceipt.effectiveGasPrice}
+                    `);
   });
 });

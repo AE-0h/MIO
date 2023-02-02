@@ -6,7 +6,7 @@ import {Owned} from "solmate/src/auth/Owned.sol";
 import {MIOCore} from "./MioCore.sol";
 import {LibConst} from "./contract_libs/LibConst.sol";
 
-contract MioNFTFactory is Owned(msg.sender){
+contract MioNFTFactory {
 //--------------------------------------------ERRORS--------------------------------------------------------
 
     error NotMIOCORE();    
@@ -23,9 +23,9 @@ contract MioNFTFactory is Owned(msg.sender){
     }
 //-------------------------------------------FUNCTIONS------------------------------------------------------
        function deployUserContract(string memory _name, string memory _symbol ) external returns (address)  {
-        if(msg.sender != LibConst.MIO_CORE_MUMBAI){
-            revert NotMIOCORE();
-        }
+        // if(msg.sender != LibConst.MIO_CORE_MUMBAI){
+        //     revert NotMIOCORE();
+        // }
         address newMioNFTContract = address( new MioNFT(_name, _symbol));
         emit ContractDeployed(newMioNFTContract);
         return newMioNFTContract;
