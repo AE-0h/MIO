@@ -10,7 +10,7 @@ const ALCHEMY_API_KEY_MAINNET = process.env.NEXT_PUBLIC_ALCHEMY_MAINNET_ID;
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  defaultNetwork: "hardhat",
+  defaultNetwork: "mumbai",
   networks: {
     hardhat: {},
     mumbai: {

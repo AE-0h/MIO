@@ -72,7 +72,8 @@ describe("MIOCore", () => {
     );
   });
 
-  it("it should be able to create a user, add a post made official while also retrieving all posts made official by user", async () => {
+  it("it should be able to create a user, add 2 posts made official while also retrieving all posts made official by specific user and by all users on platform", async () => {
+    //Initialize createUser data in mioUser
     mioUser = await miocore
       .connect(user1)
       .createUser(
@@ -85,8 +86,8 @@ describe("MIOCore", () => {
           gasLimit: 1000000,
         }
       );
-    //Initialize addMioPost data
 
+    //Initialize addMioPost data
     // 1st post user 1
     let postContent = "post2";
     let postImage = "https://blah.com/image2.jpg";
@@ -143,14 +144,21 @@ describe("MIOCore", () => {
     let allUser2Post = await miocore.getAllUserMioPosts(
       await mioUser2.wait().then((x) => x.from)
     );
+    //get all posts made offical by any user on the platform
+    let allMioPosts = await miocore.getAllMioPosts();
+    //confirming the length of all posts made official by any user on the platform is equal to 4
+    console.log(`allMioPosts length: ${allMioPosts.length}`);
     // filter out empty array
     let post1Filter = allUser1Post[0].filter((item) => item !== "");
     //filter out empty array
     let post2Filter = allUser1Post[1].filter((item) => item !== "");
-
+    //filter out empty array
     let post3Filter = allUser2Post[0].filter((item) => item !== "");
-
+    //filter out empty array
     let post4Filter = allUser2Post[1].filter((item) => item !== "");
+
+    //check array of all posts made official by any user on the platform length is equal to 4
+    expect(allMioPosts.length).to.equal(4);
 
     //check array of user post length
     expect(allUser1Post.length).to.equal(2);

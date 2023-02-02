@@ -18,8 +18,13 @@ contract MioTest is Test {
         mioCore = new MIOCore(mioNFTFactory);
     }
 
-    function testFailCreateUser() public payable {
-        mioCore.createUser{value: 1 ether}("aeoh", "HELLO WORLD", "pp.png", "pb.png");
+    function testCreateUser() public payable {
+        mioCore.createUser{
+            value: 1 ether,
+            gas: 2000000
+        }("aeoh", "HELLO WORLD", "pp.png", "pb.png");
+
+        
 
     }
 
