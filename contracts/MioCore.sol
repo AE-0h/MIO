@@ -253,14 +253,17 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard{
         uint256 counter = 0;
         // Loop through all the mioPosts
         for (uint256 i = 1; i <= mioCountID; i++) {
-            // Check if the mioPost is not deleted
                 // Check if the mioPost is from the user
-                if (mioPosts[i].author == _user) {
+                if (mioPosts[i].author == _user ){
                     // Add the mioPost to the array
                     result[counter] = mioPosts[i];
                     // Increment the counter
                     counter++;
                 }
+        }
+        //pop the empty elements from the array
+        assembly {
+            mstore(result, counter)
         }
         return result;
     }

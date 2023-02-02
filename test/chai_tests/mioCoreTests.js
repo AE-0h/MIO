@@ -7,7 +7,9 @@ describe("MIOCore", () => {
   let nftContract;
   let nftContractFactory;
   let user1;
+  let user2;
   let mioUser;
+  let mioUser2;
 
   beforeEach(async () => {
     //deploy NFT contract
@@ -23,7 +25,7 @@ describe("MIOCore", () => {
     miocore = await MIOCore.deploy(nftContractFactory.address);
     await miocore.deployed();
     //get signers
-    [user1] = await ethers.getSigners();
+    [user1, user2] = await ethers.getSigners();
   });
 
   //it should save msg.sender as owner in contructor
@@ -101,14 +103,54 @@ describe("MIOCore", () => {
       value: ethers.utils.parseEther("1"),
       gasLimit: 1000000,
     });
+
+    mioUser2 = await miocore
+      .connect(user2)
+      .createUser(
+        "MioUser3",
+        "Hello world",
+        "https://blah.com/pp.jpg",
+        "https://blah.com/pb.jpg",
+        {
+          value: ethers.utils.parseEther("1"),
+          gasLimit: 1000000,
+        }
+      );
+
+    // 1st post user 2
+    let pc4 = "post4";
+    let pi4 = "https://blah.com/image4.jpg";
+    // 2nd post user 2
+    let pc5 = "post5";
+    let pi5 = "https://blah.com/image5.jpg";
+
+    //add post user 2
+    await miocore.connect(user2).addPost(pc4, pi4, {
+      value: ethers.utils.parseEther("1"),
+      gasLimit: 1000000,
+    });
+    //add post user 2
+    await miocore.connect(user2).addPost(pc5, pi5, {
+      value: ethers.utils.parseEther("1"),
+      gasLimit: 1000000,
+    });
+
     //get all posts for user 1
     let allUser1Post = await miocore.getAllUserMioPosts(
       await mioUser.wait().then((x) => x.from)
+    );
+    //get all posts for user 2
+    let allUser2Post = await miocore.getAllUserMioPosts(
+      await mioUser2.wait().then((x) => x.from)
     );
     // filter out empty array
     let post1Filter = allUser1Post[0].filter((item) => item !== "");
     //filter out empty array
     let post2Filter = allUser1Post[1].filter((item) => item !== "");
+
+    let post3Filter = allUser2Post[0].filter((item) => item !== "");
+
+    let post4Filter = allUser2Post[1].filter((item) => item !== "");
 
     //check array of user post length
     expect(allUser1Post.length).to.equal(2);
@@ -122,6 +164,32 @@ describe("MIOCore", () => {
     expect(post2Filter[1]).to.equal("post3");
     expect(post2Filter[2]).to.equal("https://blah.com/image3.jpg");
     expect(post2Filter[3]).to.equal(user1.address);
+
+    //check array of user post length
+    expect(allUser2Post.length).to.equal(2);
+    //check post 1
+    expect(post3Filter.length).to.equal(4);
+    expect(post3Filter[1]).to.equal("post4");
+    expect(post3Filter[2]).to.equal("https://blah.com/image4.jpg");
+    expect(post3Filter[3]).to.equal(user2.address);
+    //check post 2
+    expect(post4Filter.length).to.equal(4);
+    expect(post4Filter[1]).to.equal("post5");
+    expect(post4Filter[2]).to.equal("https://blah.com/image5.jpg");
+    expect(post4Filter[3]).to.equal(user2.address);
+
+    console.log(
+      `NEW POST MADE OFFICIAL::{ postID: 1, postContent: ${postContent}, postMedia: ${postImage}, author: ${user1.address}}`
+    );
+    console.log(
+      `NEW POST MADE OFFICIAL::{ postID: 2, postContent: ${pc2}, postMedia: ${pi2}, author: ${user1.address}}`
+    );
+    console.log(
+      `NEW POST MADE OFFICIAL::{ postID: 3, postContent: ${pc4}, postMedia: ${pi4}, author: ${user2.address}}`
+    );
+    console.log(
+      `NEW POST MADE OFFICIAL::{ postID: 4, postContent: ${pc5}, postMedia: ${pi5}, author: ${user2.address}}`
+    );
   });
 
   //it should be able to create a user and retrieve user data via getUser() from user address
