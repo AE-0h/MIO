@@ -1,6 +1,8 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
+//import dotenv
+require("dotenv").config();
 
 describe("MIOCore", () => {
   let miocore;
@@ -10,6 +12,14 @@ describe("MIOCore", () => {
   let user2;
   let mioUser;
   let mioUser2;
+  let username;
+  let bio;
+  let profilePic;
+  let profileBanner;
+  let user2name;
+  let bio2;
+  let profilePic2;
+  let profileBanner2;
 
   beforeEach(async () => {
     //deploy NFT contract
@@ -25,28 +35,53 @@ describe("MIOCore", () => {
     miocore = await MIOCore.deploy(nftContractFactory.address);
     await miocore.deployed();
     //get signers
-    [user1, user2] = await ethers.getSigners();
+    [user1] = await ethers.getSigners();
+    user2 = new ethers.Wallet(
+      process.env.NEXT_PUBLIC_PRIVATE_KEY_TWO,
+      ethers.provider
+    );
+    console.log(
+      `-------------------WALLET_ADDRESS_ON_MUMBAI--------------------------`
+    );
+    console.log(`User1: ${user1.address}`);
+    console.log(`User2: ${user2.address}`);
+    console.log(
+      `---------------------------------------------------------------------`
+    );
+
+    //Initialize createUser data
+    username = "Miouser1";
+    bio = "Hello world";
+    profilePic = "https://blah.com/pp.jpg";
+    profileBanner = "https://blah.com/pb.jpg";
+    //create user1
+    mioUser = await miocore
+      .connect(user1)
+      .createUser(username, bio, profilePic, profileBanner, {
+        value: ethers.utils.parseEther("0.01"),
+      });
+    //Initialize createUser data
+    user2name = "Miouser2";
+    bio2 = "ello erld";
+    profilePic2 = "https://blah.com/pp2.jpg";
+    profileBanner2 = "https://blah.com/pb2.jpg";
+    //create user2
+    mioUser2 = await miocore
+      .connect(user2)
+      .createUser(user2name, bio2, profilePic2, profileBanner2, {
+        value: ethers.utils.parseEther("0.01"),
+        gasLimit: 1000000,
+      });
   });
 
   //it should save msg.sender as owner in contructor
   it("it should save msg.sender as owner in constructor", async () => {
-    expect(await miocore.owner()).to.equal(await miocore.signer.getAddress());
+    expect(await miocore.connect(user2).owner()).to.equal(user1.address);
     console.log(`Owner: ${await miocore.owner()}`);
   });
 
   //it should create a user and add a post while emmiting events for each creation event
-  it("should be able to create a MIO user and add a post made official while emmiting both events", async () => {
-    //Initialize createUser data
-    let username = "Miouser1";
-    let bio = "Hello world";
-    let profilePic = "https://blah.com/pp.jpg";
-    let profileBanner = "https://blah.com/pb.jpg";
-    //create user
-    mioUser = await miocore
-      .connect(user1)
-      .createUser(username, bio, profilePic, profileBanner, {
-        value: ethers.utils.parseEther("1"),
-      });
+  it("should be able to make a post official while emmiting events for user creation and officiating post", async () => {
     //emit userCreated(msg.sender, _username, _bio, _profilePic, _profileBanner);
     await expect(mioUser)
       .to.emit(miocore, "userCreated")
@@ -60,7 +95,7 @@ describe("MIOCore", () => {
     let userAddPost = await miocore
       .connect(user1)
       .addPost(postContent, postImage, {
-        value: ethers.utils.parseEther("1"),
+        value: ethers.utils.parseEther("0.01"),
         gasLimit: 1000000,
       });
     //emit postCreated(_postID, _postContent, _postMedia, _author);
@@ -71,21 +106,15 @@ describe("MIOCore", () => {
       `NEW POST MADE OFFICIAL::{ postID: 1, postContent: ${postContent}, postMedia: ${postImage}, author: ${user1.address}}`
     );
   });
-
-  it("it should be able to create a user, add 2 posts made official while also retrieving all posts made official by specific user and by all users on platform", async () => {
-    //Initialize createUser data in mioUser
-    mioUser = await miocore
-      .connect(user1)
-      .createUser(
-        "MioUser3",
-        "Hello world",
-        "https://blah.com/pp.jpg",
-        "https://blah.com/pb.jpg",
-        {
-          value: ethers.utils.parseEther("1"),
-          gasLimit: 1000000,
-        }
-      );
+  it("should add 2 posts made official while also retrieving all posts made official by specific user and by all users on platform", async () => {
+    //emit userCreated(msg.sender, _username, _bio, _profilePic, _profileBanner);
+    await expect(mioUser)
+      .to.emit(miocore, "userCreated")
+      .withArgs(user1.address, username, bio, profilePic, profileBanner);
+    //emit userCreated(msg.sender, _username, _bio, _profilePic, _profileBanner);
+    await expect(mioUser2)
+      .to.emit(miocore, "userCreated")
+      .withArgs(user2.address, user2name, bio2, profilePic2, profileBanner2);
 
     //Initialize addMioPost data
     // 1st post user 1
@@ -95,29 +124,25 @@ describe("MIOCore", () => {
     let pc2 = "post3";
     let pi2 = "https://blah.com/image3.jpg";
     //add post user 1
-    await miocore.connect(user1).addPost(postContent, postImage, {
-      value: ethers.utils.parseEther("1"),
-      gasLimit: 1000000,
-    });
+    let userAddPost = await miocore
+      .connect(user1)
+      .addPost(postContent, postImage, {
+        value: ethers.utils.parseEther("0.01"),
+        gasLimit: 1000000,
+      });
+
+    await expect(userAddPost)
+      .to.emit(miocore, "postCreated")
+      .withArgs(1, postContent, postImage, user1.address);
     //add post user 1
-    await miocore.connect(user1).addPost(pc2, pi2, {
-      value: ethers.utils.parseEther("1"),
+    let userAddPost2 = await miocore.connect(user1).addPost(pc2, pi2, {
+      value: ethers.utils.parseEther("0.01"),
       gasLimit: 1000000,
     });
 
-    mioUser2 = await miocore
-      .connect(user2)
-      .createUser(
-        "MioUser3",
-        "Hello world",
-        "https://blah.com/pp.jpg",
-        "https://blah.com/pb.jpg",
-        {
-          value: ethers.utils.parseEther("1"),
-          gasLimit: 1000000,
-        }
-      );
-
+    await expect(userAddPost2)
+      .to.emit(miocore, "postCreated")
+      .withArgs(2, pc2, pi2, user1.address);
     // 1st post user 2
     let pc4 = "post4";
     let pi4 = "https://blah.com/image4.jpg";
@@ -126,65 +151,72 @@ describe("MIOCore", () => {
     let pi5 = "https://blah.com/image5.jpg";
 
     //add post user 2
-    await miocore.connect(user2).addPost(pc4, pi4, {
-      value: ethers.utils.parseEther("1"),
-      gasLimit: 1000000,
-    });
-    //add post user 2
-    await miocore.connect(user2).addPost(pc5, pi5, {
-      value: ethers.utils.parseEther("1"),
+    let user2PostCreate = await miocore.connect(user2).addPost(pc4, pi4, {
+      value: ethers.utils.parseEther("0.01"),
       gasLimit: 1000000,
     });
 
+    await expect(user2PostCreate)
+      .to.emit(miocore, "postCreated")
+      .withArgs(3, pc4, pi4, user2.address);
+    //add post user 2
+    let user2PostCreate2 = await miocore.connect(user2).addPost(pc5, pi5, {
+      value: ethers.utils.parseEther("0.01"),
+      gasLimit: 1000000,
+    });
+
+    await expect(user2PostCreate2)
+      .to.emit(miocore, "postCreated")
+      .withArgs(4, pc5, pi5, user2.address);
     //get all posts for user 1
-    let allUser1Post = await miocore.getAllUserMioPosts(
-      await mioUser.wait().then((x) => x.from)
-    );
+    let allUser1Post = await miocore
+      .connect(user1)
+      .getAllUserMioPosts(user1.address);
     //get all posts for user 2
-    let allUser2Post = await miocore.getAllUserMioPosts(
-      await mioUser2.wait().then((x) => x.from)
-    );
+    let allUser2Post = await miocore
+      .connect(user2)
+      .getAllUserMioPosts(user2.address);
     //get all posts made offical by any user on the platform
-    let allMioPosts = await miocore.getAllMioPosts();
+    let allMioPosts = await miocore.connect(user1).getAllMioPosts();
     //confirming the length of all posts made official by any user on the platform is equal to 4
     console.log(`allMioPosts length: ${allMioPosts.length}`);
     // filter out empty array
-    let post1Filter = allUser1Post[0].filter((item) => item !== "");
+    let post1Filter = await allUser1Post[0].filter((item) => item !== "");
     //filter out empty array
-    let post2Filter = allUser1Post[1].filter((item) => item !== "");
+    let post2Filter = await allUser1Post[1].filter((item) => item !== "");
     //filter out empty array
-    let post3Filter = allUser2Post[0].filter((item) => item !== "");
+    let post3Filter = await allUser2Post[0].filter((item) => item !== "");
     //filter out empty array
-    let post4Filter = allUser2Post[1].filter((item) => item !== "");
+    let post4Filter = await allUser2Post[1].filter((item) => item !== "");
 
     //check array of all posts made official by any user on the platform length is equal to 4
-    expect(allMioPosts.length).to.equal(4);
+    expect(await allMioPosts.length).to.equal(4);
 
     //check array of user post length
-    expect(allUser1Post.length).to.equal(2);
+    expect(await allUser1Post.length).to.equal(2);
     //check post 1
-    expect(post1Filter.length).to.equal(4);
-    expect(post1Filter[1]).to.equal("post2");
-    expect(post1Filter[2]).to.equal("https://blah.com/image2.jpg");
-    expect(post1Filter[3]).to.equal(user1.address);
+    expect(await post1Filter.length).to.equal(4);
+    expect(await post1Filter[1]).to.equal("post2");
+    expect(await post1Filter[2]).to.equal("https://blah.com/image2.jpg");
+    expect(await post1Filter[3]).to.equal(user1.address);
     //check post 2
-    expect(post2Filter.length).to.equal(4);
-    expect(post2Filter[1]).to.equal("post3");
-    expect(post2Filter[2]).to.equal("https://blah.com/image3.jpg");
-    expect(post2Filter[3]).to.equal(user1.address);
+    expect(await post2Filter.length).to.equal(4);
+    expect(await post2Filter[1]).to.equal("post3");
+    expect(await post2Filter[2]).to.equal("https://blah.com/image3.jpg");
+    expect(await post2Filter[3]).to.equal(user1.address);
 
     //check array of user post length
-    expect(allUser2Post.length).to.equal(2);
+    expect(await allUser2Post.length).to.equal(2);
     //check post 1
-    expect(post3Filter.length).to.equal(4);
-    expect(post3Filter[1]).to.equal("post4");
-    expect(post3Filter[2]).to.equal("https://blah.com/image4.jpg");
-    expect(post3Filter[3]).to.equal(user2.address);
+    expect(await post3Filter.length).to.equal(4);
+    expect(await post3Filter[1]).to.equal("post4");
+    expect(await post3Filter[2]).to.equal("https://blah.com/image4.jpg");
+    expect(await post3Filter[3]).to.equal(user2.address);
     //check post 2
-    expect(post4Filter.length).to.equal(4);
-    expect(post4Filter[1]).to.equal("post5");
-    expect(post4Filter[2]).to.equal("https://blah.com/image5.jpg");
-    expect(post4Filter[3]).to.equal(user2.address);
+    expect(await post4Filter.length).to.equal(4);
+    expect(await post4Filter[1]).to.equal("post5");
+    expect(await post4Filter[2]).to.equal("https://blah.com/image5.jpg");
+    expect(await post4Filter[3]).to.equal(user2.address);
 
     console.log(
       `NEW POST MADE OFFICIAL::{ postID: 1, postContent: ${postContent}, postMedia: ${postImage}, author: ${user1.address}}`
@@ -202,43 +234,21 @@ describe("MIOCore", () => {
 
   //it should be able to create a user and retrieve user data via getUser() from user address
   it("should be able to create a user and retrieve user data from user address using getUser()", async () => {
-    mioUser = await miocore
-      .connect(user1)
-      .createUser(
-        "MioUser2",
-        "Hello world",
-        "https://blah.com/pp.jpg",
-        "https://blah.com/pb.jpg",
-        {
-          value: ethers.utils.parseEther("1"),
-          gasLimit: 1000000,
-        }
-      );
-    const user = await miocore.getUser(
-      await mioUser.wait().then((x) => x.from)
-    );
+    const user = await miocore
+      .connect(user2)
+      .getUser(await mioUser2.wait().then((x) => x.from));
 
-    expect(user[0]).to.equal("MioUser2");
-    expect(user[1]).to.equal("Hello world");
-    expect(user[2]).to.equal("https://blah.com/pp.jpg");
-    expect(user[3]).to.equal("https://blah.com/pb.jpg");
+    expect(user[0]).to.equal("Miouser2");
+    expect(user[1]).to.equal("ello erld");
+    expect(user[2]).to.equal("https://blah.com/pp2.jpg");
+    expect(user[3]).to.equal("https://blah.com/pb2.jpg");
     console.log(
       `Username: ${user[0]} Bio: ${user[1]} Profile Pic: ${user[2]} Profile Banner: ${user[3]}`
     );
   });
 
   //it should be able to crreate a user and then create a new nft contract for that user and then mint a new nft for that user
-  it("should be able to create a user => then create a new nft contract for that user => then mint a new nft for that user", async () => {
-    let username = "MioUser2";
-    let bio = "Hello world";
-    let profilePic = "https://blah.com/pp.jpg";
-    let profileBanner = "https://blah.com/pb.jpg";
-    mioUser = await miocore
-      .connect(user1)
-      .createUser(username, bio, profilePic, profileBanner, {
-        value: ethers.utils.parseEther("1"),
-        gasLimit: 1000000,
-      });
+  it("should be able to create a user => then create a new nft contract for that user", async () => {
     await expect(mioUser)
       .to.emit(miocore, "userCreated")
       .withArgs(user1.address, username, bio, profilePic, profileBanner);
@@ -249,12 +259,16 @@ describe("MIOCore", () => {
     let nftContract = await miocore
       .connect(user1)
       .createUserNFTContract("MioNFT", "MIO", {
-        value: ethers.utils.parseEther("1"),
+        value: ethers.utils.parseEther("0.01"),
         gasLimit: 2500000,
       });
-    let nftContractAddress = await nftContract
-      .wait()
-      .then((x) => x.logs[0].address);
+    let nftContractTx = await nftContract.wait();
+    //get contract address
+    let nftTxHash = nftContractTx.transactionHash;
+    let nftTxReceipt = await ethers.provider.getTransactionReceipt(nftTxHash);
+    let nftContractAddress = nftTxReceipt.logs[1].address;
+    console.log(nftContractAddress);
+
     // get emitted event
     await expect(nftContract)
       .to.emit(miocore, "userNFTContractCreated")
@@ -262,30 +276,27 @@ describe("MIOCore", () => {
     console.log(
       `NEW USER NFT CONTRACT CREATED::{ userAddress: ${user1.address}, nftContractAddress: ${nftContractAddress}}`
     );
+    //todo: mint nft logic here
     //mint nft
-    let nftMint = await miocore.connect(user1).mintNFT(user1.address, {
-      gasLimit: 25000000,
-    });
-    let nftMintTx = await nftMint.wait();
-    //get transaction hash
-    let nftMintTxHash = nftMintTx.transactionHash;
-    //get transaction receipt via getTransactionReceipt() passing in transaction hash from above
-    let nftMintTxReceipt = await ethers.provider.getTransactionReceipt(
-      nftMintTxHash
-    );
-    // transaction receipt formatted for console.log
-    console.log(`TRANSACTION RECEIPT:
-                    GAS USED : ${nftMintTxReceipt.gasUsed}
-                    CONTRACT ADDRESS : ${nftContractAddress}
-                    BLOCK NUMBER : ${nftMintTxReceipt.blockNumber}
-                    BLOCK HASH : ${nftMintTxReceipt.blockHash}
-                    TRANSACTION HASH : ${nftMintTxHash}
-                    FROM : ${nftMintTxReceipt.from}
-                    TO : ${nftMintTxReceipt.to}
-                    STATUS : ${nftMintTxReceipt.status}
-                    TRANSACTION INDEX : ${nftMintTxReceipt.transactionIndex}
-                    CUMULATIVE GAS USED : ${nftMintTxReceipt.cumulativeGasUsed}
-                    EFFECTIVE GAS PRICE : ${nftMintTxReceipt.effectiveGasPrice}
-                    `);
+    // let nftMint = await miocore.connect(user2).mintNFT(user2.address, {
+    //   gasLimit: 2500000,
+    // });
+    // console.log(nftMint);
+    // let nftMintTx = await nftMint.wait();
+    // //get transaction hash
+    // let nftMintTxHash = nftMintTx.transactionHash;
+    // //get transaction receipt via getTransactionReceipt() passing in transaction hash from above
+    // let nftMintTxReceipt = await ethers.provider.getTransactionReceipt(
+    //   nftMintTxHash
+    // );
+    // // transaction receipt formatted for console.log
+    // console.log(`TRANSACTION RECEIPT:
+    //                 GAS USED : ${nftMintTxReceipt.gasUsed}
+    //                 CONTRACT ADDRESS : ${nftContractAddress}
+    //                 TRANSACTION HASH : ${nftMintTxHash}
+    //                 FROM : ${nftMintTxReceipt.from}
+    //                 TO : ${nftMintTxReceipt.to}
+    //                 STATUS : ${nftMintTxReceipt.status}
+    //                 `);
   });
 });

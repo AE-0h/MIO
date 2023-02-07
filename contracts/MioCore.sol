@@ -49,7 +49,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     // current nft contract being used by the user
     address userNFTAddress;
     // mioPost unique id
-    uint256 private mioCountID;
+    uint256 private mioCountID = 0;
     // mapping of user address to user nft ID
     mapping(address => bool) public userExists;
     // Mapping of user address to user struct
@@ -139,7 +139,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         string memory symbol
     ) external payable {
         //must have msg.value of 1 ether
-        if (msg.value != 1 ether) {
+        if (msg.value != (1 * 10 ** 16 wei)) {
             revert InsufficientFunds();
         }
         //error msg.sender is an existing user
@@ -206,7 +206,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         //require that the content is not too long
         if (bytes(_content).length > 280) revert PostTooLong();
         //require that the msg has a value of 0.01 ether
-        if (msg.value < 0.01 ether) revert InsufficientFunds();
+        if (msg.value < (1 * 10 ** 16 wei)) revert InsufficientFunds();
         // Emit the event and increment mioCount
         emit postCreated(++mioCountID, _content, _media, msg.sender);
         // Create the post
@@ -255,8 +255,8 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         if (userExists[msg.sender]) {
             revert UserAlreadyExists();
         }
-        //require that .01 matic is sent
-        if (msg.value != (1 ether)) {
+        //require that .01 matic is sent in wei
+        if (msg.value != (1 * 10 ** 16 wei)) {
             revert InsufficientFunds();
         }
         //create the user
