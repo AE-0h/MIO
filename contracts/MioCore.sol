@@ -14,7 +14,7 @@
 ─██████──────────██████─██████████─██████████████─
 ──────────────────────────────────────────────────/*/
 
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.7;
 import {MioNFTFactory} from "./MioNFTFactory.sol";
 import {MioNFTInterface} from "./interfaces/MioNFTInterface.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
@@ -136,7 +136,10 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     // Create a new user nft contract
     function createUserNFTContract(
         string memory _name,
-        string memory symbol
+        string memory symbol,
+        uint256 _totalSupply,
+        uint256 _mintPrice,
+        string memory _baseURI
     ) external payable {
         //must have msg.value of 1 ether
         if (msg.value != (1 * 10 ** 16 wei)) {
@@ -146,7 +149,13 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         if (!userExists[msg.sender]) {
             revert UserDoesNotExist();
         }
-        address newcontract = mioNFTFactory.deployUserContract(_name, symbol);
+        address newcontract = mioNFTFactory.deployUserContract(
+            _name,
+            symbol,
+            _totalSupply,
+            _mintPrice,
+            _baseURI
+        );
         userNFTContracts[msg.sender].push(
             userNFTContract(_name, symbol, newcontract)
         );
@@ -179,19 +188,14 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     }
 
     // mint an NFT from specific user contract
-    function mintNFT(address _to) public {
-        // if(msg.value < 1 ether){revert InsufficientFunds();}
+    function mintUserNFT(address _to) public payable {
         MioNFTInterface(userNFTAddress).mintNFT(_to);
+        payable(owner).transfer(msg.value);
     }
 
     // transfer an NFT to another user
     function transferNFT(address _to, uint256 _postNFTID) public {
         MioNFTInterface(userNFTAddress).transferNFT(_to, _postNFTID);
-    }
-
-    // burn an NFT
-    function burnNFT(uint256 _postNFTID) public {
-        MioNFTInterface(userNFTAddress).burnNFT(_postNFTID);
     }
 
     // Create a new mioPost

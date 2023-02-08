@@ -1,7 +1,7 @@
 //an interface for the MioTokenizedPost contract
 
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.7;
 
 interface MioNFTInterface {
     function tokenURI(uint256 _userNFTID) external view returns (string memory);
