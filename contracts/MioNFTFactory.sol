@@ -11,7 +11,7 @@ contract MioNFTFactory {
 
     error NotMIOCORE();
     //------------------------------------------IMMUTABLES & CONST------------------------------------------------------
-    MioNFT public immutable mioNFT;
+
     //--------------------------------------------Events--------------------------------------------------------
     event ContractDeployed(
         address contractAddress,
@@ -23,9 +23,6 @@ contract MioNFTFactory {
     );
 
     //------------------------------------------CONSTRUCTOR-----------------------------------------------------
-    constructor(MioNFT _mioNFT) {
-        mioNFT = _mioNFT;
-    }
 
     //-------------------------------------------FUNCTIONS------------------------------------------------------
     function deployUserContract(
@@ -38,7 +35,7 @@ contract MioNFTFactory {
         // if(msg.sender != LibConst.MIO_CORE_MUMBAI){
         //     revert NotMIOCORE();
         // }
-            newMioNFTContract = address(
+        newMioNFTContract = address(
             new MioNFT(_name, _symbol, _totalSupply, _mintPrice, _baseURI)
         );
         emit ContractDeployed(

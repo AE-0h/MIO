@@ -22,13 +22,9 @@ describe("MIOCore", () => {
   let profileBanner2;
 
   beforeEach(async () => {
-    //deploy NFT contract
-    const NFTContract = await ethers.getContractFactory("MioNFT");
-    nftContract = await NFTContract.deploy("MIONFT", "MIO");
-    await nftContract.deployed();
     //deploy NFT factory contract passing in NFT contract address to constructor
     const NFTContractFactory = await ethers.getContractFactory("MioNFTFactory");
-    nftContractFactory = await NFTContractFactory.deploy(nftContract.address);
+    nftContractFactory = await NFTContractFactory.deploy();
     await nftContractFactory.deployed();
     //deploy MIOCore contract passing in NFT factory contract address to constructor
     const MIOCore = await ethers.getContractFactory("MIOCore");
@@ -258,10 +254,17 @@ describe("MIOCore", () => {
     //create nft contract
     let nftContract = await miocore
       .connect(user1)
-      .createUserNFTContract("MioNFT", "MIO", {
-        value: ethers.utils.parseEther("0.01"),
-        gasLimit: 2500000,
-      });
+      .createUserNFTContract(
+        "MioNFT",
+        "MIO",
+        200,
+        0.02,
+        "https://ipfs.io/ipfs/",
+        {
+          value: ethers.utils.parseEther("0.01"),
+          gasLimit: 2500000,
+        }
+      );
     let nftContractTx = await nftContract.wait();
     //get contract address
     let nftTxHash = nftContractTx.transactionHash;
