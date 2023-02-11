@@ -19,8 +19,12 @@ import {MioNFTFactory} from "./MioNFTFactory.sol";
 import {MioNFTInterface} from "./interfaces/MioNFTInterface.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
+import "openzeppelin-contracts/contracts/utils/Strings.sol";
+
+import "hardhat/console.sol";
 
 contract MIOCore is Owned(msg.sender), ReentrancyGuard {
+    using Strings for uint256;
     //----------------------------ERRORS-------------------------------------------
     // error thrown when a user tries to create a user that already exists
     error UserAlreadyExists();
@@ -40,6 +44,8 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     error PostDoesNotExist();
     //throws error when a user tries to get all of there posts and there are no posts
     error NoPosts();
+    //throws error when msg.value is not equal to mintPrice
+    error MintPriceNotPaid();
 
     //---------------------------IMMUTABLES----------------------------------------
     // address of the MioNFTFactory contract
@@ -95,7 +101,12 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     // - the address of the user nft contract
     event userNFTContractCreated(
         address indexed userAddress,
-        address indexed userNFTContract
+        address indexed userNFTContract,
+        string name,
+        string symbol,
+        uint256 totalSupply,
+        uint256 mintPrice,
+        string baseURI
     );
 
     //--------------------------CONSTRUCTOR-------------------------------------
@@ -128,7 +139,9 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         string name;
         string symbol;
         address contractAddress;
-        // uint nonce
+        uint256 totalSupply;
+        uint256 mintPrice;
+        string baseURI;
     }
 
     //--------------------------FUNCTIONS-------------------------------------
@@ -157,10 +170,25 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
             _baseURI
         );
         userNFTContracts[msg.sender].push(
-            userNFTContract(_name, symbol, newcontract)
+            userNFTContract(
+                _name,
+                symbol,
+                newcontract,
+                _totalSupply,
+                _mintPrice,
+                _baseURI
+            )
         );
         setNFTContractAddress(_name, symbol);
-        emit userNFTContractCreated(msg.sender, newcontract);
+        emit userNFTContractCreated(
+            msg.sender,
+            newcontract,
+            _name,
+            symbol,
+            _totalSupply,
+            _mintPrice,
+            _baseURI
+        );
         payable(owner).transfer(msg.value);
     }
 
@@ -189,8 +217,9 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
 
     // mint an NFT from specific user contract
     function mintUserNFT(address _to) public payable {
-        MioNFTInterface(userNFTAddress).mintNFT(_to);
-        payable(owner).transfer(msg.value);
+        console.log("msg.value: ", msg.value);
+        console.log("minting NFT from contract address: ", userNFTAddress);
+        MioNFTInterface(userNFTAddress).mintNFT(_to, msg.value);
     }
 
     // transfer an NFT to another user

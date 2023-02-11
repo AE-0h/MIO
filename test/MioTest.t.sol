@@ -7,29 +7,32 @@ import "../contracts/MioNFT.sol";
 import "../contracts/MioNFTFactory.sol";
 
 contract MioTest is Test {
-        MIOCore mioCore;
-        MioNFTFactory mioNFTFactory;
-        MioNFT mioNFT;
-        address user;
+    MIOCore mioCore;
+    MioNFTFactory mioNFTFactory;
+    MioNFT mioNFT;
+    address user;
 
     function setUp() public {
-        mioNFT = new MioNFT("MioNFT", "MIO");
-        mioNFTFactory = new MioNFTFactory(mioNFT);
+        mioNFTFactory = new MioNFTFactory();
         mioCore = new MIOCore(mioNFTFactory);
     }
 
     function testCreateUser() public payable {
-        mioCore.createUser{
-            value: 1 ether,
-            gas: 2000000
-        }("aeoh", "HELLO WORLD", "pp.png", "pb.png");
-
-        
-
+        mioCore.createUser{value: 1 ether, gas: 2000000}(
+            "aeoh",
+            "HELLO WORLD",
+            "pp.png",
+            "pb.png"
+        );
     }
 
     function testFailCreateUserNFTContract() public {
-        mioCore.createUserNFTContract("PARADISELOST", "PL");
-
+        mioCore.createUserNFTContract(
+            "PARADISELOST",
+            "PL",
+            100,
+            1,
+            "https://ipfs.io/ipfs/"
+        );
     }
 }

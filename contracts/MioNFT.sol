@@ -2,11 +2,12 @@
 pragma solidity ^0.8.7;
 import {ERC721} from "solmate/src/tokens/ERC721.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
-import "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
+import "openzeppelin-contracts/contracts/utils/Strings.sol";
+
+import "hardhat/console.sol";
 
 contract MioNFT is ERC721, Owned(msg.sender) {
     using Strings for uint256;
-
     //------------------------------ERRORS---------------------------------------------//
 
     error MintPriceNotPaid();
@@ -16,13 +17,13 @@ contract MioNFT is ERC721, Owned(msg.sender) {
 
     //------------------------------Events---------------------------------------------//
 
-    // event fired when a new post is made official by another user aside from it's owner
+    // event fired when a nft is minted
     // contains: -
-    // - the address of the user
+    // - the address of the user wh
     // - user nft ID
     //
     event nftMinted(
-        address indexed owner,
+        address indexed to,
         uint256 indexed nftID,
         bytes32 indexed ipfsHash
     );
@@ -45,7 +46,7 @@ contract MioNFT is ERC721, Owned(msg.sender) {
         uint256 _totalSupply,
         uint256 _mintPrice,
         string memory _baseURI
-    ) ERC721(_name, _symbol) {
+    ) payable ERC721(_name, _symbol) {
         nftID = 0;
         owner = msg.sender;
         totalSupply = _totalSupply;
@@ -54,10 +55,8 @@ contract MioNFT is ERC721, Owned(msg.sender) {
     }
 
     //----------------------------FUNCTIONS-------------------------------------//
-
-    function setOwner(address _newOwner) public virtual override onlyOwner {
-        owner = _newOwner;
-        emit OwnerUpdated(msg.sender, _newOwner);
+    function getOwner() external view returns (address) {
+        return owner;
     }
 
     function setTokenURI(uint256 _nftID, bytes32 _ipfsHash) external onlyOwner {
@@ -73,28 +72,22 @@ contract MioNFT is ERC721, Owned(msg.sender) {
         return _tokenURI;
     }
 
-    function mintNFT(address _to) external payable returns (uint256) {
-        if (msg.value != mintPrice) {
+    function mintNFT(
+        address _to,
+        uint256 _mintPrice
+    ) external payable returns (uint256) {
+        if (_mintPrice != mintPrice) {
+            console.log("mintPrice", _mintPrice);
+            console.log("mintPrice", mintPrice);
             revert MintPriceNotPaid();
         }
         if (nftID >= totalSupply) {
             revert MaxSupply();
-        }
-        if (ipfsHashFromNFTID[nftID] == "") {
-            revert NonExistentTokenURI();
         }
         emit nftMinted(_to, ++nftID, ipfsHashFromNFTID[nftID]);
 
         _safeMint(_to, nftID);
 
         return nftID;
-    }
-
-    function withdrawPayments(address payable payee) external onlyOwner {
-        uint256 balance = address(this).balance;
-        (bool transferTx, ) = payee.call{value: balance}("");
-        if (!transferTx) {
-            revert WithdrawTransfer();
-        }
     }
 }

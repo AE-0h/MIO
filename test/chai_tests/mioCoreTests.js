@@ -1,12 +1,10 @@
 const { expect } = require("chai");
+const { FixedNumber } = require("ethers");
 const { ethers } = require("hardhat");
-const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
-//import dotenv
 require("dotenv").config();
 
 describe("MIOCore", () => {
   let miocore;
-  let nftContract;
   let nftContractFactory;
   let user1;
   let user2;
@@ -30,7 +28,7 @@ describe("MIOCore", () => {
     const MIOCore = await ethers.getContractFactory("MIOCore");
     miocore = await MIOCore.deploy(nftContractFactory.address);
     await miocore.deployed();
-    //get signers
+    //get signers and assign to user1 and user2 on mumbai. If hardhat is used comment out lines 33 to 36 and add user2 to getSigners array.
     [user1] = await ethers.getSigners();
     user2 = new ethers.Wallet(
       process.env.NEXT_PUBLIC_PRIVATE_KEY_TWO,
@@ -176,6 +174,8 @@ describe("MIOCore", () => {
     let allMioPosts = await miocore.connect(user1).getAllMioPosts();
     //confirming the length of all posts made official by any user on the platform is equal to 4
     console.log(`allMioPosts length: ${allMioPosts.length}`);
+    console.log(`allUser1Post length: ${allUser1Post.length}`);
+    console.log(`allUser2Post length: ${allUser2Post.length}`);
     // filter out empty array
     let post1Filter = await allUser1Post[0].filter((item) => item !== "");
     //filter out empty array
@@ -228,7 +228,7 @@ describe("MIOCore", () => {
     );
   });
 
-  //it should be able to create a user and retrieve user data via getUser() from user address
+  // it should be able to create a user and retrieve user data via getUser() from user address
   it("should be able to create a user and retrieve user data from user address using getUser()", async () => {
     const user = await miocore
       .connect(user2)
@@ -243,7 +243,7 @@ describe("MIOCore", () => {
     );
   });
 
-  //it should be able to crreate a user and then create a new nft contract for that user and then mint a new nft for that user
+  // it should be able to create a user and then create a new nft contract for that user and then mint a new nft for that user
   it("should be able to create a user => then create a new nft contract for that user", async () => {
     await expect(mioUser)
       .to.emit(miocore, "userCreated")
@@ -251,55 +251,64 @@ describe("MIOCore", () => {
     console.log(
       `NEW USER CREATED::{ userAddress: ${user1.address}, username: ${username}, bio: ${bio}, profilePic: ${profilePic}, profileBanner: ${profileBanner}}`
     );
+    let name = "MioNFT";
+    let symbol = "MIO";
+    let maxSupply = 200;
+    let mintPrice = (FixedNumber.from("0.02") * 10 ** 18).toString();
+    let baseURI = "https://ipfs.io/ipfs/";
     //create nft contract
     let nftContract = await miocore
       .connect(user1)
-      .createUserNFTContract(
-        "MioNFT",
-        "MIO",
-        200,
-        0.02,
-        "https://ipfs.io/ipfs/",
-        {
-          value: ethers.utils.parseEther("0.01"),
-          gasLimit: 2500000,
-        }
-      );
+      .createUserNFTContract(name, symbol, maxSupply, mintPrice, baseURI, {
+        value: ethers.utils.parseEther("0.01"),
+        gasLimit: 3500000,
+      });
+
     let nftContractTx = await nftContract.wait();
     //get contract address
     let nftTxHash = nftContractTx.transactionHash;
     let nftTxReceipt = await ethers.provider.getTransactionReceipt(nftTxHash);
+    console.log(nftTxReceipt);
+    //exception from mumbai to hardhat network (mumbai contract =logs[1] hardhat=logs[0])
     let nftContractAddress = nftTxReceipt.logs[1].address;
-    console.log(nftContractAddress);
 
     // get emitted event
     await expect(nftContract)
       .to.emit(miocore, "userNFTContractCreated")
-      .withArgs(user1.address, nftContractAddress);
+      .withArgs(
+        user1.address,
+        nftContractAddress,
+        name,
+        symbol,
+        maxSupply,
+        mintPrice,
+        baseURI
+      );
     console.log(
       `NEW USER NFT CONTRACT CREATED::{ userAddress: ${user1.address}, nftContractAddress: ${nftContractAddress}}`
     );
-    //todo: mint nft logic here
-    //mint nft
-    // let nftMint = await miocore.connect(user2).mintNFT(user2.address, {
-    //   gasLimit: 2500000,
-    // });
-    // console.log(nftMint);
-    // let nftMintTx = await nftMint.wait();
-    // //get transaction hash
-    // let nftMintTxHash = nftMintTx.transactionHash;
-    // //get transaction receipt via getTransactionReceipt() passing in transaction hash from above
-    // let nftMintTxReceipt = await ethers.provider.getTransactionReceipt(
-    //   nftMintTxHash
-    // );
-    // // transaction receipt formatted for console.log
-    // console.log(`TRANSACTION RECEIPT:
-    //                 GAS USED : ${nftMintTxReceipt.gasUsed}
-    //                 CONTRACT ADDRESS : ${nftContractAddress}
-    //                 TRANSACTION HASH : ${nftMintTxHash}
-    //                 FROM : ${nftMintTxReceipt.from}
-    //                 TO : ${nftMintTxReceipt.to}
-    //                 STATUS : ${nftMintTxReceipt.status}
-    //                 `);
+    // mint nft
+    let nftMint = await miocore.connect(user2).mintUserNFT(user2.address, {
+      value: ethers.utils.parseEther("0.02"),
+      gasLimit: 2500000,
+    });
+
+    console.log(nftMint);
+    let nftMintTx = await nftMint.wait();
+    //get transaction hash
+    let nftMintTxHash = nftMintTx.transactionHash;
+    //get transaction receipt via getTransactionReceipt() passing in transaction hash from above
+    let nftMintTxReceipt = await ethers.provider.getTransactionReceipt(
+      nftMintTxHash
+    );
+    // transaction receipt formatted for console.log
+    console.log(`TRANSACTION RECEIPT:
+                    GAS USED : ${nftMintTxReceipt.gasUsed}
+                    CONTRACT ADDRESS : ${nftContractAddress}
+                    TRANSACTION HASH : ${nftMintTxHash}
+                    FROM : ${nftMintTxReceipt.from}
+                    TO : ${nftMintTxReceipt.to}
+                    STATUS : ${nftMintTxReceipt.status}
+                    `);
   });
 });

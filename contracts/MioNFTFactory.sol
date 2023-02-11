@@ -5,8 +5,11 @@ import {MioNFT} from "./MioNFT.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {MIOCore} from "./MioCore.sol";
 import {LibConst} from "./contract_libs/LibConst.sol";
+import "openzeppelin-contracts/contracts/utils/Strings.sol";
 
-contract MioNFTFactory {
+contract MioNFTFactory is Owned(msg.sender) {
+    using Strings for uint256;
+
     //--------------------------------------------ERRORS--------------------------------------------------------
 
     error NotMIOCORE();
@@ -23,6 +26,10 @@ contract MioNFTFactory {
     );
 
     //------------------------------------------CONSTRUCTOR-----------------------------------------------------
+
+    constructor() {
+        owner = msg.sender;
+    }
 
     //-------------------------------------------FUNCTIONS------------------------------------------------------
     function deployUserContract(
