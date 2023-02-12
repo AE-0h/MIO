@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const { FixedNumber } = require("ethers");
-const { ethers } = require("hardhat");
+const { ethers, hre } = require("hardhat");
 require("dotenv").config();
 
 describe("MIOCore", () => {
@@ -28,12 +28,12 @@ describe("MIOCore", () => {
     const MIOCore = await ethers.getContractFactory("MIOCore");
     miocore = await MIOCore.deploy(nftContractFactory.address);
     await miocore.deployed();
-    //get signers and assign to user1 and user2 on mumbai. If hardhat is used comment out lines 33 to 36 and add user2 to getSigners array.
-    [user1] = await ethers.getSigners();
-    user2 = new ethers.Wallet(
-      process.env.NEXT_PUBLIC_PRIVATE_KEY_TWO,
-      ethers.provider
-    );
+    //get signers and assign to user1 and user2 on chosen network
+    [user1, user2] = await ethers.getSigners();
+    // user2 = new ethers.Wallet(
+    //   process.env.NEXT_PUBLIC_PRIVATE_KEY_TWO,
+    //   ethers.provider
+    // );
     console.log(
       `-------------------WALLET_ADDRESS_ON_MUMBAI--------------------------`
     );
@@ -244,7 +244,7 @@ describe("MIOCore", () => {
   });
 
   // it should be able to create a user and then create a new nft contract for that user and then mint a new nft for that user
-  it("should be able to create a user => then create a new nft contract for that user", async () => {
+  it("should be able to create a user => then create a new nft contract for that user and then mint an NFT for the user who created the contract", async () => {
     await expect(mioUser)
       .to.emit(miocore, "userCreated")
       .withArgs(user1.address, username, bio, profilePic, profileBanner);
@@ -266,11 +266,11 @@ describe("MIOCore", () => {
 
     let nftContractTx = await nftContract.wait();
     //get contract address
-    let nftTxHash = nftContractTx.transactionHash;
+    let nftTxHash = await nftContractTx.transactionHash;
     let nftTxReceipt = await ethers.provider.getTransactionReceipt(nftTxHash);
     console.log(nftTxReceipt);
     //exception from mumbai to hardhat network (mumbai contract =logs[1] hardhat=logs[0])
-    let nftContractAddress = nftTxReceipt.logs[1].address;
+    let nftContractAddress = nftTxReceipt.logs[0].address;
 
     // get emitted event
     await expect(nftContract)

@@ -6,6 +6,8 @@ pragma solidity ^0.8.7;
 interface MioNFTInterface {
     function getOwner() external view returns (address);
 
+    function harvest(address payable _contractOwner) external;
+
     function tokenURI(uint256 _userNFTID) external view returns (string memory);
 
     function setTokenURI(uint256 _userNFTID, string memory _ipfsHash) external;

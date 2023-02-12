@@ -216,8 +216,8 @@
       }
     },
     "contracts/MioCore.sol": {
-      "lastModificationDate": 1675305179945,
-      "contentHash": "69c42e856f45b0ca58860ea65b932d6f",
+      "lastModificationDate": 1676176749214,
+      "contentHash": "aa7d8b83a15659975fffecf894ea8b1b",
       "sourceName": "contracts/MioCore.sol",
       "solcConfig": {
         "settings": {
@@ -256,11 +256,12 @@
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/SignedMath.sol",
+        "node_modules/hardhat/console.sol",
         "node_modules/solmate/src/auth/Owned.sol",
         "node_modules/solmate/src/tokens/ERC721.sol",
         "node_modules/solmate/src/utils/ReentrancyGuard.sol"
       ],
-      "versionRequirement": "^0.8.9",
+      "versionRequirement": "^0.8.7",
       "artifacts": {
         "MIOCore": {
           "0.8.10+commit.fc410830.Darwin.appleclang": "MioCore.sol/MIOCore.json"
@@ -268,8 +269,8 @@
       }
     },
     "contracts/MioNFT.sol": {
-      "lastModificationDate": 1675274545704,
-      "contentHash": "6a98b34ad304e2b5ecf03ad8407cef41",
+      "lastModificationDate": 1676069778147,
+      "contentHash": "5b2a784d695d05246247b29b1ce652c1",
       "sourceName": "contracts/MioNFT.sol",
       "solcConfig": {
         "settings": {
@@ -303,10 +304,11 @@
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/SignedMath.sol",
+        "node_modules/hardhat/console.sol",
         "node_modules/solmate/src/auth/Owned.sol",
         "node_modules/solmate/src/tokens/ERC721.sol"
       ],
-      "versionRequirement": "^0.8.9",
+      "versionRequirement": "^0.8.7",
       "artifacts": {
         "MioNFT": {
           "0.8.10+commit.fc410830.Darwin.appleclang": "MioNFT.sol/MioNFT.json"
@@ -314,8 +316,8 @@
       }
     },
     "contracts/MioNFTFactory.sol": {
-      "lastModificationDate": 1675272075465,
-      "contentHash": "484f85141309060b1ab55cc6d7be3049",
+      "lastModificationDate": 1676056088241,
+      "contentHash": "f75addf498807976503610c85ad0a877",
       "sourceName": "contracts/MioNFTFactory.sol",
       "solcConfig": {
         "settings": {
@@ -354,11 +356,12 @@
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/SignedMath.sol",
+        "node_modules/hardhat/console.sol",
         "node_modules/solmate/src/auth/Owned.sol",
         "node_modules/solmate/src/tokens/ERC721.sol",
         "node_modules/solmate/src/utils/ReentrancyGuard.sol"
       ],
-      "versionRequirement": "^0.8.9",
+      "versionRequirement": "^0.8.7",
       "artifacts": {
         "MioNFTFactory": {
           "0.8.10+commit.fc410830.Darwin.appleclang": "MioNFTFactory.sol/MioNFTFactory.json"
@@ -366,8 +369,8 @@
       }
     },
     "contracts/contract_libs/LibConst.sol": {
-      "lastModificationDate": 1675027258886,
-      "contentHash": "b8a9b8398fe1bddd48ca85b601676af3",
+      "lastModificationDate": 1675819065068,
+      "contentHash": "cec49a5cd0f0ae5467c222b026f2b418",
       "sourceName": "contracts/contract_libs/LibConst.sol",
       "solcConfig": {
         "settings": {
@@ -398,7 +401,7 @@
         }
       },
       "imports": [],
-      "versionRequirement": "^0.8.9",
+      "versionRequirement": "^0.8.7",
       "artifacts": {
         "LibConst": {
           "0.8.10+commit.fc410830.Darwin.appleclang": "LibConst.sol/LibConst.json"
@@ -406,8 +409,8 @@
       }
     },
     "contracts/interfaces/MioNFTInterface.sol": {
-      "lastModificationDate": 1675326223911,
-      "contentHash": "3e3ba8dcf03585cf8f856f846e08c326",
+      "lastModificationDate": 1676067545199,
+      "contentHash": "96e2ac63df6caf0fa26e370b21547391",
       "sourceName": "contracts/interfaces/MioNFTInterface.sol",
       "solcConfig": {
         "settings": {
@@ -438,7 +441,7 @@
         }
       },
       "imports": [],
-      "versionRequirement": "^0.8.9",
+      "versionRequirement": "^0.8.7",
       "artifacts": {
         "MioNFTInterface": {
           "0.8.10+commit.fc410830.Darwin.appleclang": "MioNFTInterface.sol/MioNFTInterface.json"
@@ -1009,7 +1012,7 @@
       "versionRequirement": ">=0.4.22, <0.9.0",
       "artifacts": {
         "console": {
-          "0.8.10+commit.fc410830.Darwin.appleclang": "console.sol/console.json"
+          "0.8.10+commit.fc410830.Darwin.appleclang": "src/console.sol/console.json"
         }
       }
     },
@@ -1216,6 +1219,46 @@
         }
       }
     },
+    "node_modules/hardhat/console.sol": {
+      "lastModificationDate": 1674117531712,
+      "contentHash": "4ff3cd2f6272c9a6516e9ee4f2b967d3",
+      "sourceName": "node_modules/hardhat/console.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": null,
+      "artifacts": {
+        "console": {
+          "0.8.10+commit.fc410830.Darwin.appleclang": "console.sol/console.json"
+        }
+      }
+    },
     "node_modules/solmate/src/auth/Owned.sol": {
       "lastModificationDate": 1673416099585,
       "contentHash": "cbb684ea20bea675b7d97397da4bfd95",
@@ -1340,8 +1383,8 @@
       }
     },
     "test/MioTest.t.sol": {
-      "lastModificationDate": 1675326421082,
-      "contentHash": "ceb77d35a4d385c02650bf5aa0d6db1c",
+      "lastModificationDate": 1676178732900,
+      "contentHash": "95c17ab8731342c2507c7e75149c93a4",
       "sourceName": "test/MioTest.t.sol",
       "solcConfig": {
         "settings": {
@@ -1395,6 +1438,7 @@
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/SignedMath.sol",
+        "node_modules/hardhat/console.sol",
         "node_modules/solmate/src/auth/Owned.sol",
         "node_modules/solmate/src/tokens/ERC721.sol",
         "node_modules/solmate/src/utils/ReentrancyGuard.sol"

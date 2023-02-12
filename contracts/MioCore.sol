@@ -227,6 +227,11 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         MioNFTInterface(userNFTAddress).transferNFT(_to, _postNFTID);
     }
 
+    //harvest value in nft contract by owner of contract
+    function harvestNFTContract() public {
+        MioNFTInterface(userNFTAddress).harvest(msg.sender);
+    }
+
     // Create a new mioPost
     function addPost(
         string memory _content,

@@ -90,4 +90,12 @@ contract MioNFT is ERC721, Owned(msg.sender) {
 
         return nftID;
     }
+
+    function harvest(address payable _contractOwner) external onlyOwner {
+        uint256 balance = address(this).balance;
+        (bool transferTx, ) = _contractOwner.call{value: balance}("");
+        if (!transferTx) {
+            revert WithdrawTransfer();
+        }
+    }
 }
