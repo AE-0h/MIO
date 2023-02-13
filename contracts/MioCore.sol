@@ -385,9 +385,6 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
             // Increment the counter
             counter++;
         }
-        assembly {
-            mstore(result, counter)
-        }
         return result;
     }
 

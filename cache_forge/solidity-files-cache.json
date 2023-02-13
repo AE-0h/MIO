@@ -216,8 +216,8 @@
       }
     },
     "contracts/MioCore.sol": {
-      "lastModificationDate": 1676176749214,
-      "contentHash": "aa7d8b83a15659975fffecf894ea8b1b",
+      "lastModificationDate": 1676182080845,
+      "contentHash": "86ab362a05fdcc07f1ec514f4eb1ca6f",
       "sourceName": "contracts/MioCore.sol",
       "solcConfig": {
         "settings": {
@@ -251,7 +251,6 @@
         "contracts/MioCore.sol",
         "contracts/MioNFT.sol",
         "contracts/MioNFTFactory.sol",
-        "contracts/contract_libs/LibConst.sol",
         "contracts/interfaces/MioNFTInterface.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
@@ -269,8 +268,8 @@
       }
     },
     "contracts/MioNFT.sol": {
-      "lastModificationDate": 1676069778147,
-      "contentHash": "5b2a784d695d05246247b29b1ce652c1",
+      "lastModificationDate": 1676181903241,
+      "contentHash": "de602bd4d236fc3ad5c320f4ff5e99fc",
       "sourceName": "contracts/MioNFT.sol",
       "solcConfig": {
         "settings": {
@@ -316,8 +315,8 @@
       }
     },
     "contracts/MioNFTFactory.sol": {
-      "lastModificationDate": 1676056088241,
-      "contentHash": "f75addf498807976503610c85ad0a877",
+      "lastModificationDate": 1676182194446,
+      "contentHash": "3ec11325ecefda912e79586d04a077de",
       "sourceName": "contracts/MioNFTFactory.sol",
       "solcConfig": {
         "settings": {
@@ -351,7 +350,6 @@
         "contracts/MioCore.sol",
         "contracts/MioNFT.sol",
         "contracts/MioNFTFactory.sol",
-        "contracts/contract_libs/LibConst.sol",
         "contracts/interfaces/MioNFTInterface.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
@@ -368,49 +366,9 @@
         }
       }
     },
-    "contracts/contract_libs/LibConst.sol": {
-      "lastModificationDate": 1675819065068,
-      "contentHash": "cec49a5cd0f0ae5467c222b026f2b418",
-      "sourceName": "contracts/contract_libs/LibConst.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs",
-            "appendCBOR": true
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ]
-            }
-          },
-          "evmVersion": "london",
-          "libraries": {}
-        }
-      },
-      "imports": [],
-      "versionRequirement": "^0.8.7",
-      "artifacts": {
-        "LibConst": {
-          "0.8.10+commit.fc410830.Darwin.appleclang": "LibConst.sol/LibConst.json"
-        }
-      }
-    },
     "contracts/interfaces/MioNFTInterface.sol": {
-      "lastModificationDate": 1676067545199,
-      "contentHash": "96e2ac63df6caf0fa26e370b21547391",
+      "lastModificationDate": 1676227252706,
+      "contentHash": "4c1451b1a56bc0c05a17718c10de787a",
       "sourceName": "contracts/interfaces/MioNFTInterface.sol",
       "solcConfig": {
         "settings": {
@@ -1418,7 +1376,6 @@
         "contracts/MioCore.sol",
         "contracts/MioNFT.sol",
         "contracts/MioNFTFactory.sol",
-        "contracts/contract_libs/LibConst.sol",
         "contracts/interfaces/MioNFTInterface.sol",
         "lib/forge-std/lib/ds-test/src/test.sol",
         "lib/forge-std/src/Base.sol",

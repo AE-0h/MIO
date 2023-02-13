@@ -4,7 +4,6 @@ pragma solidity ^0.8.7;
 import {MioNFT} from "./MioNFT.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {MIOCore} from "./MioCore.sol";
-import {LibConst} from "./contract_libs/LibConst.sol";
 import "openzeppelin-contracts/contracts/utils/Strings.sol";
 
 contract MioNFTFactory is Owned(msg.sender) {
@@ -39,9 +38,6 @@ contract MioNFTFactory is Owned(msg.sender) {
         uint256 _mintPrice,
         string calldata _baseURI
     ) external returns (address newMioNFTContract) {
-        // if(msg.sender != LibConst.MIO_CORE_MUMBAI){
-        //     revert NotMIOCORE();
-        // }
         newMioNFTContract = address(
             new MioNFT(_name, _symbol, _totalSupply, _mintPrice, _baseURI)
         );

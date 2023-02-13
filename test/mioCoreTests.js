@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const { FixedNumber } = require("ethers");
-const { ethers, hre } = require("hardhat");
+const { ethers} = require("hardhat");
 require("dotenv").config();
 
 describe("MIOCore", () => {
@@ -264,11 +264,12 @@ describe("MIOCore", () => {
         gasLimit: 3500000,
       });
 
+
     let nftContractTx = await nftContract.wait();
     //get contract address
     let nftTxHash = await nftContractTx.transactionHash;
     let nftTxReceipt = await ethers.provider.getTransactionReceipt(nftTxHash);
-    console.log(nftTxReceipt);
+    console.log(nftTxReceipt.logs[0].topics);
     //exception from mumbai to hardhat network (mumbai contract =logs[1] hardhat=logs[0])
     let nftContractAddress = nftTxReceipt.logs[0].address;
 
