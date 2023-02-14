@@ -78,4 +78,88 @@ module.exports = class User {
       return {};
     }
   }
+
+  async createPost(title, content, imagePath) {
+    // Create new post instance
+    const timestamp = Date.now();
+    const post = new Post(
+      title,
+      content,
+      imagePath,
+      this.walletAddress,
+      timestamp,
+      false
+    );
+
+    // Add post to IPFS as non-official
+    await post.createPost();
+
+    // Add post to user's non-official post directory
+    const postDirPath = path.join(
+      __dirname,
+      `users/${this.walletAddress}/posts/non-official`
+    );
+    if (!fs.existsSync(postDirPath)) {
+      fs.mkdirSync(postDirPath, { recursive: true });
+    }
+    const postFilePath = path.join(postDirPath, `${title}.json`);
+    const postData = JSON.stringify(post);
+    fs.writeFileSync(postFilePath, postData);
+
+    console.log(
+      `Added non-official post "${title}" by user ${this.walletAddress}`
+    );
+
+    return post;
+  }
+
+  async makePostOfficial(title) {
+    // Load post from file
+    const postDirPath = path.join(
+      __dirname,
+      `users/${this.walletAddress}/posts/non-official`
+    );
+    const postFilePath = path.join(postDirPath, `${title}.json`);
+    const postData = fs.readFileSync(postFilePath);
+    const post = JSON.parse(postData);
+
+    // Make post official
+    post.isMadeOfficial = true;
+    const officialPost = new Post(
+      post.id,
+      post.content,
+      post.media,
+      post.author,
+      post.timestamp,
+      post.isMadeOfficial
+    );
+
+    // Move post from non-official to official directory
+    const nonOfficialPostDirPath = path.join(
+      __dirname,
+      `users/${this.walletAddress}/posts/non-official`
+    );
+    const officialPostDirPath = path.join(
+      __dirname,
+      `users/${this.walletAddress}/posts/official`
+    );
+    if (!fs.existsSync(officialPostDirPath)) {
+      fs.mkdirSync(officialPostDirPath, { recursive: true });
+    }
+    const nonOfficialPostFilePath = path.join(
+      nonOfficialPostDirPath,
+      `${title}.json`
+    );
+    const officialPostFilePath = path.join(
+      officialPostDirPath,
+      `${title}.json`
+    );
+    fs.renameSync(nonOfficialPostFilePath, officialPostFilePath);
+
+    // Add official post to IPFS and pin it
+    await officialPost.createPost();
+    await officialPost.makePostOfficial();
+
+    console.log(`Made post "${title}" by user ${this.walletAddress} official`);
+  }
 };

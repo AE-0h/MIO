@@ -8,7 +8,8 @@ const ipfs = IPFS.create({
   port: 5001,
   protocol: "https",
 });
-module.exports = class Post {
+
+class Post {
   constructor(
     // The id of the post
     id,
@@ -31,5 +32,49 @@ module.exports = class Post {
     this.isMadeOfficial = isMadeOfficial;
   }
 
-  // add post to +
-};
+  async createPost() {
+    // Add post to IPFS as non-official
+    const postDirPath = path.join(__dirname, `posts/non-official`);
+    if (!fs.existsSync(postDirPath)) {
+      fs.mkdirSync(postDirPath, { recursive: true });
+    }
+    const postFilePath = path.join(postDirPath, `${this.id}.json`);
+    const postData = JSON.stringify(this);
+    fs.writeFileSync(postFilePath, postData);
+    const postHash = await ipfs.add(postData);
+    console.log(
+      `Added non-official post "${this.id}" by user ${
+        this.author
+      } to IPFS with hash ${postHash.cid.toString()}`
+    );
+  }
+
+  async makePostOfficial() {
+    // Move post from non-official to official directory
+    const nonOfficialPostDirPath = path.join(__dirname, `posts/non-official`);
+    const officialPostDirPath = path.join(__dirname, `posts/official`);
+    if (!fs.existsSync(officialPostDirPath)) {
+      fs.mkdirSync(officialPostDirPath, { recursive: true });
+    }
+    const nonOfficialPostFilePath = path.join(
+      nonOfficialPostDirPath,
+      `${this.id}.json`
+    );
+    const officialPostFilePath = path.join(
+      officialPostDirPath,
+      `${this.id}.json`
+    );
+    fs.renameSync(nonOfficialPostFilePath, officialPostFilePath);
+
+    // Pin post to IPFS
+    const officialPostData = fs.readFileSync(officialPostFilePath);
+    const officialPostHash = await ipfs.add(officialPostData, { pin: true });
+    console.log(
+      `Pinned official post "${this.id}" by user ${
+        this.author
+      } to IPFS with hash ${officialPostHash.cid.toString()}`
+    );
+  }
+}
+
+module.exports = Post;
