@@ -75,6 +75,26 @@ class Post {
       } to IPFS with hash ${officialPostHash.cid.toString()}`
     );
   }
+  async deletePost() {
+    // Remove post from non-official directory
+    const nonOfficialPostDirPath = path.join(__dirname, `posts/non-official`);
+    const nonOfficialPostFilePath = path.join(
+      nonOfficialPostDirPath,
+      `${this.id}.json`
+    );
+    fs.unlinkSync(nonOfficialPostFilePath);
+    console.log(
+      `Deleted non-official post "${this.id}" by user ${this.author}`
+    );
+
+    // Remove post from IPFS
+    try {
+      await ipfs.pin.rm(this);
+      console.log(`Removed post media "${this}" from IPFS`);
+    } catch (err) {
+      console.error(`Error removing post media "${this}" from IPFS: ${err}`);
+    }
+  }
 }
 
 module.exports = Post;

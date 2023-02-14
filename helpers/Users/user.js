@@ -11,12 +11,20 @@ const ipfs = IPFS.create({
 });
 
 module.exports = class User {
-  constructor(username, bio, profilePic, profileBanner, walletAddress) {
+  constructor(
+    username,
+    bio,
+    profilePic,
+    profileBanner,
+    walletAddress,
+    nftContractTrieRootHash
+  ) {
     this.username = username;
     this.bio = bio;
     this.profilePic = profilePic;
     this.profileBanner = profileBanner;
     this.walletAddress = walletAddress;
+    this.nftContractTrieRootHash = nftContractTrieRootHash;
   }
 
   async initialize() {
@@ -32,7 +40,7 @@ module.exports = class User {
       this.bio = indexJson.bio || this.bio;
       this.profilePic = indexJson.profilePic || this.profilePic;
       this.profileBanner = indexJson.profileBanner || this.profileBanner;
-      this.metadataHash = indexJson.metadataHash || "";
+      this.nftContractTrieRootHash = indexJson.nftContractTrieRootHash || "";
     } catch (err) {
       console.log(
         `Could not load index.json for user ${this.walletAddress}: ${err}`
