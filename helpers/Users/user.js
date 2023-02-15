@@ -48,45 +48,6 @@ module.exports = class User {
     }
   }
 
-  async updateMetadata(metadata) {
-    // Merge new metadata with existing metadata
-    const oldMetadata = await this.getMetadata();
-    const newMetadata = { ...oldMetadata, ...metadata };
-
-    // Save user metadata to IPFS
-    const indexData = JSON.stringify(newMetadata);
-    const indexHash = await ipfs.add(indexData);
-    const indexFilePath = path.join(
-      __dirname,
-      `users/${this.walletAddress}/index.json`
-    );
-    fs.writeFileSync(indexFilePath, indexData);
-
-    this.metadataHash = indexHash.cid.toString();
-    console.log(
-      `Updated metadata for user ${
-        this.walletAddress
-      } on IPFS with hash ${indexHash.cid.toString()}`
-    );
-  }
-
-  async getMetadata() {
-    const indexFilePath = path.join(
-      __dirname,
-      `users/${this.walletAddress}/index.json`
-    );
-    try {
-      const indexData = fs.readFileSync(indexFilePath);
-      const indexJson = JSON.parse(indexData);
-      return indexJson;
-    } catch (err) {
-      console.log(
-        `Could not load index.json for user ${this.walletAddress}: ${err}`
-      );
-      return {};
-    }
-  }
-
   async createPost(title, content, imagePath) {
     // Create new post instance
     const timestamp = Date.now();

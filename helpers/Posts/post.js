@@ -9,7 +9,7 @@ const ipfs = IPFS.create({
   protocol: "https",
 });
 
-class Post {
+module.exports = class Post {
   constructor(
     // The id of the post
     id,
@@ -95,6 +95,4 @@ class Post {
       console.error(`Error removing post media "${this}" from IPFS: ${err}`);
     }
   }
-}
-
-module.exports = Post;
+};

@@ -5,16 +5,11 @@ async function main() {
   console.log("Deploying contracts with the account:", deployer.address);
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
-  const MioNFT = await hre.ethers.getContractFactory("MioNFT");
-  const mioNFT = await MioNFT.deploy("MIONFT", "MIO");
-  await mioNFT.deployed();
-  console.log("MioNFT deployed to:", mioNFT.address);
-
   //deploy nftContractFactory on polygon mumbai testnet
   const NFTContractFactory = await hre.ethers.getContractFactory(
     "MioNFTFactory"
   );
-  const nftContractFactory = await NFTContractFactory.deploy(mioNFT.address);
+  const nftContractFactory = await NFTContractFactory.deploy();
   await nftContractFactory.deployed();
   console.log("NFTContractFactory deployed to:", nftContractFactory.address);
 
