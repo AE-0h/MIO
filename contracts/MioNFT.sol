@@ -31,7 +31,7 @@ contract MioNFT is ERC721, Owned(msg.sender) {
     //--------------------------STATE VARIABLES---------------------------------------//
     // userNft unique id
     uint256 public nftID;
-    // mapping nftID to description
+    // mapping nftID to ipfsHash
     mapping(uint256 => bytes32) public ipfsHashFromNFTID;
     string public baseURI;
     uint256 public currentTokenId;
@@ -59,7 +59,7 @@ contract MioNFT is ERC721, Owned(msg.sender) {
         return owner;
     }
 
-    function setTokenURI(uint256 _nftID, bytes32 _ipfsHash) external onlyOwner {
+    function setTokenURI(uint256 _nftID, bytes32 _ipfsHash) internal onlyOwner {
         ipfsHashFromNFTID[_nftID] = _ipfsHash;
     }
 
@@ -74,6 +74,7 @@ contract MioNFT is ERC721, Owned(msg.sender) {
 
     function mintNFT(
         address _to,
+        bytes32 _ipfsHash,
         uint256 _mintPrice
     ) external payable returns (uint256) {
         if (_mintPrice != mintPrice) {
@@ -85,9 +86,8 @@ contract MioNFT is ERC721, Owned(msg.sender) {
             revert MaxSupply();
         }
         emit nftMinted(_to, ++nftID, ipfsHashFromNFTID[nftID]);
-
+        setTokenURI(nftID, _ipfsHash);
         _safeMint(_to, nftID);
-
         return nftID;
     }
 
