@@ -1,112 +1,78 @@
-module.exports = class Graph {
+class Graph {
   constructor() {
     this.users = new Map();
     this.posts = new Map();
-    this.NFTs = new Map();
-    this.NFTContracts = new Map();
+    this.nfts = new Map();
+    this.nftContracts = new Map();
+
+    this.edges = new Map();
+    this.edges.set("users-posts", new Map());
+    this.edges.set("users-nftContracts", new Map());
+    this.edges.set("nftContracts-nfts", new Map());
+    this.edges.set("users-nfts", new Map());
   }
 
-  // Add a user to the graph
   addUser(user) {
     this.users.set(user.id, user);
   }
 
-  // Add a post to the graph
   addPost(post) {
     this.posts.set(post.id, post);
-    post.author.posts.push(post);
-  }
 
-  // Get a user by id
-  getUserByAddress(walletAddress) {
-    return this.users.get(walletAddress);
-  }
-
-  // Get all users
-  getAllUsers() {
-    let users = [];
-    // loop through all users
-    this.users.forEach((user) => {
-      // add user to array
-      users.push(user);
-    });
-    return users;
-  }
-
-  // Get all posts by a user
-  getPostsByUser(walletAddress) {
-    const user = this.getUserByAddress(walletAddress);
-    if (!user) {
-      throw new Error("User not found.");
+    const edges = this.edges.get("users-posts");
+    if (!edges.has(post.author.id)) {
+      edges.set(post.author.id, []);
     }
-    return user.posts;
+    edges.get(post.author.id).push(post);
   }
 
-  // Get a post by id
-  getPostById(postID) {
-    return this.posts.get(postID);
-  }
-  // Get all posts
-  getAllPosts() {
-    let posts = [];
-    // loop through all users
-    this.users.forEach((user) => {
-      // loop through all posts
-      user.posts.forEach((post) => {
-        // add post to array
-        posts.push(post);
-      });
-    });
-    return posts;
-  }
-
-  // add a nft contract to the graph
   addNFTContract(nftContract) {
-    this.NFTContracts.set(nftContract.contractAddress, nftContract);
+    this.nftContracts.set(nftContract.id, nftContract);
+
+    const edges = this.edges.get("users-nftContracts");
+    if (!edges.has(nftContract.owner.id)) {
+      edges.set(nftContract.owner.id, []);
+    }
+    edges.get(nftContract.owner.id).push(nftContract);
   }
-  // Get a nft contract by adderss
-  getNFTContractByAddress(contractAddress) {
-    return this.NFTContracts.get(contractAddress);
-  }
-  // Get all nft contracts
-  getAllNFTContracts() {
-    let nftContracts = [];
-    // loop through all nft contracts
-    this.NFTContracts.forEach((nftContract) => {
-      // add nft contract to array
-      nftContracts.push(nftContract);
-    });
-    return nftContracts;
-  }
-  // add a nft to the graph
+
   addNFT(nft) {
-    this.NFTs.set(nft.id, nft);
+    this.nfts.set(nft.id, nft);
+
+    const edges = this.edges.get("nftContracts-nfts");
+    if (!edges.has(nft.contract.id)) {
+      edges.set(nft.contract.id, []);
+    }
+    edges.get(nft.contract.id).push(nft);
+
+    const userEdges = this.edges.get("users-nfts");
+    if (!userEdges.has(nft.owner.id)) {
+      userEdges.set(nft.owner.id, []);
+    }
+    userEdges.get(nft.owner.id).push(nft);
   }
-  // Get a nft by id
-  getNFTById(id) {
-    return this.NFTs.get(id);
+
+  getUserById(userId) {
+    return this.users.get(userId);
   }
-  // Get all nfts that have been minted from a contract
-  getNFTsByContractAddress(contractAddress) {
-    let nfts = [];
-    // loop through all nfts
-    this.NFTs.forEach((nft) => {
-      // if nft is minted from contract
-      if (nft.contractAddress === contractAddress) {
-        // add nft to array
-        nfts.push(nft);
-      }
-    });
-    return nfts;
+
+  getPostsByUserId(userId) {
+    const edges = this.edges.get("users-posts");
+    return edges.has(userId) ? edges.get(userId) : [];
   }
-  // Get all nfts
-  getAllNFTs() {
-    let nfts = [];
-    // loop through all nfts
-    this.NFTs.forEach((nft) => {
-      // add nft to array
-      nfts.push(nft);
-    });
-    return nfts;
+
+  getNFTContractsByUserId(userId) {
+    const edges = this.edges.get("users-nftContracts");
+    return edges.has(userId) ? edges.get(userId) : [];
   }
-};
+
+  getNFTsByContractId(contractId) {
+    const edges = this.edges.get("nftContracts-nfts");
+    return edges.has(contractId) ? edges.get(contractId) : [];
+  }
+
+  getNFTsByUserId(userId) {
+    const edges = this.edges.get("users-nfts");
+    return edges.has(userId) ? edges.get(userId) : [];
+  }
+}
