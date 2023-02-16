@@ -216,10 +216,10 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     }
 
     // mint an NFT from specific user contract
-    function mintUserNFT(address _to) public payable {
+    function mintUserNFT(address _to, bytes32 _hash) public payable {
         console.log("msg.value: ", msg.value);
         console.log("minting NFT from contract address: ", userNFTAddress);
-        MioNFTInterface(userNFTAddress).mintNFT(_to, msg.value);
+        MioNFTInterface(userNFTAddress).mintNFT(_to, _hash, msg.value);
     }
 
     // transfer an NFT to another user

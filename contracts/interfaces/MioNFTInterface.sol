@@ -12,8 +12,8 @@ interface MioNFTInterface {
 
     function mintNFT(
         address _to,
-        uint256 _mintPrice,
-        bytes32 _ipfsHash
+        bytes32 _ipfsHash,
+        uint256 _mintPrice
     ) external payable;
 
     function transferNFT(address _to, uint256 _postNFTID) external;
