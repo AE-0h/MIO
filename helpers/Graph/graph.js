@@ -10,10 +10,33 @@ class Graph {
     this.edges.set("users-nftContracts", new Map());
     this.edges.set("nftContracts-nfts", new Map());
     this.edges.set("users-nfts", new Map());
+
+    this.following = new Map();
+    this.followers = new Map();
   }
 
   addUser(user) {
     this.users.set(user.id, user);
+    this.following.set(user.id, new Set());
+    this.followers.set(user.id, new Set());
+  }
+
+  addFollower(user, follower) {
+    this.followers.get(user.id).add(follower);
+    this.following.get(follower.id).add(user);
+  }
+
+  addFollowing(user, following) {
+    this.following.get(user.id).add(following);
+    this.followers.get(following.id).add(user);
+  }
+
+  getFollowers(userId) {
+    return Array.from(this.followers.get(userId));
+  }
+
+  getFollowing(userId) {
+    return Array.from(this.following.get(userId));
   }
 
   addPost(post) {
