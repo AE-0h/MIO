@@ -1,5 +1,13 @@
 module.exports = class User {
-  constructor(username, bio, profilePic, profileBanner, walletAddress) {
+  constructor(
+    username,
+    bio,
+    profilePic,
+    profileBanner,
+    walletAddress,
+    nftContracts
+  ) {
+    nftContracts = nftContracts || new Set();
     this.username = username;
     this.bio = bio;
     this.profilePic = profilePic;
