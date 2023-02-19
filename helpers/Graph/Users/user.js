@@ -1,25 +1,25 @@
 module.exports = class User {
   constructor(
+    //id is represented by users polygon wallet address
+    id,
     username,
     bio,
     profilePic,
     profileBanner,
-    walletAddress,
-    nftContracts
+    nftContracts,
+    nfts,
+    posts
   ) {
     nftContracts = nftContracts || new Set();
+    nfts = nfts || new Set();
+    posts = posts || new Set();
+    this.id = id;
     this.username = username;
     this.bio = bio;
     this.profilePic = profilePic;
     this.profileBanner = profileBanner;
-    this.walletAddress = walletAddress;
     this.nftContracts = nftContracts;
-  }
-  follow(user) {
-    this.followers.add(user);
-  }
-
-  unfollow(user) {
-    this.followers.delete(user);
+    this.nfts = nfts;
+    this.posts = posts;
   }
 };

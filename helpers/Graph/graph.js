@@ -10,12 +10,14 @@ class Graph {
     this.edges.set("users-nftContracts", new Map());
     this.edges.set("nftContracts-nfts", new Map());
     this.edges.set("users-nfts", new Map());
+    this.edges.set("users-followers", new Map());
 
     this.following = new Map();
     this.followers = new Map();
   }
 
   addUser(user) {
+    // create uuid and set user id
     this.users.set(user.id, user);
     this.following.set(user.id, new Set());
     this.followers.set(user.id, new Set());
@@ -44,9 +46,18 @@ class Graph {
 
     const edges = this.edges.get("users-posts");
     if (!edges.has(post.author.id)) {
-      edges.set(post.author.id, []);
+      edges.set(post.author, []);
     }
-    edges.get(post.author.id).push(post);
+    edges.get(post.author).push(post);
+
+    const followers = this.getFollowers(post.author.id);
+    for (const follower of followers) {
+      const followingEdges = this.edges.get("users-following");
+      if (!followingEdges.has(post.author.id)) {
+        followingEdges.set(post.author.id, []);
+      }
+      followingEdges.get(post.author.id).push(follower);
+    }
   }
 
   addNFTContract(nftContract) {
@@ -59,20 +70,29 @@ class Graph {
     edges.get(nftContract.owner.id).push(nftContract);
   }
 
-  addNFT(nft) {
+  addNFT(nft, nftContract) {
     this.nfts.set(nft.id, nft);
 
     const edges = this.edges.get("nftContracts-nfts");
-    if (!edges.has(nft.contract.id)) {
-      edges.set(nft.contract.id, []);
+    if (!edges.has(nftContract.contractAddress)) {
+      edges.set(nftContract.contractAddress, []);
     }
-    edges.get(nft.contract.id).push(nft);
+    edges.get(nftContract.contractAddress).push(nft);
 
     const userEdges = this.edges.get("users-nfts");
     if (!userEdges.has(nft.owner.id)) {
       userEdges.set(nft.owner.id, []);
     }
     userEdges.get(nft.owner.id).push(nft);
+
+    if (nft.minter && nft.minter !== nftContract.getOwner()) {
+      // check if NFT was minted by someone other than the owner of the NFT contract
+      const minterEdges = this.edges.get("users-nftContracts");
+      if (!minterEdges.has(nft.minter.id)) {
+        minterEdges.set(nft.minter.id, []);
+      }
+      minterEdges.get(nft.minter.id).push(nftContract.getOwner());
+    }
   }
 
   getUserById(userId) {
