@@ -4,7 +4,8 @@ pragma solidity ^0.8.7;
 import {MioNFT} from "./MioNFT.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {MIOCore} from "./MioCore.sol";
-import "openzeppelin-contracts/contracts/utils/Strings.sol";
+
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract MioNFTFactory is Owned(msg.sender) {
     using Strings for uint256;

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@next/font": "13.1.1",
+    "@openzeppelin/contracts": "^4.8.1",
     "@rainbow-me/rainbowkit": "^0.8.1",
     "dotenv": "^16.0.3",
     "dotenv-load": "^2.0.1",

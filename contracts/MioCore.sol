@@ -19,7 +19,8 @@ import {MioNFTFactory} from "./MioNFTFactory.sol";
 import {MioNFTInterface} from "./interfaces/MioNFTInterface.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
-import "openzeppelin-contracts/contracts/utils/Strings.sol";
+
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 import "hardhat/console.sol";
 
@@ -216,7 +217,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     }
 
     // mint an NFT from specific user contract
-    function mintUserNFT(address _to, bytes32 _hash) public payable {
+    function mintUserNFT(address _to, string memory _hash) public payable {
         console.log("msg.value: ", msg.value);
         console.log("minting NFT from contract address: ", userNFTAddress);
         MioNFTInterface(userNFTAddress).mintNFT(_to, _hash, msg.value);

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.7;
 import {ERC721} from "solmate/src/tokens/ERC721.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
-import "openzeppelin-contracts/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 import "hardhat/console.sol";
 
@@ -25,14 +25,14 @@ contract MioNFT is ERC721, Owned(msg.sender) {
     event nftMinted(
         address indexed to,
         uint256 indexed nftID,
-        bytes32 indexed ipfsHash
+        string indexed ipfsHash
     );
 
     //--------------------------STATE VARIABLES---------------------------------------//
     // userNft unique id
     uint256 public nftID;
     // mapping nftID to ipfsHash
-    mapping(uint256 => bytes32) public ipfsHashFromNFTID;
+    mapping(uint256 => string) public ipfsHashFromNFTID;
     string public baseURI;
     uint256 public currentTokenId;
     uint256 public immutable totalSupply;
@@ -59,7 +59,10 @@ contract MioNFT is ERC721, Owned(msg.sender) {
         return owner;
     }
 
-    function setTokenURI(uint256 _nftID, bytes32 _ipfsHash) internal onlyOwner {
+    function setTokenURI(
+        uint256 _nftID,
+        string memory _ipfsHash
+    ) internal onlyOwner {
         ipfsHashFromNFTID[_nftID] = _ipfsHash;
     }
 
@@ -74,7 +77,7 @@ contract MioNFT is ERC721, Owned(msg.sender) {
 
     function mintNFT(
         address _to,
-        bytes32 _ipfsHash,
+        string calldata _ipfsHash,
         uint256 _mintPrice
     ) external payable returns (uint256) {
         if (_mintPrice != mintPrice) {
@@ -85,8 +88,8 @@ contract MioNFT is ERC721, Owned(msg.sender) {
         if (nftID >= totalSupply) {
             revert MaxSupply();
         }
-        emit nftMinted(_to, ++nftID, ipfsHashFromNFTID[nftID]);
-        setTokenURI(nftID, _ipfsHash);
+        emit nftMinted(_to, ++nftID, _ipfsHash);
+        ipfsHashFromNFTID[nftID] = _ipfsHash;
         _safeMint(_to, nftID);
         return nftID;
     }
