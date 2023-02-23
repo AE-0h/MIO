@@ -1,10 +1,11 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useState, useEffect } from "react";
+import { Test } from "../components/test.js";
 
 export default function Home() {
   const [randoNum, setRandoNum] = useState(0);
   const [user, setUser] = useState(null);
-
+  console.log(user);
   useEffect(() => {
     setUser(window.ethereum.selectedAddress);
     console.log(user);
@@ -48,6 +49,7 @@ export default function Home() {
       <ConnectButton />
       <button onClick={handleClick}>Click me</button>
       <p>{randoNum}</p>
+      <Test />
     </>
   );
 }

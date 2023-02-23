@@ -20,12 +20,9 @@ import {MioNFTInterface} from "./interfaces/MioNFTInterface.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
 
-import "@openzeppelin/contracts/utils/Strings.sol";
-
 import "hardhat/console.sol";
 
 contract MIOCore is Owned(msg.sender), ReentrancyGuard {
-    using Strings for uint256;
     //----------------------------ERRORS-------------------------------------------
     // error thrown when a user tries to create a user that already exists
     error UserAlreadyExists();
