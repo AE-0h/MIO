@@ -1,55 +1,99 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useState, useEffect } from "react";
-import { Test } from "../components/test.js";
+import styles from "../styles/Home.module.css";
+import {
+  Stack,
+  Container,
+  VStack,
+  Heading,
+  Image,
+  Spacer,
+  Text,
+  Box,
+  Link,
+} from "@chakra-ui/react";
 
-export default function Home() {
-  const [randoNum, setRandoNum] = useState(0);
-  const [user, setUser] = useState(null);
-  console.log(user);
-  useEffect(() => {
-    setUser(window.ethereum.selectedAddress);
-    console.log(user);
-    let x = process.env.NEXT_PUBLIC_ALCHEMY_ID;
-    console.log(x);
-  }, [user]);
-
-  const handleClick = async () => {
-    const jsonRES = {
-      jsonrpc: "2.0",
-      method: "generateSignedIntegers",
-      params: {
-        apiKey: "1f0e21c6-97ae-4197-905a-af1821f236ed",
-        n: 5,
-        min: 1,
-        max: 1000000000,
-        base: 16,
-      },
-      id: 29700,
-    };
-
-    const options = {
-      method: "POST",
-      body: JSON.stringify(jsonRES),
-      headers: { "Content-Type": "application/json" },
-    };
-
-    let randoARR = await fetch(
-      "https://api.random.org/json-rpc/4/invoke",
-      options
-    )
-      .then((res) => res.json())
-      .then((json) => json.result.random.data);
-
-    let randoNum = await Object.values(randoARR).join("");
-    setRandoNum(randoNum);
+export default function Splash() {
+  const [isLoading, setIsLoading] = useState(false);
+  const onClick = () => {
+    if (window.ethereum.selectedAddress) {
+      window.location.href = "/home";
+    } else {
+      setIsLoading(true);
+    }
   };
 
+  useEffect(() => {
+    const handleAccountsChanged = () => {
+      if (window.ethereum.selectedAddress) {
+        window.location.href = "/home";
+      }
+    };
+
+    window.ethereum.on("accountsChanged", handleAccountsChanged);
+  }, []);
   return (
-    <>
-      <ConnectButton />
-      <button onClick={handleClick}>Click me</button>
-      <p>{randoNum}</p>
-      <Test />
-    </>
+    <div className={styles.mainSplash}>
+      <Container textAlign={"center"}>
+        <Stack
+          as={Box}
+          textAlign={"center"}
+          spacing={{
+            base: 2,
+            md: 10,
+          }}
+          py={{
+            base: 5,
+            md: 56,
+          }}
+          w="100%"
+        >
+          <VStack spacing={2}>
+            <Heading
+              fontWeight={600}
+              fontSize={{
+                base: "2xl",
+                sm: "4xl",
+                md: "6xl",
+              }}
+              lineHeight={"100%"}
+              marginRight={20}
+            >
+              <Image src="/MIOICO.png" width={200} height={200} />
+              MIO
+            </Heading>{" "}
+            <Spacer />
+            <Heading
+              fontWeight={600}
+              fontSize={{
+                base: "2xl",
+                sm: "4xl",
+                md: "6xl",
+              }}
+              lineHeight={"100%"}
+              marginRight={100}
+            >
+              <Text as={"span"} color={"purple.400"} marginLeft={10}>
+                gm earthlings...
+              </Text>{" "}
+            </Heading>{" "}
+          </VStack>{" "}
+          <Text color={"gray.500"}>
+            Connect your wallet to get started earthling{" "}
+          </Text>{" "}
+          <Stack
+            direction={"column"}
+            spacing={3}
+            align={"center"}
+            alignSelf={"center"}
+            position={"relative"}
+          >
+            <Link onClick={onClick} disabled={isLoading}>
+              <ConnectButton />
+            </Link>
+          </Stack>{" "}
+        </Stack>{" "}
+      </Container>{" "}
+    </div>
   );
 }

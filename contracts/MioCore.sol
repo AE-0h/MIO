@@ -280,6 +280,11 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         );
     }
 
+    //check if user exists
+    function checkUserExists(address _userAddress) public view returns (bool) {
+        return userExists[_userAddress];
+    }
+
     // Create a new user
     function createUser(
         string memory _username,

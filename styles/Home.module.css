@@ -7,6 +7,17 @@
   min-height: 100vh;
 }
 
+.mainSplash {
+  background-image: url("/spaceAScii.jpeg");
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  color: white;
+}
+
 .description {
   display: inherit;
   justify-content: inherit;
@@ -97,7 +108,7 @@
 
 .center::before,
 .center::after {
-  content: '';
+  content: "";
   left: 50%;
   position: absolute;
   filter: blur(45px);
@@ -125,7 +136,7 @@
 
 .thirteen::before,
 .thirteen::after {
-  content: '';
+  content: "";
   position: absolute;
   z-index: -1;
 }

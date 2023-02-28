@@ -21,7 +21,6 @@ async function main() {
     MIOCoreABI,
     signer
   );
-  console.log(Mio.address);
 
   let mioUser = await Mio.connect(signer).createUser(
     "ae0h",

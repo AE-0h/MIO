@@ -70,6 +70,15 @@ describe("MIOCore", () => {
     console.log(`Owner: ${await miocore.owner()}`);
   });
 
+  it("should be able to check if a user exists", async () => {
+    expect(
+      await miocore.connect(user1).checkUserExists(user1.address)
+    ).to.equal(true);
+    console.log(
+      `User1 exists: ${await miocore.checkUserExists(user1.address)}`
+    );
+  });
+
   //it should create a user and add a post while emmiting events for each creation event
   it("should be able to make a post official while emmiting events for user creation and officiating post", async () => {
     //emit userCreated(msg.sender, _username, _bio, _profilePic, _profileBanner);
