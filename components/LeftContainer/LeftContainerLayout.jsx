@@ -11,7 +11,7 @@ export function LeftContainerLayout() {
       <Flex
         backgroundColor="black"
         direction={"row"}
-        width={"33vw"}
+        width={"100vw"}
         height={"70vh"}
         justify={"end"}
         pr={15}

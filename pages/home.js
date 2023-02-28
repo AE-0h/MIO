@@ -1,11 +1,21 @@
 import { useState, useEffect } from "react";
 import { create } from "ipfs-http-client";
 import { LeftContainerLayout } from "../components/LeftContainer/LeftContainerLayout.jsx";
+import CenterContainerLayout from "../components/CenterContainer/CenterContainerLayout.jsx";
 import { useSigner, useContract } from "wagmi";
 import MIOCoreJSON from "../artifacts/contracts/MIOCore.sol/MIOCore.json";
 import { UserSignUpModal } from "../components/UserSignUpModal.jsx";
-import { useDisclosure } from "@chakra-ui/react";
+import {
+  useDisclosure,
+  Flex,
+  Divider,
+  Box,
+  Heading,
+  VStack,
+} from "@chakra-ui/react";
 import { ethers } from "ethers";
+import { HomeNavBar } from "../components/LeftContainer/HomeNavBar.jsx";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export default function Home() {
   const [userExists, setUserExists] = useState(false);
@@ -18,9 +28,8 @@ export default function Home() {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   async function IPFS() {
-    const projectId = "2MLtVQ9OJeb1rhpdF8kf1n4SMqL"; // <---------- your Infura Project ID
-
-    const projectSecret = "1cd73b43c2700ef73d129b3fb41aa572"; // <---------- your Infura Project Secret
+    const projectId = process.env.NEXT_PUBLIC_IPFS_ID;
+    const projectSecret = process.env.NEXT_PUBLIC_IPFS_SECRET;
 
     const auth =
       "Basic " +
@@ -57,7 +66,7 @@ export default function Home() {
       let addr = await getSignerAddress();
       console.log(addr + "userCheck");
       try {
-        let m = await contract.checkUserExists(addr);
+        let m = await contract?.checkUserExists(addr);
         console.log(m + "userCheck");
         return m;
       } catch (e) {
@@ -123,8 +132,6 @@ export default function Home() {
       console.log(e);
     }
   };
-  console.log(showModal);
-  console.log(userExists);
   return (
     <>
       {!userExists && (
@@ -140,7 +147,73 @@ export default function Home() {
           profileBanner={profileBanner}
         />
       )}
-      <LeftContainerLayout />
+      <Flex justify={"space-evenly"}>
+        <Flex bg="black" w="35vw" h="100vh" minW="20vh" direction={"column"}>
+          <Flex bg="black" w="100%" h="90%">
+            <HomeNavBar />
+          </Flex>
+          <Flex bg="black" w="100%" h="10%" justify={"end"} pr={20}>
+            <ConnectButton
+              chainStatus="none"
+              accountStatus={{
+                smallScreen: "avatar",
+                largeScreen: "full",
+              }}
+              showBalance={false}
+            />
+          </Flex>
+        </Flex>
+        <Divider
+          orientation="vertical"
+          h="100vh"
+          colorScheme="blackAlpha"
+          borderWidth="0.2px"
+        />
+        <Flex bg="black" w="30vw" h="100vh" minW="350px" overflow={"scroll"}>
+          <VStack
+            w="100vw"
+            position={"sticky"}
+            justify="flex-start"
+            align="flex-start"
+          >
+            <Flex
+              w="35vw"
+              h="4vh"
+              position="sticky"
+              minW="350px"
+              minH="50px"
+              opacity={0.9}
+              overflow={"hidden"}
+              direction={"row"}
+            >
+              <Heading mt="4" ml="3" fontSize="xl" color="white">
+                Home
+              </Heading>
+            </Flex>
+            <Box></Box>
+            <Divider
+              orientation="horizontal"
+              colorScheme="blackAlpha"
+              borderWidth="0.2px"
+            />
+          </VStack>
+        </Flex>
+        <Divider
+          orientation="vertical"
+          h="100vh"
+          colorScheme="blackAlpha"
+          borderWidth="0.2px"
+        />
+        <Flex w="37.555555vw" h="100vh" direction={"column"}>
+          <Flex
+            bg="black"
+            w="100%"
+            h="100%"
+            justify={"flex-start"}
+            align={"flex-start"}
+          ></Flex>
+        </Flex>
+      </Flex>
     </>
   );
 }
