@@ -5,6 +5,7 @@ import { useSigner, useContract } from "wagmi";
 import MIOCoreJSON from "../artifacts/contracts/MIOCore.sol/MIOCore.json";
 import { UserSignUpModal } from "../components/UserSignUpModal.jsx";
 import { useDisclosure } from "@chakra-ui/react";
+import { ethers } from "ethers";
 
 export default function Home() {
   const [userExists, setUserExists] = useState(false);
@@ -17,10 +18,21 @@ export default function Home() {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   async function IPFS() {
+    const projectId = "2MLtVQ9OJeb1rhpdF8kf1n4SMqL"; // <---------- your Infura Project ID
+
+    const projectSecret = "1cd73b43c2700ef73d129b3fb41aa572"; // <---------- your Infura Project Secret
+
+    const auth =
+      "Basic " +
+      Buffer.from(projectId + ":" + projectSecret).toString("base64");
+
     const ipfsConnect = await create({
       host: "ipfs.infura.io",
       port: 5001,
       protocol: "https",
+      headers: {
+        authorization: auth,
+      },
     });
     return ipfsConnect;
   }
@@ -87,7 +99,6 @@ export default function Home() {
 
   const handleSignUp = async () => {
     let _ipfs = await IPFS();
-    console.log(_ipfs);
 
     try {
       // Upload profile picture to IPFS
@@ -100,7 +111,11 @@ export default function Home() {
         username,
         bio,
         profilePictureCid,
-        profileBannerCid
+        profileBannerCid,
+        {
+          value: ethers.utils.parseEther("0.01"),
+          gasLimit: 1000000,
+        }
       );
       await tx.wait();
       setShowModal(false);
