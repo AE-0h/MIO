@@ -8,9 +8,7 @@ A decentralized digital public square where users can interact with one another 
 
 1. Clone the repo
 2. Run `npm install`
-3. Run `npx hardhat test` to run the tests
-4. Run `npx hardhat run scripts/deploy.js --network mumbai` to deploy the contracts to the mumbai testnet
-5. create a .env file in the root directory and add the following variables
+3. create a .env file in the root directory and add the following variables
 
 ```
 NEXT_PUBLIC_ALCHEMY_ID="YOUR_ALCHEMY_ID"
@@ -22,3 +20,7 @@ NEXT_PUBLIC_IPFS_SECRET="YOUR_IPFS_SECRET"
 NEXT_PUBLIC_IPFS_ID="YOUR_IPFS_ID"
 
 ```
+
+4. Run `npx hardhat test` to run the tests
+5. Run `npx hardhat run scripts/deploy.js --network mumbai` to deploy the contracts to the mumbai testnet
+6. Run `npm run dev` to start the development server
