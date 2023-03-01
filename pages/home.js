@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { create } from "ipfs-http-client";
-import { LeftContainerLayout } from "../components/LeftContainer/LeftContainerLayout.jsx";
-import CenterContainerLayout from "../components/CenterContainer/CenterContainerLayout.jsx";
 import { useSigner, useContract } from "wagmi";
 import MIOCoreJSON from "../artifacts/contracts/MIOCore.sol/MIOCore.json";
 import { UserSignUpModal } from "../components/UserSignUpModal.jsx";
@@ -16,16 +14,21 @@ import {
 import { ethers } from "ethers";
 import { HomeNavBar } from "../components/LeftContainer/HomeNavBar.jsx";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { CreatePostInput } from "../components/CenterContainer/CreatePostInput.jsx";
+import { OfficialPost } from "../components/CenterContainer/OfficialPost.jsx";
+import { RightBar } from "../components/RightContainer/RightWidget";
+import axios, { Axios } from "axios";
 
 export default function Home() {
   const [userExists, setUserExists] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [profilePicture, setProfilePicture] = useState(null);
   const [profileBanner, setProfileBanner] = useState(null);
   const { data: signer, isError, isLoading } = useSigner();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [posts, setPosts] = useState([]);
+  const [avatar, setAvatar] = useState(null);
 
   async function IPFS() {
     const projectId = process.env.NEXT_PUBLIC_IPFS_ID;
@@ -82,11 +85,9 @@ export default function Home() {
         try {
           if (userStatus !== false) {
             setUserExists(true);
-            setShowModal(false);
             console.log("user exists");
           } else {
             setUserExists(false);
-            setShowModal(true);
             console.log("user does not exist");
             onOpen();
           }
@@ -95,16 +96,32 @@ export default function Home() {
         }
       }
     };
+
+    const getUsersProfilePicture = async () => {
+      let addr = await getSignerAddress();
+      const ipfsCli = await IPFS();
+      try {
+        const user = await contract.getUser(addr, {
+          gasLimit: 1000000,
+        });
+        console.log(user);
+
+        let cid = await user[2];
+        let cidURL = `https://ipfs.infura.io/ipfs/${cid}`;
+        console.log(cidURL);
+
+        const response = await axios.get(cidURL, { responseType: "blob" });
+        const imageUrl = URL.createObjectURL(response.data);
+        console.log(imageUrl);
+        setAvatar(imageUrl);
+      } catch (e) {
+        console.error("Failed to get profile picture from IPFS.", e);
+      }
+    };
+
     getUserStatus();
-  }, [
-    contract,
-    onOpen,
-    onClose,
-    setShowModal,
-    setUserExists,
-    signer,
-    userExists,
-  ]);
+    getUsersProfilePicture();
+  }, [contract, onOpen, onClose, setUserExists, signer, userExists]);
 
   const handleSignUp = async () => {
     let _ipfs = await IPFS();
@@ -114,20 +131,19 @@ export default function Home() {
       const profilePictureCid = await _ipfs.add(profilePicture);
       // Upload profile banner to IPFS
       const profileBannerCid = await _ipfs.add(profileBanner);
-      console.log(profilePictureCid);
-      console.log(profileBannerCid);
+      let ppCID = profilePictureCid.cid.toString();
+      let pbCID = profileBannerCid.cid.toString();
       const tx = await contract?.createUser(
-        username,
-        bio,
-        profilePictureCid,
-        profileBannerCid,
+        await username,
+        await bio,
+        ppCID,
+        pbCID,
         {
           value: ethers.utils.parseEther("0.01"),
           gasLimit: 1000000,
         }
       );
       await tx.wait();
-      setShowModal(false);
     } catch (e) {
       console.log(e);
     }
@@ -140,14 +156,16 @@ export default function Home() {
           onClose={onClose}
           handleSignUp={handleSignUp}
           setUsername={setUsername}
+          username={username}
           setBio={setBio}
+          bio={bio}
           setProfilePicture={setProfilePicture}
           setProfileBanner={setProfileBanner}
           profilePicture={profilePicture}
           profileBanner={profileBanner}
         />
       )}
-      <Flex justify={"space-evenly"}>
+      <Flex justify={"space-evenly"} bg={"black"}>
         <Flex bg="black" w="35vw" h="100vh" minW="20vh" direction={"column"}>
           <Flex bg="black" w="100%" h="90%">
             <HomeNavBar />
@@ -171,16 +189,16 @@ export default function Home() {
         />
         <Flex bg="black" w="30vw" h="100vh" minW="350px" overflow={"scroll"}>
           <VStack
-            w="100vw"
+            w="30vw"
             position={"sticky"}
             justify="flex-start"
             align="flex-start"
           >
             <Flex
-              w="35vw"
+              w="30vw"
               h="4vh"
               position="sticky"
-              minW="350px"
+              minW="200px"
               minH="50px"
               opacity={0.9}
               overflow={"hidden"}
@@ -190,12 +208,34 @@ export default function Home() {
                 Home
               </Heading>
             </Flex>
-            <Box></Box>
+            <Box>
+              <CreatePostInput
+                IPFS={IPFS}
+                contract={contract}
+                avatar={avatar}
+              />
+            </Box>
             <Divider
               orientation="horizontal"
               colorScheme="blackAlpha"
               borderWidth="0.2px"
             />
+            <Flex />
+            <Flex>
+              <VStack
+                w="30vw"
+                h="100%"
+                justify="flex-start"
+                align="flex-start"
+                maxW={"200px"}
+              >
+                <OfficialPost />
+                <OfficialPost />
+                <OfficialPost />
+                <OfficialPost />
+                <OfficialPost />
+              </VStack>
+            </Flex>
           </VStack>
         </Flex>
         <Divider
@@ -211,7 +251,9 @@ export default function Home() {
             h="100%"
             justify={"flex-start"}
             align={"flex-start"}
-          ></Flex>
+          >
+            <RightBar />
+          </Flex>
         </Flex>
       </Flex>
     </>

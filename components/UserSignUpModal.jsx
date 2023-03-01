@@ -24,11 +24,14 @@ export const UserSignUpModal = ({
   setProfileBanner={setProfileBanner},
   profilePicture={profilePicture},
   profileBanner={profileBanner},
+  setUsername={setUsername},
+  setBio={setBio},
+  username={username},
+  bio={bio},
+
 
 }) => {
   const [isFormValid, setIsFormValid] = useState(false);
-  const [username, setUsername] = useState("");
-  const [bio, setBio] = useState("");
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -38,8 +41,8 @@ export const UserSignUpModal = ({
       setProfileBanner(file);
     }
     setIsFormValid(
-      username.trim() !== "" &&
-        bio.trim() !== "" &&
+      username !== "" &&
+        bio !== "" &&
         profilePicture !== null &&
         profileBanner !== null
     );
@@ -48,18 +51,19 @@ export const UserSignUpModal = ({
   const handleUsernameChange = (event) => {
     setUsername(event.target.value);
     setIsFormValid(
-      event.target.value.trim() !== "" &&
-        bio.trim() !== "" &&
+      event.target.value !== "" &&
+        bio !== "" &&
         profilePicture !== null &&
         profileBanner !== null
     );
   };
 
   const handleBioChange = (event) => {
+    console.log(event.target.value)
     setBio(event.target.value);
     setIsFormValid(
-      username.trim() !== "" &&
-        event.target.value.trim() !== "" &&
+      username !== "" &&
+        event.target.value.trim().length > 0 &&
         profilePicture !== null &&
         profileBanner !== null
     );
