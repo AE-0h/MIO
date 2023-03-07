@@ -107,21 +107,50 @@ export default function Home() {
         console.log(user);
 
         let cid = await user[2];
-        let cidURL = `https://ipfs.infura.io/ipfs/${cid}`;
-        console.log(cidURL);
-
-        const response = await axios.get(cidURL, { responseType: "blob" });
-        const imageUrl = URL.createObjectURL(response.data);
-        console.log(imageUrl);
-        setAvatar(imageUrl);
+        let cidURL = `https://ipfs.io/ipfs/${cid}`;
+        setAvatar(cidURL);
       } catch (e) {
         console.error("Failed to get profile picture from IPFS.", e);
       }
     };
 
+    const getPosts = async () => {
+      const ipfsCli = await IPFS();
+      let addr = await getSignerAddress();
+      try {
+        const allMioPosts = await contract.getAllMioPosts({
+          gasLimit: 1000000,
+        });
+        let _posts = [];
+        for (let i = 0; i < allMioPosts.length; i++) {
+          let post = allMioPosts[i];
+          let mediaCID = await post.media;
+          let cidURL = `https://ipfs.io/ipfs/${mediaCID}`;
+          let author = await post.author;
+          let postAuthorUsername = await contract.getUser(author, {
+            gasLimit: 1000000,
+          });
+          let postAuthorProfilePicture = await postAuthorUsername[2];
+          let postAuthorProfilePictureURL = `https://ipfs.io/ipfs/${postAuthorProfilePicture}`;
+
+          let postObj = {
+            profilePic: postAuthorProfilePictureURL,
+            username: postAuthorUsername[0],
+            media: cidURL,
+            content: post.content,
+          };
+          _posts.push(postObj);
+        }
+        let mostRecentArr = await _posts.reverse();
+        setPosts(mostRecentArr);
+      } catch (e) {
+        console.error("Failed to get profile picture from IPFS.", e);
+      }
+    };
+    getPosts();
     getUserStatus();
     getUsersProfilePicture();
-  }, [contract, onOpen, onClose, setUserExists, signer, userExists]);
+  }, [contract, onOpen, onClose, setUserExists, signer, userExists, posts]);
 
   const handleSignUp = async () => {
     let _ipfs = await IPFS();
@@ -229,11 +258,9 @@ export default function Home() {
                 align="flex-start"
                 maxW={"200px"}
               >
-                <OfficialPost />
-                <OfficialPost />
-                <OfficialPost />
-                <OfficialPost />
-                <OfficialPost />
+                {posts.map((post, index) => (
+                  <OfficialPost key={index} post={post} />
+                ))}
               </VStack>
             </Flex>
           </VStack>

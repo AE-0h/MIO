@@ -13,15 +13,16 @@ import {
   Image,
 } from "@chakra-ui/react";
 
-export function OfficialPost() {
+export function OfficialPost({post}) {
+  console.log(post)
   return (
     <Flex justify={"space-evenly"} direction={"column"}>
       <Flex bg="black" w="30vh"  direction={"row"}>
-        <Avatar size="md" src={"./MIOICO.png"} alt="Author" ml={3} mt={1} />
+        <Avatar size="md" src={post.profilePic} alt="Author" ml={3} mt={1} />
         <Box ml={4} mt={1}  position="sticky">
           <HStack spacing={2} position="sticky" justifyContent={"flex-start"}>
             <Heading fontWeight={"bold"} size="sm">
-              Ae0h 🧮 ⛓
+              {post.username}
             </Heading>
 
             <Text fontWeight={"medium"} color="gray.500">
@@ -50,12 +51,11 @@ export function OfficialPost() {
           ml={16}
           mt={-5}
         >
-          My first Twit Dummy, when you realize your the only twit in the
-          room... ha ha.... ha
+          {post.content}
         </Text>
         <Flex w={'80%'} h={'80%'} objectFit="contain"mt={5}  bg={'black'} p={1} justify={'center'} ml={8}>
             <Image 
-            src={"./spaceAScii.jpeg"} 
+            src={post.media} 
             alt={"postDescription"}/>
         </Flex>
       </Flex>

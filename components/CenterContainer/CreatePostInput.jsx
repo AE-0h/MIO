@@ -24,6 +24,8 @@ import { ethers } from "ethers";
     const uploadImage = await ipfsCli.add(selectedFile);
     const ipfsRawCID = await uploadImage.path;
     const ipfsCID = await ipfsRawCID.toString();
+    
+    console.log(ipfsCID)
    
 
     try{
