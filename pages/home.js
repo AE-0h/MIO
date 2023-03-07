@@ -115,8 +115,6 @@ export default function Home() {
     };
 
     const getPosts = async () => {
-      const ipfsCli = await IPFS();
-      let addr = await getSignerAddress();
       try {
         const allMioPosts = await contract.getAllMioPosts({
           gasLimit: 1000000,
