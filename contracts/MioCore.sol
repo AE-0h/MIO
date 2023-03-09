@@ -75,6 +75,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         uint256 indexed id,
         string content,
         string media,
+        string timestamp,
         address indexed author
     );
 
@@ -122,6 +123,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         uint256 id;
         string content;
         string media;
+        string timeStamp;
         address author;
     }
     // Define a struct 'user' with the following fields: to be used for user structure
@@ -233,7 +235,8 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     // Create a new mioPost
     function addPost(
         string memory _content,
-        string memory _media
+        string memory _media,
+        string memory _timeStamp
     ) public payable nonReentrant {
         //user must exist
         if (!userExists[msg.sender]) revert UserDoesNotExist();
@@ -244,12 +247,19 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         //require that the msg has a value of 0.01 ether
         if (msg.value < (1 * 10 ** 16 wei)) revert InsufficientFunds();
         // Emit the event and increment mioCount
-        emit postCreated(++mioCountID, _content, _media, msg.sender);
+        emit postCreated(
+            ++mioCountID,
+            _content,
+            _media,
+            _timeStamp,
+            msg.sender
+        );
         // Create the post
         mioPosts[mioCountID] = mioPost(
             mioCountID,
             _content,
             _media,
+            _timeStamp,
             msg.sender
         );
         // pay out "owner" or deployer of contract for mio post gas fee
@@ -328,7 +338,12 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     )
         public
         view
-        returns (string memory _content, string memory _media, address _author)
+        returns (
+            string memory _content,
+            string memory _media,
+            string memory _timeStamp,
+            address _author
+        )
     {
         if (!userExists[msg.sender]) revert UserDoesNotExist();
         // Check if the mioPost exists
@@ -336,12 +351,13 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
             revert PostDoesNotExist();
         }
         // Fetch the mioPost
-        mioPost storage _mioPost = mioPosts[_id];
+        mioPost memory _mioPost = mioPosts[_id];
         // Return the mioPost
         _content = _mioPost.content;
         _media = _mioPost.media;
+        _timeStamp = _mioPost.timeStamp;
         _author = _mioPost.author;
-        return (_content, _media, _author);
+        return (_content, _media, _timeStamp, _author);
     }
 
     // Get all mioPosts by a user

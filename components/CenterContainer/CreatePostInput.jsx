@@ -18,18 +18,29 @@ import { ethers } from "ethers";
 
   const handlePostSubmit = async (event) => {
     event.preventDefault();
+    console.log("EEEEEVVVVVENNNNT!!!!" + event);
 
-    // Upload the selected file to IPFS and get its CID
-    const ipfsCli = await IPFS();
-    const uploadImage = await ipfsCli.add(selectedFile);
-    const ipfsRawCID = await uploadImage.path;
-    const ipfsCID = await ipfsRawCID.toString();
-    
-    console.log(ipfsCID)
+    // Upload if there is a file selected else set ipfsCID to empty string
+   let uploadFileToIPFS = async (file) => {
+      const added = await IPFS.add(file);
+      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+      return url;
+    };
+
+    const ipfsCID = selectedFile
+      ? await uploadFileToIPFS(selectedFile)
+      : "";
+
+      console.log("IPFS CID: " + ipfsCID)
+
+
+
+   
+    // console.log(ipfsCID)
    
 
     try{
-    const text = postInputRef.current.value;
+    const text = postInputRef.current.value? postInputRef.current.value : "";
     console.log(text)
     await contract.addPost(text, ipfsCID,
       { value: ethers.utils.parseEther("0.01")});

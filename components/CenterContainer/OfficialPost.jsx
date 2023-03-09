@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 
 export function OfficialPost({post}) {
-  console.log(post)
+
   return (
     <Flex justify={"space-evenly"} direction={"column"}>
       <Flex bg="black" w="30vh"  direction={"row"}>
@@ -24,7 +24,6 @@ export function OfficialPost({post}) {
             <Heading fontWeight={"bold"} size="sm">
               {post.username}
             </Heading>
-
             <Text fontWeight={"medium"} color="gray.500">
               ·
             </Text>
@@ -47,21 +46,24 @@ export function OfficialPost({post}) {
           fontSize="sm"
           color="white"
           maxW={"20.5vw"}
-          mb={-2}
+     
           ml={16}
-          mt={-5}
+          mb ={1}
         >
           {post.content}
         </Text>
-        <Flex w={'80%'} h={'80%'} objectFit="contain"mt={5}  bg={'black'} p={1} justify={'center'} ml={8}>
-            <Image 
-            src={post.media} 
-            alt={"postDescription"}/>
-        </Flex>
+        {post.media && post.media != 'https://ipfs.io/ipfs/' ? (
+          <Flex w={'80%'} h={'80%'} objectFit="contain"mt={5}  bg={'black'} p={1} justify={'center'} ml={8}>
+              <Image 
+              src={post.media}
+              alt="Post image"
+             />
+          </Flex>
+        ) : null}
       </Flex>
       <Flex ml={18} textColor="gray.500">
       </Flex>
-      <Flex mt={2} mb={2} ml={18} textColor="gray.500">
+      <Flex mt={2} mb={5} ml={18} textColor="gray.500">
         <HStack spacing={200} ml="130" mr="130">
           <ImLoop size={16} color={"gray.500"} />
           <ImLeaf size={16} color={"gray.500"} />

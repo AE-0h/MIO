@@ -59,7 +59,6 @@ export default function Home() {
     const getSignerAddress = async () => {
       try {
         const address = await signer.getAddress();
-        console.log("Signer Address:", address);
         return address;
       } catch (e) {
         console.log("Error getting signer address:", e);
@@ -67,28 +66,22 @@ export default function Home() {
     };
     let userCheck = async () => {
       let addr = await getSignerAddress();
-      console.log(addr + "userCheck");
       try {
         let m = await contract?.checkUserExists(addr);
-        console.log(m + "userCheck");
         return m;
       } catch (e) {
-        console.log(e + "userCheck");
         return false;
       }
     };
 
     const getUserStatus = async () => {
       const userStatus = await userCheck();
-      console.log(userStatus + "userStatus");
       if (userStatus !== undefined) {
         try {
           if (userStatus !== false) {
             setUserExists(true);
-            console.log("user exists");
           } else {
             setUserExists(false);
-            console.log("user does not exist");
             onOpen();
           }
         } catch (e) {
@@ -104,7 +97,6 @@ export default function Home() {
         const user = await contract.getUser(addr, {
           gasLimit: 1000000,
         });
-        console.log(user);
 
         let cid = await user[2];
         let cidURL = `https://ipfs.io/ipfs/${cid}`;
@@ -175,6 +167,7 @@ export default function Home() {
       console.log(e);
     }
   };
+  console.log(posts);
   return (
     <>
       {!userExists && (
@@ -228,7 +221,7 @@ export default function Home() {
               minW="200px"
               minH="50px"
               opacity={0.9}
-              overflow={"hidden"}
+              overflow={"auto"}
               direction={"row"}
             >
               <Heading mt="4" ml="3" fontSize="xl" color="white">
