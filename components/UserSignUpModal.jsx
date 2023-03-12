@@ -17,19 +17,17 @@ import {
 } from "@chakra-ui/react";
 
 export const UserSignUpModal = ({
-  isOpen={isOpen},
-  onClose={onClose},
-  handleSignUp={handleSignUp},
-  setProfilePicture={setProfilePicture},
-  setProfileBanner={setProfileBanner},
-  profilePicture={profilePicture},
-  profileBanner={profileBanner},
-  setUsername={setUsername},
-  setBio={setBio},
-  username={username},
-  bio={bio},
-
-
+  isOpen = { isOpen },
+  onClose = { onClose },
+  handleSignUp = { handleSignUp },
+  setProfilePicture = { setProfilePicture },
+  setProfileBanner = { setProfileBanner },
+  profilePicture = { profilePicture },
+  profileBanner = { profileBanner },
+  setUsername = { setUsername },
+  setBio = { setBio },
+  username = { username },
+  bio = { bio },
 }) => {
   const [isFormValid, setIsFormValid] = useState(false);
 
@@ -59,7 +57,7 @@ export const UserSignUpModal = ({
   };
 
   const handleBioChange = (event) => {
-    console.log(event.target.value)
+    console.log(event.target.value);
     setBio(event.target.value);
     setIsFormValid(
       username !== "" &&
@@ -71,7 +69,7 @@ export const UserSignUpModal = ({
 
   const handleSubmit = async () => {
     if (isFormValid) {
-      console.log(isFormValid + " " + username + " " + bio + "")
+      console.log(isFormValid + " " + username + " " + bio + "");
       await handleSignUp();
       onClose();
     }
@@ -106,7 +104,10 @@ export const UserSignUpModal = ({
             />
             {profilePicture && (
               <Box mt={2}>
-                <Image src={URL.createObjectURL(profilePicture)} />
+                <Image
+                  src={URL.createObjectURL(profilePicture)}
+                  alt={"profile-picture"}
+                />
               </Box>
             )}
           </FormControl>
@@ -119,14 +120,21 @@ export const UserSignUpModal = ({
             />
             {profileBanner && (
               <Box mt={2}>
-                <Image src={URL.createObjectURL(profileBanner)} />
+                <Image
+                  src={URL.createObjectURL(profileBanner)}
+                  alt={"profile-banner"}
+                />
               </Box>
             )}
           </FormControl>
         </ModalBody>
         <ModalFooter>
           <Flex justify="flex-end" w="100%">
-            <Button colorScheme="green" onClick={handleSubmit} isDisabled={!isFormValid}>
+            <Button
+              colorScheme="green"
+              onClick={handleSubmit}
+              isDisabled={!isFormValid}
+            >
               Submit
             </Button>
           </Flex>

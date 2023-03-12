@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { create } from "ipfs-http-client";
 import { useSigner, useContract } from "wagmi";
 import MIOCoreJSON from "../artifacts/contracts/MIOCore.sol/MIOCore.json";
-import { UserSignUpModal } from "../components/UserSignUpModal.jsx";
 import {
   useDisclosure,
   Flex,
@@ -17,7 +16,6 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
-import { ethers } from "ethers";
 import { HomeNavBar } from "../components/LeftContainer/HomeNavBar.jsx";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { OfficialPost } from "../components/CenterContainer/OfficialPost.jsx";
@@ -27,12 +25,39 @@ export default function Home() {
   const [userExists, setUserExists] = useState(false);
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
-  const [profilePicture, setProfilePicture] = useState(null);
   const [profileBanner, setProfileBanner] = useState(null);
   const { data: signer, isError, isLoading } = useSigner();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [posts, setPosts] = useState([]);
   const [avatar, setAvatar] = useState(null);
+
+  let calculateTime = (timestamp) => {
+    if (isNaN(timestamp)) {
+      timestamp = +timestamp;
+    }
+    let time = new Date(timestamp);
+    let now = new Date();
+    let diff = now - time;
+    let seconds = Math.floor(diff / 1000);
+    let minutes = Math.floor(seconds / 60);
+    let hours = Math.floor(minutes / 60);
+    let days = Math.floor(hours / 24);
+    let months = Math.floor(days / 30);
+    let years = Math.floor(months / 12);
+    if (seconds < 60) {
+      return seconds + "s";
+    } else if (minutes < 60) {
+      return minutes + "m";
+    } else if (hours < 24) {
+      return hours + "h";
+    } else if (days < 30) {
+      return days + "d";
+    } else if (months < 12) {
+      return months + "mo";
+    } else {
+      return years + "y";
+    }
+  };
 
   async function IPFS() {
     const projectId = process.env.NEXT_PUBLIC_IPFS_ID;
@@ -54,7 +79,7 @@ export default function Home() {
   }
 
   let contract = useContract({
-    address: "0xEE6271a9d92fC69F1E910013CdD6da168711c429",
+    address: process.env.NEXT_PUBLIC_MIOCORE_ADDRESS,
     abi: MIOCoreJSON.abi,
     signerOrProvider: signer,
   });
@@ -68,32 +93,6 @@ export default function Home() {
         console.log("Error getting signer address:", e);
       }
     };
-    let userCheck = async () => {
-      let addr = await getSignerAddress();
-      try {
-        let m = await contract?.checkUserExists(addr);
-        return m;
-      } catch (e) {
-        console.log(e + "userCheck");
-        return false;
-      }
-    };
-
-    const getUserStatus = async () => {
-      const userStatus = await userCheck();
-      if (userStatus !== undefined) {
-        try {
-          if (userStatus !== false) {
-            setUserExists(true);
-          } else {
-            setUserExists(false);
-            onOpen();
-          }
-        } catch (e) {
-          console.log(e);
-        }
-      }
-    };
 
     const getUsersInfo = async () => {
       let addr = await getSignerAddress();
@@ -102,8 +101,9 @@ export default function Home() {
         const user = await contract.getUser(addr, {
           gasLimit: 1000000,
         });
-        console.log(user);
+
         let username = await user[0];
+        console.log(username);
         let bio = await user[1];
         let cidPP = await user[2];
         let cidPB = await user[3];
@@ -129,8 +129,10 @@ export default function Home() {
         for (let i = 0; i < allMioPosts.length; i++) {
           let post = allMioPosts[i];
           let mediaCID = await post.media;
-          let cidURL = `https://ipfs.io/ipfs/${mediaCID}`;
           let author = await post.author;
+          let _timestamp = await post.timeStamp;
+          let parsedStamp = parseInt(_timestamp);
+          let postAge = await calculateTime(parsedStamp);
           let postAuthorUsername = await contract.getUser(author, {
             gasLimit: 1000000,
           });
@@ -140,8 +142,9 @@ export default function Home() {
           let postObj = {
             profilePic: postAuthorProfilePictureURL,
             username: postAuthorUsername[0],
-            media: cidURL,
+            media: mediaCID,
             content: post.content,
+            timestamp: postAge,
           };
           _posts.push(postObj);
         }
@@ -152,7 +155,6 @@ export default function Home() {
       }
     };
     getPosts();
-    getUserStatus();
     getUsersInfo();
   }, [contract, onOpen, onClose, setUserExists, signer, userExists, posts]);
 

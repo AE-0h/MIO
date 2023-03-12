@@ -49,6 +49,7 @@ describe("MIOCore", () => {
       .connect(user1)
       .createUser(username, bio, profilePic, profileBanner, {
         value: ethers.utils.parseEther("0.01"),
+        gasLimit: 1000000,
       });
     //Initialize createUser data
     user2name = "Miouser2";
@@ -91,18 +92,20 @@ describe("MIOCore", () => {
     //Initialize addMioPost data
     let postContent = "post1";
     let postImage = "https://blah.com/image1.jpg";
+    let timestamp = Date.now().toString();
+    console.log(`timestamp: ${timestamp}`);
     let userAddPost = await miocore
       .connect(user1)
-      .addPost(postContent, postImage, {
+      .addPost(postContent, postImage, timestamp, {
         value: ethers.utils.parseEther("0.01"),
         gasLimit: 1000000,
       });
     //emit postCreated(_postID, _postContent, _postMedia, _author);
     await expect(userAddPost)
       .to.emit(miocore, "postCreated")
-      .withArgs(1, postContent, postImage, user1.address);
+      .withArgs(1, postContent, postImage, timestamp, user1.address);
     console.log(
-      `NEW POST MADE OFFICIAL::{ postID: 1, postContent: ${postContent}, postMedia: ${postImage}, author: ${user1.address}}`
+      `NEW POST MADE OFFICIAL::{ postID: 1, postContent: ${postContent}, postMedia: ${postImage}, timeStamp: ${timestamp} author: ${user1.address}}`
     );
   });
   it("should add 2 posts made official while also retrieving all posts made official by specific user and by all users on platform", async () => {
@@ -110,38 +113,52 @@ describe("MIOCore", () => {
     await expect(mioUser)
       .to.emit(miocore, "userCreated")
       .withArgs(user1.address, username, bio, profilePic, profileBanner);
+    console.log(
+      `NEW USER CREATED::{ userAddress: ${user1.address}, username: ${username}, bio: ${bio}, profilePic: ${profilePic}, profileBanner: ${profileBanner}}`
+    );
     //emit userCreated(msg.sender, _username, _bio, _profilePic, _profileBanner);
     await expect(mioUser2)
       .to.emit(miocore, "userCreated")
       .withArgs(user2.address, user2name, bio2, profilePic2, profileBanner2);
-
+    console.log(
+      `NEW USER CREATED::{ userAddress: ${user1.address}, username: ${username}, bio: ${bio}, profilePic: ${profilePic}, profileBanner: ${profileBanner}}`
+    );
     //Initialize addMioPost data
     // 1st post user 1
     let postContent = "post2";
     let postImage = "https://blah.com/image2.jpg";
+    let timestamp = Date.now().toString();
     // 2nd post user 1
     let pc2 = "post3";
     let pi2 = "https://blah.com/image3.jpg";
     //add post user 1
     let userAddPost = await miocore
       .connect(user1)
-      .addPost(postContent, postImage, {
+      .addPost(postContent, postImage, timestamp, {
         value: ethers.utils.parseEther("0.01"),
-        gasLimit: 1000000,
+        gasLimit: 2000000,
       });
 
     await expect(userAddPost)
       .to.emit(miocore, "postCreated")
-      .withArgs(1, postContent, postImage, user1.address);
-    //add post user 1
-    let userAddPost2 = await miocore.connect(user1).addPost(pc2, pi2, {
-      value: ethers.utils.parseEther("0.01"),
-      gasLimit: 1000000,
-    });
+      .withArgs(1, postContent, postImage, timestamp, user1.address);
+    console.log(
+      `NEW POST MADE OFFICIAL::{ postID: 1, postContent: ${postContent}, postMedia: ${postImage}, timeStamp: ${timestamp} author: ${user1.address}}`
+    );
+    let userAddPost2 = await miocore
+      .connect(user1)
+      .addPost(pc2, pi2, timestamp, {
+        value: ethers.utils.parseEther("0.01"),
+        gasLimit: 2000000,
+      });
+    console.log(
+      `NEW POST MADE OFFICIAL::{ postID: 2, postContent: ${pc2}, postMedia: ${pi2}, timeStamp: ${timestamp} author: ${user1.address}}`
+    );
 
     await expect(userAddPost2)
       .to.emit(miocore, "postCreated")
-      .withArgs(2, pc2, pi2, user1.address);
+      .withArgs(2, pc2, pi2, timestamp, user1.address);
+    console.log(`new post made official`);
     // 1st post user 2
     let pc4 = "post4";
     let pi4 = "https://blah.com/image4.jpg";
@@ -150,33 +167,42 @@ describe("MIOCore", () => {
     let pi5 = "https://blah.com/image5.jpg";
 
     //add post user 2
-    let user2PostCreate = await miocore.connect(user2).addPost(pc4, pi4, {
-      value: ethers.utils.parseEther("0.01"),
-      gasLimit: 1000000,
-    });
+    let user2PostCreate = await miocore
+      .connect(user2)
+      .addPost(pc4, pi4, timestamp, {
+        value: ethers.utils.parseEther("0.01"),
+        gasLimit: 2000000,
+      });
+    console.log(`nw post made official`);
 
     await expect(user2PostCreate)
       .to.emit(miocore, "postCreated")
-      .withArgs(3, pc4, pi4, user2.address);
+      .withArgs(3, pc4, pi4, timestamp, user2.address);
     //add post user 2
-    let user2PostCreate2 = await miocore.connect(user2).addPost(pc5, pi5, {
-      value: ethers.utils.parseEther("0.01"),
-      gasLimit: 1000000,
-    });
-
+    console.log(`nw post made official`);
+    let user2PostCreate2 = await miocore
+      .connect(user2)
+      .addPost(pc5, pi5, timestamp, {
+        value: ethers.utils.parseEther("0.01"),
+        gasLimit: 10000000,
+      });
     await expect(user2PostCreate2)
       .to.emit(miocore, "postCreated")
-      .withArgs(4, pc5, pi5, user2.address);
+      .withArgs(4, pc5, pi5, timestamp, user2.address);
+    console.log(`nw post made official`);
     //get all posts for user 1
     let allUser1Post = await miocore
       .connect(user1)
       .getAllUserMioPosts(user1.address);
+
+    console.log(`allUser1Post: ${allUser1Post}`);
     //get all posts for user 2
     let allUser2Post = await miocore
       .connect(user2)
       .getAllUserMioPosts(user2.address);
     //get all posts made offical by any user on the platform
     let allMioPosts = await miocore.connect(user1).getAllMioPosts();
+    console.log(`allMioPosts: ${allMioPosts}`);
     //confirming the length of all posts made official by any user on the platform is equal to 4
     console.log(`allMioPosts length: ${allMioPosts.length}`);
     console.log(`allUser1Post length: ${allUser1Post.length}`);
@@ -196,28 +222,28 @@ describe("MIOCore", () => {
     //check array of user post length
     expect(await allUser1Post.length).to.equal(2);
     //check post 1
-    expect(await post1Filter.length).to.equal(4);
+    expect(await post1Filter.length).to.equal(5);
     expect(await post1Filter[1]).to.equal("post2");
     expect(await post1Filter[2]).to.equal("https://blah.com/image2.jpg");
-    expect(await post1Filter[3]).to.equal(user1.address);
+    expect(await post1Filter[4]).to.equal(user1.address);
     //check post 2
-    expect(await post2Filter.length).to.equal(4);
+    expect(await post2Filter.length).to.equal(5);
     expect(await post2Filter[1]).to.equal("post3");
     expect(await post2Filter[2]).to.equal("https://blah.com/image3.jpg");
-    expect(await post2Filter[3]).to.equal(user1.address);
+    expect(await post2Filter[4]).to.equal(user1.address);
 
     //check array of user post length
     expect(await allUser2Post.length).to.equal(2);
     //check post 1
-    expect(await post3Filter.length).to.equal(4);
+    expect(await post3Filter.length).to.equal(5);
     expect(await post3Filter[1]).to.equal("post4");
     expect(await post3Filter[2]).to.equal("https://blah.com/image4.jpg");
-    expect(await post3Filter[3]).to.equal(user2.address);
+    expect(await post3Filter[4]).to.equal(user2.address);
     //check post 2
-    expect(await post4Filter.length).to.equal(4);
+    expect(await post4Filter.length).to.equal(5);
     expect(await post4Filter[1]).to.equal("post5");
     expect(await post4Filter[2]).to.equal("https://blah.com/image5.jpg");
-    expect(await post4Filter[3]).to.equal(user2.address);
+    expect(await post4Filter[4]).to.equal(user2.address);
 
     console.log(
       `NEW POST MADE OFFICIAL::{ postID: 1, postContent: ${postContent}, postMedia: ${postImage}, author: ${user1.address}}`

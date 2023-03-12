@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { create } from "ipfs-http-client";
-import { useSigner, useContract } from "wagmi";
+import { useSigner, useContract, useAccount, useConnect } from "wagmi";
+
 import MIOCoreJSON from "../artifacts/contracts/MIOCore.sol/MIOCore.json";
 import { UserSignUpModal } from "../components/UserSignUpModal.jsx";
 import {
@@ -17,7 +18,6 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { CreatePostInput } from "../components/CenterContainer/CreatePostInput.jsx";
 import { OfficialPost } from "../components/CenterContainer/OfficialPost.jsx";
 import { RightBar } from "../components/RightContainer/RightWidget";
-import axios, { Axios } from "axios";
 
 export default function Home() {
   const [userExists, setUserExists] = useState(false);
@@ -29,6 +29,34 @@ export default function Home() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [posts, setPosts] = useState([]);
   const [avatar, setAvatar] = useState(null);
+
+  let calculateTime = (timestamp) => {
+    if (isNaN(timestamp)) {
+      timestamp = +timestamp;
+    }
+    let time = new Date(timestamp);
+    let now = new Date();
+    let diff = now - time;
+    let seconds = Math.floor(diff / 1000);
+    let minutes = Math.floor(seconds / 60);
+    let hours = Math.floor(minutes / 60);
+    let days = Math.floor(hours / 24);
+    let months = Math.floor(days / 30);
+    let years = Math.floor(months / 12);
+    if (seconds < 60) {
+      return seconds + "s";
+    } else if (minutes < 60) {
+      return minutes + "m";
+    } else if (hours < 24) {
+      return hours + "h";
+    } else if (days < 30) {
+      return days + "d";
+    } else if (months < 12) {
+      return months + "mo";
+    } else {
+      return years + "y";
+    }
+  };
 
   async function IPFS() {
     const projectId = process.env.NEXT_PUBLIC_IPFS_ID;
@@ -50,7 +78,7 @@ export default function Home() {
   }
 
   let contract = useContract({
-    address: "0xEE6271a9d92fC69F1E910013CdD6da168711c429",
+    address: process.env.NEXT_PUBLIC_MIOCORE_ADDRESS,
     abi: MIOCoreJSON.abi,
     signerOrProvider: signer,
   });
@@ -97,9 +125,12 @@ export default function Home() {
         const user = await contract.getUser(addr, {
           gasLimit: 1000000,
         });
+        console.log(user);
 
         let cid = await user[2];
+        console.log(cid);
         let cidURL = `https://ipfs.io/ipfs/${cid}`;
+        console.log(cidURL);
         setAvatar(cidURL);
       } catch (e) {
         console.error("Failed to get profile picture from IPFS.", e);
@@ -109,13 +140,16 @@ export default function Home() {
     const getPosts = async () => {
       try {
         const allMioPosts = await contract.getAllMioPosts({
-          gasLimit: 1000000,
+          gasLimit: 10000000,
         });
         let _posts = [];
         for (let i = 0; i < allMioPosts.length; i++) {
-          let post = allMioPosts[i];
+          let post = await allMioPosts[i];
           let mediaCID = await post.media;
-          let cidURL = `https://ipfs.io/ipfs/${mediaCID}`;
+          let _content = await post.content;
+          let _timestamp = await post.timeStamp;
+          let parsedStamp = parseInt(_timestamp);
+          let postAge = await calculateTime(parsedStamp);
           let author = await post.author;
           let postAuthorUsername = await contract.getUser(author, {
             gasLimit: 1000000,
@@ -126,15 +160,16 @@ export default function Home() {
           let postObj = {
             profilePic: postAuthorProfilePictureURL,
             username: postAuthorUsername[0],
-            media: cidURL,
-            content: post.content,
+            media: mediaCID,
+            content: _content,
+            timestamp: postAge,
           };
           _posts.push(postObj);
         }
         let mostRecentArr = await _posts.reverse();
         setPosts(mostRecentArr);
       } catch (e) {
-        console.error("Failed to get profile picture from IPFS.", e);
+        console.error("Failed to get posts.", e);
       }
     };
     getPosts();
@@ -167,7 +202,6 @@ export default function Home() {
       console.log(e);
     }
   };
-  console.log(posts);
   return (
     <>
       {!userExists && (

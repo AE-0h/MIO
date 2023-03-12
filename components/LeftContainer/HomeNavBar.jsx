@@ -13,13 +13,13 @@ import {
   Stack,
   
 } from "@chakra-ui/react";
-import { ImSearch } from "react-icons/im";
 import { ImHome3 } from "react-icons/im";
 import { ImUser } from "react-icons/im";
 import { ImCog } from "react-icons/im";
 import { ImQuill } from "react-icons/im";
 import { ImBinoculars } from "react-icons/im";
 import {ImOffice} from "react-icons/im";
+
 
 
 export function HomeNavBar() {
