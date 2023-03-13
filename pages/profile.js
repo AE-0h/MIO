@@ -329,7 +329,8 @@ export default function Home() {
               minW="100%"
               minH="20%"
               direction={"column"}
-              pt={200}
+              pt={180}
+              position={"sticky"}
             >
               {posts.map((post, index) => (
                 <OfficialPost key={index} post={post} />
