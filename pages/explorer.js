@@ -15,11 +15,10 @@ import {
 import { ethers } from "ethers";
 import { HomeNavBar } from "../components/LeftContainer/HomeNavBar.jsx";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { CreatePostInput } from "../components/CenterContainer/CreatePostInput.jsx";
 import { OfficialPost } from "../components/CenterContainer/OfficialPost.jsx";
 import { RightBar } from "../components/RightContainer/RightWidget";
 
-export default function Home() {
+export default function Explore() {
   const [userExists, setUserExists] = useState(false);
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
@@ -29,6 +28,8 @@ export default function Home() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [posts, setPosts] = useState([]);
   const [avatar, setAvatar] = useState(null);
+  const [searchPostId, setSearchPostId] = useState("");
+  const [searchUsername, setSearchUsername] = useState("");
 
   let calculateTime = (timestamp) => {
     if (isNaN(timestamp)) {
