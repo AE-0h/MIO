@@ -8,9 +8,8 @@ import {
   Divider,
   Heading,
   VStack,
-  Avatar,
-  Text,
-  Button,
+  Box,
+  Image,
   HStack,
   Link,
   IconButton,
@@ -26,6 +25,7 @@ export default function Home() {
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [profileBanner, setProfileBanner] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(null);
   const { data: signer, isError, isLoading } = useSigner();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -53,6 +53,53 @@ export default function Home() {
     abi: MIOCoreJSON.abi,
     signerOrProvider: signer,
   });
+
+  //set bio and username
+
+  let handleBioUpdate = async (_bio) => {
+    try {
+      setBio(_bio.target.value);
+      console.log("Bio:", bio);
+    } catch (e) {
+      console.log("Error setting bio:", e);
+    }
+  };
+
+  let handleProfileBannerAndPicUpdate = async (e) => {
+    try {
+      const ipfs = await IPFS();
+      const file = e.target.files[0];
+      console.log("File:", file);
+      const added = await ipfs.add(file);
+      const cid = added.path;
+      console.log("URL:", cid);
+
+      if (e.target.id === "profile-picture") {
+        setProfilePicture(cid);
+      } else if (e.target.id === "profile-banner") {
+        setProfileBanner(cid);
+      }
+    } catch (e) {
+      console.log("Error setting profile banner:", e);
+    }
+  };
+
+  let onClickUpdate = async () => {
+    try {
+      const updateUser = await contract.updateUser(
+        username,
+        bio,
+        profilePicture,
+        profileBanner,
+        {
+          gasLimit: 1000000,
+        }
+      );
+      console.log("Update user:", updateUser);
+    } catch (e) {
+      console.log("Error updating user:", e);
+    }
+  };
 
   useEffect(() => {
     const getSignerAddress = async () => {
@@ -111,7 +158,7 @@ export default function Home() {
             spacing={1}
           >
             <HStack>
-              <Link style={{ textDecoration: "none" }} href="/home">
+              <Link style={{ textDecoration: "none" }} href="/profile">
                 <IconButton variant={"unstyled"}>
                   <ArrowBackIcon />
                 </IconButton>
@@ -129,7 +176,21 @@ export default function Home() {
             <Divider orientation="horizontal" colorScheme="blackAlpha" />
 
             <Flex w="30vw" h="10vh" minW="100%" minH="20%" direction={"column"}>
-              <UserUpdate />
+              <UserUpdate
+                username={username}
+                bio={bio}
+                profileBanner={profileBanner}
+                profilePicture={profilePicture}
+                setBio={setBio}
+                setUsername={setUsername}
+                setProfileBanner={setProfileBanner}
+                setProfilePicture={setProfilePicture}
+                handleBioUpdate={handleBioUpdate}
+                handleProfileBannerAndPicUpdate={
+                  handleProfileBannerAndPicUpdate
+                }
+                onClickUpdate={onClickUpdate}
+              />
             </Flex>
           </VStack>
           <Divider orientation="horizontal" colorScheme="blackAlpha" />

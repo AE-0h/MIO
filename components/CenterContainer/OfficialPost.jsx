@@ -58,7 +58,7 @@ export function OfficialPost({ post }) {
             justify={"center"}
             ml={14}
           >
-            <Image src={post.media} alt="Post image" />
+            <Image src={post.media} alt="Post image" borderRadius={10} />
           </Flex>
         ) : null}
       </Flex>

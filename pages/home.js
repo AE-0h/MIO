@@ -125,12 +125,8 @@ export default function Home() {
         const user = await contract.getUser(addr, {
           gasLimit: 1000000,
         });
-        console.log(user);
-
         let cid = await user[2];
-        console.log(cid);
         let cidURL = `https://ipfs.io/ipfs/${cid}`;
-        console.log(cidURL);
         setAvatar(cidURL);
       } catch (e) {
         console.error("Failed to get profile picture from IPFS.", e);
@@ -168,6 +164,7 @@ export default function Home() {
         }
         let mostRecentArr = await _posts.reverse();
         setPosts(mostRecentArr);
+        console.log(mostRecentArr);
       } catch (e) {
         console.error("Failed to get posts.", e);
       }

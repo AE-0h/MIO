@@ -12,9 +12,9 @@ import {
   Text,
   Button,
   HStack,
-  Link,
   IconButton,
 } from "@chakra-ui/react";
+import Link from "next/link";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import { HomeNavBar } from "../components/LeftContainer/HomeNavBar.jsx";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -96,7 +96,6 @@ export default function Home() {
 
     const getUsersInfo = async () => {
       let addr = await getSignerAddress();
-      const ipfsCli = await IPFS();
       try {
         const user = await contract.getUser(addr, {
           gasLimit: 1000000,
@@ -109,6 +108,8 @@ export default function Home() {
         let cidPB = await user[3];
         let cidURLPB = `https://ipfs.io/ipfs/${cidPB}`;
         let cidURLPP = `https://ipfs.io/ipfs/${cidPP}`;
+        console.log(cidURLPP);
+        console.log(cidURLPB);
         setUsername(username);
         setAvatar(cidURLPP);
         setProfileBanner(cidURLPB);
@@ -182,12 +183,19 @@ export default function Home() {
           colorScheme="blackAlpha"
           borderWidth="0.2px"
         />
-        <Flex bg="black" w="30vw" h="100vh" maxW="29vw" overflow={"scroll"}>
+        <Flex
+          bg="black"
+          w="30vw"
+          h="100vh"
+          maxW="29vw"
+          overflow={"scroll"}
+          position={"sticky"}
+        >
           <VStack
             position={"sticky"}
             justify="flex-start"
             align="flex-start"
-            spacing={1}
+            spacing={2}
           >
             <Flex
               w="28vw"
@@ -244,28 +252,13 @@ export default function Home() {
                 mt={100}
                 borderWidth="3px"
               />
-              <Link style={{ textDecoration: "none" }} href="/settings">
-                <Button
-                  colorScheme={"ghost"}
-                  size="md"
-                  p={3}
-                  color={"white"}
-                  variant={"outline"}
-                  borderWidth={1}
-                  borderRadius={"3xl"}
-                  borderColor={"gray.500"}
-                  ml={428}
-                  mt={-19}
-                >
-                  Edit Profile
-                </Button>
-              </Link>
+
               <Flex p={2} direction={"column"}>
                 <Heading fontSize="xl" color="white" ml={2}>
                   {username}
                 </Heading>
               </Flex>
-              <Flex p={2}>
+              <Flex p={2} direction={"column"}>
                 <Text
                   fontSize="md"
                   color="white.300"
@@ -276,52 +269,27 @@ export default function Home() {
                 >
                   {bio}
                 </Text>
+                <Link href="/settings" textDecoration="none">
+                  <Button
+                    colorScheme={"green"}
+                    size="md"
+                    color="white"
+                    variant="solid"
+                    borderRadius="3xl"
+                    fontWeight={"Bold"}
+                    fontSize={"md"}
+                    ml={428}
+                    mt={-19}
+                    _hover={{
+                      cursor: "pointer",
+                      bg: "green.500",
+                    }}
+                  >
+                    Edit Profile
+                  </Button>
+                </Link>
               </Flex>
               <Divider orientation="horizontal" colorScheme="blackAlpha" />
-              {/* <Flex p={2} direction={"row"} mt={1}>
-                <Text
-                  fontSize="sm"
-                  color="white.300"
-                  ml={2}
-                  mt={-3}
-                  mr={1}
-                  maxW={"30vw"}
-                  fontWeight={"bold"}
-                >
-                  30
-                </Text>
-                <Text
-                  fontSize="sm"
-                  color="gray.500"
-                  mt={-3}
-                  mr={1}
-                  maxW={"30vw"}
-                  fontWeight={"normal"}
-                >
-                  Following
-                </Text>
-                <Text
-                  fontSize="sm"
-                  color="white.300"
-                  ml={2}
-                  mt={-3}
-                  mr={1}
-                  maxW={"30vw"}
-                  fontWeight={"bold"}
-                >
-                  202
-                </Text>
-                <Text
-                  fontSize="sm"
-                  color="gray.500"
-                  mt={-3}
-                  mr={1}
-                  maxW={"30vw"}
-                  fontWeight={"normal"}
-                >
-                  Subscribers
-                </Text>
-              </Flex> */}
             </Flex>
             <Flex
               w="30vw"
@@ -329,6 +297,7 @@ export default function Home() {
               minW="100%"
               minH="20%"
               direction={"column"}
+              mt={2}
               pt={180}
               position={"sticky"}
             >
