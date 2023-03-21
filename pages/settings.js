@@ -20,7 +20,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { UserUpdate } from "../components/CenterContainer/UserUpdate.jsx";
 import { RightBar } from "../components/RightContainer/RightWidget";
 
-export default function Home() {
+export default function Settings() {
   const [userExists, setUserExists] = useState(false);
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");

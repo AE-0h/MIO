@@ -21,7 +21,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { OfficialPost } from "../components/CenterContainer/OfficialPost.jsx";
 import { RightBar } from "../components/RightContainer/RightWidget";
 
-export default function Home() {
+export default function Profile() {
   const [userExists, setUserExists] = useState(false);
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");

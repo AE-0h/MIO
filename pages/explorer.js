@@ -3,7 +3,7 @@ import { create } from "ipfs-http-client";
 import { useSigner, useContract, useAccount, useConnect } from "wagmi";
 
 import MIOCoreJSON from "../artifacts/contracts/MIOCore.sol/MIOCore.json";
-import { UserSignUpModal } from "../components/UserSignUpModal.jsx";
+import { Search } from "../components/CenterContainer/Search";
 import {
   useDisclosure,
   Flex,
@@ -11,6 +11,7 @@ import {
   Box,
   Heading,
   VStack,
+  Spacer,
 } from "@chakra-ui/react";
 import { ethers } from "ethers";
 import { HomeNavBar } from "../components/LeftContainer/HomeNavBar.jsx";
@@ -18,7 +19,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { OfficialPost } from "../components/CenterContainer/OfficialPost.jsx";
 import { RightBar } from "../components/RightContainer/RightWidget";
 
-export default function Explore() {
+export default function Explorer() {
   const [userExists, setUserExists] = useState(false);
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
@@ -30,6 +31,7 @@ export default function Explore() {
   const [avatar, setAvatar] = useState(null);
   const [searchPostId, setSearchPostId] = useState("");
   const [searchUsername, setSearchUsername] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   let calculateTime = (timestamp) => {
     if (isNaN(timestamp)) {
@@ -152,30 +154,10 @@ export default function Explore() {
     getUsersProfilePicture();
   }, [contract, onOpen, onClose, setUserExists, signer, userExists, posts]);
 
-  const handleSignUp = async () => {
-    let _ipfs = await IPFS();
-
-    try {
-      // Upload profile picture to IPFS
-      const profilePictureCid = await _ipfs.add(profilePicture);
-      // Upload profile banner to IPFS
-      const profileBannerCid = await _ipfs.add(profileBanner);
-      let ppCID = profilePictureCid.cid.toString();
-      let pbCID = profileBannerCid.cid.toString();
-      const tx = await contract?.createUser(
-        await username,
-        await bio,
-        ppCID,
-        pbCID,
-        {
-          value: ethers.utils.parseEther("0.01"),
-          gasLimit: 1000000,
-        }
-      );
-      await tx.wait();
-    } catch (e) {
-      console.log(e);
-    }
+  const handleSearch = (newSearchTerm) => {
+    setSearchTerm(newSearchTerm);
+    console.log("Searching for:", newSearchTerm);
+    // Perform your search logic here
   };
   return (
     <>
@@ -210,19 +192,14 @@ export default function Explore() {
           >
             <Flex
               w="30vw"
-              h="4vh"
               position="sticky"
               minW="200px"
               minH="50px"
-              opacity={0.9}
-              overflow={"auto"}
               direction={"row"}
+              bg={""}
             >
-              <Heading mt="4" ml="3" fontSize="xl" color="white">
-                Explore
-              </Heading>
+              <Search onSearch={handleSearch} />
             </Flex>
-            <Box></Box>
             <Divider
               orientation="horizontal"
               colorScheme="blackAlpha"
