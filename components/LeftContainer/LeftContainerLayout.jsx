@@ -1,9 +1,7 @@
-import {
-  Flex,
-} from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 import { HomeNavBar } from "./HomeNavBar";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-
+import { CustomConnectButton } from "./CustomConnectButton";
 
 export function LeftContainerLayout() {
   return (
@@ -28,7 +26,7 @@ export function LeftContainerLayout() {
         pr={12}
         pt={60}
       >
-        <ConnectButton
+        <CustomConnectButton
           chainStatus="none"
           accountStatus={{
             smallScreen: "avatar",

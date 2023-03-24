@@ -23,7 +23,7 @@ export function Search({ onSearch }) {
         placeholder="Search..."
         onChange={handleSearch}
         borderRadius="2xl"
-        border={"none"}
+        // border={"none"}
       />
     </InputGroup>
   );

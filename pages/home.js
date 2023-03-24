@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { create } from "ipfs-http-client";
 import { useSigner, useContract, useAccount, useConnect } from "wagmi";
+import { getAccount } from "@wagmi/core";
 
 import MIOCoreJSON from "../artifacts/contracts/MIOCore.sol/MIOCore.json";
 import { UserSignUpModal } from "../components/UserSignUpModal.jsx";
@@ -83,7 +84,13 @@ export default function Home() {
     signerOrProvider: signer,
   });
 
+  const account = getAccount();
+
   useEffect(() => {
+    const { isDisconnected } = account;
+    if (isDisconnected) {
+      window.location.href = "/";
+    }
     const getSignerAddress = async () => {
       try {
         const address = await signer.getAddress();
@@ -164,7 +171,7 @@ export default function Home() {
         }
         let mostRecentArr = await _posts.reverse();
         setPosts(mostRecentArr);
-        console.log(mostRecentArr);
+        // console.log(mostRecentArr);
       } catch (e) {
         console.error("Failed to get posts.", e);
       }
@@ -172,7 +179,16 @@ export default function Home() {
     getPosts();
     getUserStatus();
     getUsersProfilePicture();
-  }, [contract, onOpen, onClose, setUserExists, signer, userExists, posts]);
+  }, [
+    contract,
+    onOpen,
+    onClose,
+    setUserExists,
+    signer,
+    userExists,
+    posts,
+    account,
+  ]);
 
   const handleSignUp = async () => {
     let _ipfs = await IPFS();

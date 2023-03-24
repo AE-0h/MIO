@@ -3,7 +3,6 @@ import { create } from "ipfs-http-client";
 import { useSigner, useContract, useAccount, useConnect } from "wagmi";
 
 import MIOCoreJSON from "../artifacts/contracts/MIOCore.sol/MIOCore.json";
-import { Search } from "../components/CenterContainer/Search";
 import {
   useDisclosure,
   Flex,
@@ -18,6 +17,8 @@ import { HomeNavBar } from "../components/LeftContainer/HomeNavBar.jsx";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { OfficialPost } from "../components/CenterContainer/OfficialPost.jsx";
 import { RightBar } from "../components/RightContainer/RightWidget";
+import { Search } from "../components/CenterContainer/Search";
+import { ExplorerWidget } from "../components/CenterContainer/ExplorerWidget";
 
 export default function Explorer() {
   const [userExists, setUserExists] = useState(false);
@@ -200,12 +201,9 @@ export default function Explorer() {
             >
               <Search onSearch={handleSearch} />
             </Flex>
-            <Divider
-              orientation="horizontal"
-              colorScheme="blackAlpha"
-              borderWidth="0.2px"
-            />
-            <Flex />
+
+            <ExplorerWidget />
+
             <Flex>
               <VStack
                 w="30vw"
