@@ -1,18 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import {MioNFT} from "./MioNFT.sol";
+import {MioNFT} from "./Mio721.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
-import {MIOCore} from "./MioCore.sol";
+import {MIOCore} from "../MioCore.sol";
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract MioNFTFactory is Owned(msg.sender) {
     using Strings for uint256;
 
-    //--------------------------------------------ERRORS--------------------------------------------------------
-
-    error NotMIOCORE();
     //------------------------------------------IMMUTABLES & CONST------------------------------------------------------
 
     //--------------------------------------------Events--------------------------------------------------------
@@ -26,10 +23,6 @@ contract MioNFTFactory is Owned(msg.sender) {
     );
 
     //------------------------------------------CONSTRUCTOR-----------------------------------------------------
-
-    constructor() {
-        owner = msg.sender;
-    }
 
     //-------------------------------------------FUNCTIONS------------------------------------------------------
     function deployUserContract(

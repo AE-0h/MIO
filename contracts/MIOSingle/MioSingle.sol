@@ -39,7 +39,6 @@ contract MioNFT is ERC721, Owned(msg.sender) {
     uint256 public immutable mintPrice;
 
     //---------------------------CONSTRUCTOR----------------------------------------//
-
     constructor(
         string memory _name,
         string memory _symbol,
@@ -59,11 +58,8 @@ contract MioNFT is ERC721, Owned(msg.sender) {
         return owner;
     }
 
-    function setTokenURI(
-        uint256 _nftID,
-        string memory _ipfsHash
-    ) internal onlyOwner {
-        ipfsHashFromNFTID[_nftID] = _ipfsHash;
+    function getOwnerOfNFT(uint256 _nftID) external view returns (address) {
+        return ownerOf(_nftID);
     }
 
     function tokenURI(

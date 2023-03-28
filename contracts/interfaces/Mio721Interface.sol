@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-interface MioNFTInterface {
+interface Mio721Interface {
     function getOwner() external view returns (address);
 
     function harvest(address _contractOwner) external;

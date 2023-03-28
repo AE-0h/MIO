@@ -5,6 +5,7 @@ class MioPost {
     this.media = media;
     this.timeStamp = timeStamp;
     this.author = author;
+    this.isOfficial = false;
   }
 }
 

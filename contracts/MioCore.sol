@@ -15,8 +15,8 @@
 ──────────────────────────────────────────────────/*/
 
 pragma solidity ^0.8.7;
-import {MioNFTFactory} from "./MioNFTFactory.sol";
-import {MioNFTInterface} from "./interfaces/MioNFTInterface.sol";
+import {MioNFTFactory} from "./MIO721/Mio721Factory.sol";
+import {Mio721Interface} from "./interfaces/Mio721Interface.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
 
@@ -43,15 +43,13 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     //throws error when a user tries to get all of there posts and there are no posts
     error NoPosts();
     //throws error when msg.value is not equal to mintPrice
-    error MintPriceNotPaid();
+    // error MintPriceNotPaid();
 
     //---------------------------IMMUTABLES----------------------------------------
     // address of the MioNFTFactory contract
     MioNFTFactory immutable mioNFTFactory;
 
     //--------------------------STATE VARIABLES-------------------------------------
-    // current nft contract being used by the user
-    address userNFTAddress;
     // mioPost unique id
     uint256 private mioCountID = 0;
     // mapping of user address to user nft ID
@@ -60,8 +58,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     mapping(address => user) public users;
     // Mapping of mioPost ID to mioPost struct
     mapping(uint256 => mioPost) public mioPosts;
-    // mapping of user address to an array of nft contract structs
-    mapping(address => userNFTContract[]) public userNFTContracts;
+
     //--------------------------Events--------------------------------------------------------
 
     // event fired when a new mioPost is written
@@ -169,17 +166,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
             _mintPrice,
             _baseURI
         );
-        userNFTContracts[msg.sender].push(
-            userNFTContract(
-                _name,
-                symbol,
-                newcontract,
-                _totalSupply,
-                _mintPrice,
-                _baseURI
-            )
-        );
-        setNFTContractAddress(_name, symbol);
+
         emit userNFTContractCreated(
             msg.sender,
             newcontract,
@@ -192,45 +179,17 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         payable(owner).transfer(msg.value);
     }
 
-    // get deployed nft contract address from name and symbol
-    function setNFTContractAddress(
-        string memory _name,
-        string memory _symbol
-    ) internal returns (address) {
-        for (uint i = 0; i < userNFTContracts[msg.sender].length; i++) {
-            if (
-                keccak256(
-                    abi.encodePacked(userNFTContracts[msg.sender][i].name)
-                ) ==
-                keccak256(abi.encodePacked(_name)) &&
-                keccak256(
-                    abi.encodePacked(userNFTContracts[msg.sender][i].symbol)
-                ) ==
-                keccak256(abi.encodePacked(_symbol))
-            ) {
-                userNFTAddress = userNFTContracts[msg.sender][i]
-                    .contractAddress;
-                return userNFTAddress;
-            }
-        }
-    }
+    // // mint an NFT from specific user contract
+    // function mintUserNFT(address _to, string memory _hash) public payable {
+    //     console.log("msg.value: ", msg.value);
+    //     console.log("minting NFT from contract address: ", userNFTAddress);
+    //     MioNFTInterface(userNFTAddress).mintNFT(_to, _hash, msg.value);
+    // }
 
-    // mint an NFT from specific user contract
-    function mintUserNFT(address _to, string memory _hash) public payable {
-        console.log("msg.value: ", msg.value);
-        console.log("minting NFT from contract address: ", userNFTAddress);
-        MioNFTInterface(userNFTAddress).mintNFT(_to, _hash, msg.value);
-    }
-
-    // transfer an NFT to another user
-    function transferNFT(address _to, uint256 _postNFTID) public {
-        MioNFTInterface(userNFTAddress).transferNFT(_to, _postNFTID);
-    }
-
-    //harvest value in nft contract by owner of contract
-    function harvestNFTContract() public {
-        MioNFTInterface(userNFTAddress).harvest(msg.sender);
-    }
+    // //harvest value in nft contract by owner of contract
+    // function harvestNFTContract() public {
+    //     MioNFTInterface(userNFTAddress).harvest(msg.sender);
+    // }
 
     // Create a new mioPost
     function addPost(

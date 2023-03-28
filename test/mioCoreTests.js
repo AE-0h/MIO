@@ -248,8 +248,8 @@ describe("MIOCore Contract Tests", () => {
     });
 
     it("should revert with InsufficientFunds error if msg.value is not 0.01 matic", async () => {
-      const _name = "TestNFT";
-      const _symbol = "TNFT";
+      const _name = "MioNFT";
+      const _symbol = "MIO";
       const _totalSupply = 1000;
       const _mintPrice = ethers.utils.parseEther("0.1");
       const _baseURI = "https://ipfs.io/ipfs/";
@@ -278,8 +278,8 @@ describe("MIOCore Contract Tests", () => {
     });
 
     it("should revert with UserDoesNotExist error if user is not registered", async () => {
-      const _name = "TestNFT";
-      const _symbol = "TNFT";
+      const _name = "MIONFT";
+      const _symbol = "MIO";
       const _totalSupply = 1000;
       const _mintPrice = ethers.utils.parseEther("0.1");
       const _baseURI = "https://ipfs.io/ipfs/";
@@ -314,19 +314,46 @@ describe("MIOCore Contract Tests", () => {
       // and getting the user NFT address (use the code from the previous test)
 
       const _hash = "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG";
-      const mintPrice = ethers.utils.parseEther("0.1");
+
+      let name = "MioNFT";
+      let symbol = "MIO";
+      let maxSupply = 200;
+      let mintPrice = (FixedNumber.from("0.02") * 10 ** 18).toString();
+      let baseURI = "https://ipfs.io/ipfs/";
+      //create nft contract
+      let nftContract = await miocore
+        .connect(user1)
+        .createUserNFTContract(name, symbol, maxSupply, mintPrice, baseURI, {
+          value: ethers.utils.parseEther("0.01"),
+          gasLimit: 3500000,
+        });
+
+      let nftContractTx = await nftContract.wait();
+      //get contract address
+      let nftTxHash = await nftContractTx.transactionHash;
+      let nftTxReceipt = await ethers.provider.getTransactionReceipt(nftTxHash);
+
+      //exception from mumbai to hardhat network (mumbai contract =logs[1] hardhat=logs[0])
+      let nftContractAddress = nftTxReceipt.logs[0].address;
+
+      await expect(nftContract)
+        .to.emit(miocore, "userNFTContractCreated")
+        .withArgs(
+          user1.address,
+          nftContractAddress,
+          name,
+          symbol,
+          maxSupply,
+          mintPrice,
+          baseURI
+        );
 
       await miocore.connect(user1).mintUserNFT(user1.address, _hash, {
         value: mintPrice,
         gasLimit: 2000000,
       });
 
-      const nftContract = new ethers.Contract(
-        userNFTAddress,
-        MioNFTInterface.abi,
-        user1
-      );
-      const nftOwner = await nftContract.ownerOf(1); // Assuming it's the first NFT minted
+      const nftOwner = await nftContract.get; // Assuming it's the first NFT minted
 
       expect(nftOwner).to.equal(user1.address);
     });
