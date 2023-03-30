@@ -15,8 +15,7 @@
 ──────────────────────────────────────────────────/*/
 
 pragma solidity ^0.8.7;
-import {MioNFTFactory} from "./MIO721/Mio721Factory.sol";
-import {Mio721Interface} from "./interfaces/Mio721Interface.sol";
+import {MioVisualFactory} from "./MIOVisual/MioVisualFactory.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
 
@@ -35,7 +34,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     // error thrown when a post length in bytes is greater than 280
     error PostTooLong();
     //error thrown when createUserNFTContract is called by anyone except factory contract
-    error NotMioNFTFactory();
+    error NotmioVisualFactory();
     //throw error when innsufficient funds are sent to contract
     error InsufficientFunds();
     //throw error when a post doesnt exist
@@ -46,12 +45,12 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     // error MintPriceNotPaid();
 
     //---------------------------IMMUTABLES----------------------------------------
-    // address of the MioNFTFactory contract
-    MioNFTFactory immutable mioNFTFactory;
+    // address of the mioVisualFactory contract
+    MioVisualFactory immutable mioVisualFactory;
 
     //--------------------------STATE VARIABLES-------------------------------------
     // mioPost unique id
-    uint256 private mioCountID = 0;
+    uint256 private officialPostID = 0;
     // mapping of user address to user nft ID
     mapping(address => bool) public userExists;
     // Mapping of user address to user struct
@@ -95,7 +94,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     // contains: -
     // - the address of the user
     // - the address of the user nft contract
-    event userNFTContractCreated(
+    event userVisualContractCreated(
         address indexed userAddress,
         address indexed userNFTContract,
         string name,
@@ -108,10 +107,9 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     //--------------------------CONSTRUCTOR-------------------------------------
     // Establish the owner of the contract as the deployer
     // Set mioPost counter at 0
-    constructor(MioNFTFactory _mioNFTFactory) {
-        mioCountID = 0;
-        owner = payable(msg.sender);
-        mioNFTFactory = _mioNFTFactory;
+    constructor(MioVisualFactory _mioVisualFactory) {
+        officialPostID = 0;
+        mioVisualFactory = _mioVisualFactory;
     }
 
     //--------------------------STRUCTS-------------------------------------
@@ -132,7 +130,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         address userAddress;
     }
 
-    struct userNFTContract {
+    struct userVisualContract {
         string name;
         string symbol;
         address contractAddress;
@@ -143,8 +141,10 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
 
     //--------------------------FUNCTIONS-------------------------------------
 
-    // Create a new user nft contract
-    function createUserNFTContract(
+    // Create a new user visual721 contract
+    // add ownership of contract to user via owned transferOwnership
+
+    function createUserVisualContract(
         string memory _name,
         string memory symbol,
         uint256 _totalSupply,
@@ -159,7 +159,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         if (!userExists[msg.sender]) {
             revert UserDoesNotExist();
         }
-        address newcontract = mioNFTFactory.deployUserContract(
+        address newcontract = mioVisualFactory.deployUserContract(
             _name,
             symbol,
             _totalSupply,
@@ -167,7 +167,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
             _baseURI
         );
 
-        emit userNFTContractCreated(
+        emit userVisualContractCreated(
             msg.sender,
             newcontract,
             _name,
@@ -177,22 +177,11 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
             _baseURI
         );
         payable(owner).transfer(msg.value);
+        transferOwnership(newcontract, msg.sender);
     }
 
-    // // mint an NFT from specific user contract
-    // function mintUserNFT(address _to, string memory _hash) public payable {
-    //     console.log("msg.value: ", msg.value);
-    //     console.log("minting NFT from contract address: ", userNFTAddress);
-    //     MioNFTInterface(userNFTAddress).mintNFT(_to, _hash, msg.value);
-    // }
-
-    // //harvest value in nft contract by owner of contract
-    // function harvestNFTContract() public {
-    //     MioNFTInterface(userNFTAddress).harvest(msg.sender);
-    // }
-
     // Create a new mioPost
-    function addPost(
+    function makePostOfficial(
         string memory _content,
         string memory _media,
         string memory _timeStamp
@@ -207,15 +196,15 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         if (msg.value < (1 * 10 ** 16 wei)) revert InsufficientFunds();
         // Emit the event and increment mioCount
         emit postCreated(
-            ++mioCountID,
+            ++officialPostID,
             _content,
             _media,
             _timeStamp,
             msg.sender
         );
         // Create the post
-        mioPosts[mioCountID] = mioPost(
-            mioCountID,
+        mioPosts[officialPostID] = mioPost(
+            officialPostID,
             _content,
             _media,
             _timeStamp,
@@ -306,7 +295,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     {
         if (!userExists[msg.sender]) revert UserDoesNotExist();
         // Check if the mioPost exists
-        if (mioPosts[_id].id > mioCountID || mioPosts[_id].id == 0) {
+        if (mioPosts[_id].id > officialPostID || mioPosts[_id].id == 0) {
             revert PostDoesNotExist();
         }
         // Fetch the mioPost
@@ -324,15 +313,15 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         address _user
     ) public view returns (mioPost[] memory result) {
         if (!userExists[msg.sender]) revert UserDoesNotExist();
-        if (mioCountID == 0) {
+        if (officialPostID == 0) {
             revert NoPosts();
         }
         // Create a temporary array to store the mioPosts
-        result = new mioPost[](mioCountID);
+        result = new mioPost[](officialPostID);
         // Create a counter to keep track of the index
         uint256 counter = 0;
         // Loop through all the mioPosts
-        for (uint256 i = 1; i <= mioCountID; i++) {
+        for (uint256 i = 1; i <= officialPostID; i++) {
             // Check if the mioPost is from the user
             if (mioPosts[i].author == _user) {
                 // Add the mioPost to the array
@@ -353,11 +342,11 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         //check if msg.sender is associated with a user account
         if (!userExists[msg.sender]) revert UserDoesNotExist();
         // Create a temporary array to store the mioPosts
-        result = new mioPost[](mioCountID);
+        result = new mioPost[](officialPostID);
         //Create a counter to keep track of the index
         uint256 counter = 0;
         // Loop through all the mioPosts
-        for (uint256 i = 1; i <= mioCountID; i++) {
+        for (uint256 i = 1; i <= officialPostID; i++) {
             // Add the mioPost to the array
             result[counter] = mioPosts[i];
             // Increment the counter

@@ -17,6 +17,7 @@
     "@moralisweb3/common-evm-utils": "^2.17.0",
     "@next/font": "13.1.1",
     "@openzeppelin/contracts": "^4.8.1",
+    "@openzeppelin/contracts-upgradeable": "^4.8.2",
     "@rainbow-me/rainbowkit": "^0.8.1",
     "@supabase/supabase-js": "^2.12.1",
     "dotenv": "^16.0.3",
@@ -32,12 +33,16 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.7.1",
-    "solmate": "^6.6.1",
     "wagmi": "^0.9.6"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.5",
     "@nomicfoundation/hardhat-foundry": "^1.0.0",
-    "@nomicfoundation/hardhat-toolbox": "^1.0.2"
+    "@nomicfoundation/hardhat-toolbox": "^1.0.2",
+    "@nomiclabs/hardhat-ethers": "^2.2.2",
+    "@nomiclabs/hardhat-etherscan": "^3.1.7",
+    "@openzeppelin/hardhat-upgrades": "^1.22.1",
+    "erc721a-upgradeable": "^4.2.3",
+    "ethers": "^5.7.2"
   }
 }

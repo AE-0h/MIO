@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import {MioNFT} from "./Mio721.sol";
+import {MioSingle} from "./MioSingle.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
-import {MIOCore} from "../MioCore.sol";
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract MioNFTFactory is Owned(msg.sender) {
+contract MioSingleFactory is Owned(msg.sender) {
     using Strings for uint256;
 
     //------------------------------------------IMMUTABLES & CONST------------------------------------------------------
@@ -22,8 +21,6 @@ contract MioNFTFactory is Owned(msg.sender) {
         string baseURI
     );
 
-    //------------------------------------------CONSTRUCTOR-----------------------------------------------------
-
     //-------------------------------------------FUNCTIONS------------------------------------------------------
     function deployUserContract(
         string memory _name,
@@ -33,7 +30,7 @@ contract MioNFTFactory is Owned(msg.sender) {
         string calldata _baseURI
     ) external returns (address newMioNFTContract) {
         newMioNFTContract = address(
-            new MioNFT(_name, _symbol, _totalSupply, _mintPrice, _baseURI)
+            new MioSingle(_name, _symbol, _totalSupply, _mintPrice, _baseURI)
         );
         emit ContractDeployed(
             newMioNFTContract,

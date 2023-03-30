@@ -28,7 +28,7 @@ export function CreatePostInput({ IPFS, contract, avatar }) {
       const text = postInputRef.current.value ? postInputRef.current.value : "";
       const timestamp = Date.now().toString();
       console.log(text);
-      await contract.addPost(text, ipfsCID, timestamp, {
+      await contract.makePostOfficial(text, ipfsCID, timestamp, {
         value: ethers.utils.parseEther("0.01"),
         gasLimit: 1000000,
       });

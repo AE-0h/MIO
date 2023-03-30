@@ -5,12 +5,12 @@ const { ethers } = require("hardhat");
 describe("MIOCore Contract Tests", () => {
   beforeEach(async () => {
     //deploy NFT factory contract passing in NFT contract address to constructor
-    const NFTContractFactory = await ethers.getContractFactory("MioNFTFactory");
-    nftContractFactory = await NFTContractFactory.deploy();
-    await nftContractFactory.deployed();
+    const visualFactory = await ethers.getContractFactory("MioVisualFactory");
+    visualFactory = await visualFactory.deploy();
+    await visualFactory.deployed();
     //deploy MIOCore contract passing in NFT factory contract address to constructor
     const MIOCore = await ethers.getContractFactory("MIOCore");
-    miocore = await MIOCore.deploy(nftContractFactory.address);
+    miocore = await MIOCore.deploy(visualFactory.address);
     await miocore.deployed();
     //get signers and assign to user1 and user2 on chosen network
     [user1, user2, unregisteredUser] = await ethers.getSigners();
@@ -72,14 +72,14 @@ describe("MIOCore Contract Tests", () => {
       let postContent = "post1";
       let postImage = "https://blah.com/image1.jpg";
       let timestamp = Date.now().toString();
-      let userAddPost = await miocore
+      let userMakePostOfficial = await miocore
         .connect(user1)
-        .addPost(postContent, postImage, timestamp, {
+        .makePostOfficial(postContent, postImage, timestamp, {
           value: ethers.utils.parseEther("0.01"),
           gasLimit: 1000000,
         });
       //emit postCreated(_postID, _postContent, _postMedia, _author);
-      await expect(userAddPost)
+      await expect(userMakePostOfficial)
         .to.emit(miocore, "postCreated")
         .withArgs(1, postContent, postImage, timestamp, user1.address);
     });
@@ -103,25 +103,25 @@ describe("MIOCore Contract Tests", () => {
       let pc2 = "post3";
       let pi2 = "https://blah.com/image3.jpg";
       //add post user 1
-      let userAddPost = await miocore
+      let userMakePostOfficial = await miocore
         .connect(user1)
-        .addPost(postContent, postImage, timestamp, {
+        .makePostOfficial(postContent, postImage, timestamp, {
           value: ethers.utils.parseEther("0.01"),
           gasLimit: 2000000,
         });
 
-      await expect(userAddPost)
+      await expect(userMakePostOfficial)
         .to.emit(miocore, "postCreated")
         .withArgs(1, postContent, postImage, timestamp, user1.address);
 
-      let userAddPost2 = await miocore
+      let userMakePostOfficial2 = await miocore
         .connect(user1)
-        .addPost(pc2, pi2, timestamp, {
+        .makePostOfficial(pc2, pi2, timestamp, {
           value: ethers.utils.parseEther("0.01"),
           gasLimit: 2000000,
         });
 
-      await expect(userAddPost2)
+      await expect(userMakePostOfficial2)
         .to.emit(miocore, "postCreated")
         .withArgs(2, pc2, pi2, timestamp, user1.address);
       // 1st post user 2
@@ -134,7 +134,7 @@ describe("MIOCore Contract Tests", () => {
       //add post user 2
       let user2PostCreate = await miocore
         .connect(user2)
-        .addPost(pc4, pi4, timestamp, {
+        .makePostOfficial(pc4, pi4, timestamp, {
           value: ethers.utils.parseEther("0.01"),
           gasLimit: 2000000,
         });
@@ -146,7 +146,7 @@ describe("MIOCore Contract Tests", () => {
 
       let user2PostCreate2 = await miocore
         .connect(user2)
-        .addPost(pc5, pi5, timestamp, {
+        .makePostOfficial(pc5, pi5, timestamp, {
           value: ethers.utils.parseEther("0.01"),
           gasLimit: 10000000,
         });

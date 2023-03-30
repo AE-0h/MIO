@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 
 import "hardhat/console.sol";
 
-contract MioNFT is ERC721, Owned(msg.sender) {
+contract MioSingle is ERC721, Owned(msg.sender) {
     using Strings for uint256;
     //------------------------------ERRORS---------------------------------------------//
 

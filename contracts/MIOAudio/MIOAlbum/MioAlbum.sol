@@ -34,6 +34,9 @@ contract MioAlbum is ERC1155, Owned(msg.sender) {
     uint256 public immutable mintPrice;
     uint256 public immutable totalSupply;
 
+    string public artist;
+    string public name;
+
     mapping(uint256 => string) public albumURIs;
     mapping(uint256 => string) public trackURIs;
     mapping(uint256 => uint256[]) public tracksByAlbum;
@@ -51,6 +54,8 @@ contract MioAlbum is ERC1155, Owned(msg.sender) {
         owner = msg.sender;
         mintPrice = _mintPrice;
         totalSupply = _initialSupply;
+        artist = _artist;
+        name = _name;
     }
 
     //------------------------------FUNCTIONS-------------------------------------//
