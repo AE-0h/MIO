@@ -15,10 +15,10 @@
 ──────────────────────────────────────────────────/*/
 
 pragma solidity ^0.8.7;
+import {MioVisual} from "./MIOVisual/MioVisual.sol";
 import {MioVisualFactory} from "./MIOVisual/MioVisualFactory.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
-
 import "hardhat/console.sol";
 
 contract MIOCore is Owned(msg.sender), ReentrancyGuard {
@@ -141,8 +141,8 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
 
     //--------------------------FUNCTIONS-------------------------------------
 
-    // Create a new user visual721 contract
-    // add ownership of contract to user via owned transferOwnership
+    // Create a new user visual721a contract
+    // add ownership of contract to user
 
     function createUserVisualContract(
         string memory _name,
@@ -177,7 +177,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
             _baseURI
         );
         payable(owner).transfer(msg.value);
-        transferOwnership(newcontract, msg.sender);
+        MioVisual(newcontract).transferOwnership(payable(msg.sender));
     }
 
     // Create a new mioPost

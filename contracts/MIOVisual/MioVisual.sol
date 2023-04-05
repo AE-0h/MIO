@@ -3,6 +3,7 @@ pragma solidity ^0.8.7;
 
 import "erc721a-upgradeable/contracts/ERC721AUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
 import "hardhat/console.sol";
 
 contract MioVisual is ERC721AUpgradeable, OwnableUpgradeable {
@@ -23,7 +24,7 @@ contract MioVisual is ERC721AUpgradeable, OwnableUpgradeable {
     event nftMinted(
         address indexed to,
         uint256 indexed nftID,
-        string indexed ipfsHash
+        string indexed ipfsHashwithBase
     );
 
     //--------------------------STATE VARIABLES---------------------------------------//
@@ -34,6 +35,9 @@ contract MioVisual is ERC721AUpgradeable, OwnableUpgradeable {
     uint256 public currentTokenId;
     uint256 public _TotalSupply;
     uint256 public mintPrice;
+    uint256 public totalMinted;
+    uint256 public totalHarvested;
+    string public collectionBaseURI;
 
     //---------------------------Initilizer----------------------------------------//
 
@@ -41,22 +45,28 @@ contract MioVisual is ERC721AUpgradeable, OwnableUpgradeable {
         string memory _name,
         string memory _symbol,
         uint256 _totalSupply,
-        uint256 _mintPrice
-    ) public initializer {
+        uint256 _mintPrice,
+        string memory _collectionBaseURI
+    ) public payable initializer initializerERC721A {
         __ERC721A_init(_name, _symbol);
         __Ownable_init();
         nftID = 0;
         _TotalSupply = _totalSupply;
         mintPrice = _mintPrice;
+        collectionBaseURI = _collectionBaseURI;
     }
 
     //----------------------------FUNCTIONS-------------------------------------//
-    // function getOwner() external view returns (address) {
-    //     return owner;
-    // }
+    function _baseURI() internal view override returns (string memory) {
+        return collectionBaseURI;
+    }
 
     function getOwnerOfNFT(uint256 _nftID) external view returns (address) {
         return ownerOf(_nftID);
+    }
+
+    function setOwnerOfContract(address _newOwner) external onlyOwner {
+        transferOwnership(_newOwner);
     }
 
     function mintNFT(
@@ -65,15 +75,20 @@ contract MioVisual is ERC721AUpgradeable, OwnableUpgradeable {
         uint256 _mintPrice
     ) external payable returns (uint256) {
         if (_mintPrice != mintPrice) {
-            console.log("mintPrice", _mintPrice);
-            console.log("mintPrice", mintPrice);
             revert MintPriceNotPaid();
         }
         if (nftID >= _TotalSupply) {
             revert MaxSupply();
         }
-        emit nftMinted(_to, ++nftID, _ipfsHash);
-        ipfsHashFromNFTID[nftID] = _ipfsHash;
+        if (bytes(_ipfsHash).length == 0) {
+            revert NonExistentTokenURI();
+        }
+        string memory _ipfsHashWithBase = string(
+            abi.encodePacked(_baseURI(), _ipfsHash)
+        );
+
+        emit nftMinted(_to, ++nftID, _ipfsHashWithBase);
+        ipfsHashFromNFTID[nftID] = _ipfsHashWithBase;
         _safeMint(_to, nftID);
         return nftID;
     }
