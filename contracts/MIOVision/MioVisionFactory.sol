@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import {MioVisual} from "./MioVisual.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {MioVision} from "./MioVision.sol";
 import {MIOCore} from "../MioCore.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract MioVisualFactory is Initializable, OwnableUpgradeable {
+contract MioVisionFactory is Initializable, OwnableUpgradeable {
     using Strings for uint256;
 
     //------------------------------------------IMMUTABLES & CONST------------------------------------------------------
@@ -34,24 +33,26 @@ contract MioVisualFactory is Initializable, OwnableUpgradeable {
         string memory _symbol,
         uint256 _totalSupply,
         uint256 _mintPrice,
-        string calldata _baseURI
-    ) external onlyOwner returns (address newMioNFTContract) {
-        newMioNFTContract = address(new MioVisual());
-        MioVisual(newMioNFTContract).initialize(
+        string calldata _baseURI,
+        address _eoaInvoker
+    ) external onlyOwner returns (address newMioVisionContract) {
+        newMioVisionContract = address(new MioVision());
+        MioVision(newMioVisionContract).initialize(
             _name,
             _symbol,
             _totalSupply,
             _mintPrice,
-            _baseURI
+            _baseURI,
+            _eoaInvoker
         );
         emit ContractDeployed(
-            newMioNFTContract,
+            newMioVisionContract,
             _name,
             _symbol,
             _totalSupply,
             _mintPrice,
             _baseURI
         );
-        return newMioNFTContract;
+        return newMioVisionContract;
     }
 }

@@ -15,8 +15,8 @@
 ──────────────────────────────────────────────────/*/
 
 pragma solidity ^0.8.7;
-import {MioVisual} from "./MIOVisual/MioVisual.sol";
-import {MioVisualFactory} from "./MIOVisual/MioVisualFactory.sol";
+import {MioVision} from "./MIOVision/MioVision.sol";
+import {MioVisionFactory} from "./MIOVision/MioVisionFactory.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
 import "hardhat/console.sol";
@@ -41,12 +41,11 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     error PostDoesNotExist();
     //throws error when a user tries to get all of there posts and there are no posts
     error NoPosts();
-    //throws error when msg.value is not equal to mintPrice
-    // error MintPriceNotPaid();
+    //throws an error if the msg.sender is not the owner of the mioVisual contract it i
 
     //---------------------------IMMUTABLES----------------------------------------
     // address of the mioVisualFactory contract
-    MioVisualFactory immutable mioVisualFactory;
+    MioVisionFactory immutable mioVisionFactory;
 
     //--------------------------STATE VARIABLES-------------------------------------
     // mioPost unique id
@@ -107,9 +106,9 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     //--------------------------CONSTRUCTOR-------------------------------------
     // Establish the owner of the contract as the deployer
     // Set mioPost counter at 0
-    constructor(MioVisualFactory _mioVisualFactory) {
+    constructor(MioVisionFactory _mioVisionFactory) {
         officialPostID = 0;
-        mioVisualFactory = _mioVisualFactory;
+        mioVisionFactory = _mioVisionFactory;
     }
 
     //--------------------------STRUCTS-------------------------------------
@@ -142,7 +141,6 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     //--------------------------FUNCTIONS-------------------------------------
 
     // Create a new user visual721a contract
-    // add ownership of contract to user
 
     function createUserVisualContract(
         string memory _name,
@@ -150,7 +148,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         uint256 _totalSupply,
         uint256 _mintPrice,
         string memory _baseURI
-    ) external payable {
+    ) public payable {
         //must have msg.value of 1 ether
         if (msg.value != (1 * 10 ** 16 wei)) {
             revert InsufficientFunds();
@@ -159,12 +157,13 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         if (!userExists[msg.sender]) {
             revert UserDoesNotExist();
         }
-        address newcontract = mioVisualFactory.deployUserContract(
+        address newcontract = mioVisionFactory.deployUserContract(
             _name,
             symbol,
             _totalSupply,
             _mintPrice,
-            _baseURI
+            _baseURI,
+            msg.sender
         );
 
         emit userVisualContractCreated(
@@ -177,7 +176,44 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
             _baseURI
         );
         payable(owner).transfer(msg.value);
-        MioVisual(newcontract).transferOwnership(payable(msg.sender));
+    }
+
+    // Create a new user Resale contract
+
+    function createUserResaleContract(
+        string memory _name,
+        string memory symbol,
+        uint256 _totalSupply,
+        uint256 _mintPrice,
+        string memory _baseURI
+    ) public payable {
+        //must have msg.value of 1 ether
+        if (msg.value != (1 * 10 ** 16 wei)) {
+            revert InsufficientFunds();
+        }
+        //error msg.sender is an existing user
+        if (!userExists[msg.sender]) {
+            revert UserDoesNotExist();
+        }
+        address newcontract = mioVisionFactory.deployUserContract(
+            _name,
+            symbol,
+            _totalSupply,
+            _mintPrice,
+            _baseURI,
+            msg.sender
+        );
+
+        emit userVisualContractCreated(
+            msg.sender,
+            newcontract,
+            _name,
+            symbol,
+            _totalSupply,
+            _mintPrice,
+            _baseURI
+        );
+        payable(owner).transfer(msg.value);
     }
 
     // Create a new mioPost
@@ -276,7 +312,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         );
         //set minted to true
         userExists[msg.sender] = true;
-        // pay out "owner" or deployer of contract for user creation gas fee
+        // pay out "owner" or deployer of contract for user creation
         payable(owner).transfer(msg.value);
     }
 
