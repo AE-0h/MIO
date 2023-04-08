@@ -18,6 +18,7 @@ pragma solidity ^0.8.7;
 import {MioVision} from "./MIOVision/MioVision.sol";
 import {MioVisionFactory} from "./MIOVision/MioVisionFactory.sol";
 import {MioResale} from "./MIOResale/MioResale.sol";
+import {MioResaleFactory} from "./MIOResale/MioResaleFactory.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
 import "hardhat/console.sol";
@@ -47,6 +48,8 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     //---------------------------IMMUTABLES----------------------------------------
     // address of the mioVisualFactory contract
     MioVisionFactory immutable mioVisionFactory;
+    // address of the mioResaleFactory contract
+    MioResaleFactory immutable mioResaleFactory;
 
     //--------------------------STATE VARIABLES-------------------------------------
     // mioPost unique id
@@ -90,10 +93,10 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         string profileBanner
     );
 
-    // event fired when user nft contract is created
+    // event fired when user MioVision contract is created
     // contains: -
     // - the address of the user
-    // - the address of the user nft contract
+    // - the address of the user MioVision contract
     event userVisualContractCreated(
         address indexed userAddress,
         address indexed userNFTContract,
@@ -104,12 +107,25 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         string baseURI
     );
 
+    // event fired when MioResale contract is created
+    // contains: -
+    // - the address of the user
+    // - the address of the user MioResale contract
+    event userResaleContractCreated(
+        address indexed userAddress,
+        address indexed userResaleContract
+    );
+
     //--------------------------CONSTRUCTOR-------------------------------------
     // Establish the owner of the contract as the deployer
     // Set mioPost counter at 0
-    constructor(MioVisionFactory _mioVisionFactory) {
+    constructor(
+        MioVisionFactory _mioVisionFactory,
+        MioResaleFactory _mioResaleFactory
+    ) {
         officialPostID = 0;
         mioVisionFactory = _mioVisionFactory;
+        mioResaleFactory = _mioResaleFactory;
     }
 
     //--------------------------STRUCTS-------------------------------------
@@ -183,38 +199,19 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
 
     function createUserResaleContract(
         string memory _name,
-        string memory symbol,
-        uint256 _totalSupply,
-        uint256 _mintPrice,
-        string memory _baseURI
-    ) public payable {
-        //must have msg.value of 1 ether
-        if (msg.value != (1 * 10 ** 16 wei)) {
-            revert InsufficientFunds();
-        }
+        string memory _symbol
+    ) public {
         //error msg.sender is an existing user
         if (!userExists[msg.sender]) {
             revert UserDoesNotExist();
         }
-        address newcontract = mioVisionFactory.deployUserContract(
+        address newcontract = mioResaleFactory.deployUserContract(
             _name,
-            symbol,
-            _totalSupply,
-            _mintPrice,
-            _baseURI,
+            _symbol,
             msg.sender
         );
 
-        emit userVisualContractCreated(
-            msg.sender,
-            newcontract,
-            _name,
-            symbol,
-            _totalSupply,
-            _mintPrice,
-            _baseURI
-        );
-        payable(owner).transfer(msg.value);
+        emit userResaleContractCreated(msg.sender, newcontract);
     }
 
     // Create a new mioPost
