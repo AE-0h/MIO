@@ -7,60 +7,54 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 contract MioResale is ERC721AUpgradeable, OwnableUpgradeable {
     //------------------------------ERRORS---------------------------------------------//
 
-    error MintPriceNotPaid();
     error MaxSupply();
     error NonExistentTokenURI();
-    error NoFundsToWithdraw();
 
     //------------------------------EVENTS---------------------------------------------//
 
     // event fired when a nft is minted
     // contains: -
-    // - the address of the user wh
-    // - user nft ID
+    // - productName
+    // - productBrand
+    // - productCategory
+    // - sku number to officially identify the product
+    // - array of ipfsURIs that contain images and argument provisioned metadata of the product
     //
     event nftMinted(
-        address indexed to,
-        uint256 indexed nftID,
-        string indexed ipfsHashwithBase
+        string productName,
+        string productBrand,
+        string productCategory,
+        string indexed sku,
+        string[] indexed completeMetaURIArray
     );
 
-    // event fired when a funds are withdrawn from user MIOVision contract
-
-    event contractValueWithdrawn(address indexed to, uint256 indexed amount);
-
     //--------------------------STATE VARIABLES---------------------------------------//
-    // userNft unique id
-    uint256 public nftID;
+
     // mapping nftID to ipfsHash
-    mapping(uint256 => string) public ipfsHashFromNFTID;
-    uint256 public currentTokenId;
-    uint256 public mintPrice;
-    uint256 public totalMinted;
     uint256 public totalHarvested;
     string public metaBaseURI;
-    string[] public metaURIArray;
     address public eoaInvoker;
+    uint256 public totalMinted;
 
     //---------------------------CONSTRUCTOR----------------------------------------//
 
     function initialize(
         string memory _name,
         string memory _symbol,
-        string memory _metaBaseURI,
-        address _eoaInvoker,
-        string[] memory _metaURI
+        address _eoaInvoker
     ) public payable initializer initializerERC721A {
         __ERC721A_init(_name, _symbol);
         __Ownable_init();
         transferOwnership(_eoaInvoker);
-        nftID = 0;
-        metaBaseURI = _metaBaseURI;
         eoaInvoker = _eoaInvoker;
-        metaURIArray = _metaURI;
     }
 
     //----------------------------FUNCTIONS-------------------------------------//
+
+    function setBaseURI(string memory _itemBaseURI) external onlyOwner {
+        metaBaseURI = _itemBaseURI;
+    }
+
     function _baseURI() internal view override returns (string memory) {
         return metaBaseURI;
     }
@@ -69,39 +63,42 @@ contract MioResale is ERC721AUpgradeable, OwnableUpgradeable {
         return ownerOf(_nftID);
     }
 
-    function transferOwnershipToEOAInvoker() external onlyOwner {
-        transferOwnership(eoaInvoker);
-    }
-
     function mintNFT(
-        address _to,
-        string calldata _ipfsHash
-    ) external returns (uint256) {
-        if (metaURIArray.length == 0) {
-            revert NonExistentTokenURI();
+        string memory _productName,
+        string memory _productBrand,
+        string memory _productCategory,
+        string memory _sku,
+        string[] calldata _metaURIs
+    ) external {
+        if (totalMinted >= 1) {
+            revert MaxSupply();
         }
-        string memory _ipfsHashWithBase = string(
-            abi.encodePacked(_baseURI(), _ipfsHash)
+        string[] memory completeURIs = new string[](_metaURIs.length);
+        for (uint256 i = 0; i < _metaURIs.length; i++) {
+            completeURIs[i] = string(
+                abi.encodePacked(metaBaseURI, _metaURIs[i])
+            );
+        }
+        //last element of the array is sku
+        //second last element of the array is productCategory
+        //third last element of the array is productBrand
+        //fourth last element of the array is productName
+        assembly {
+            let size := mload(completeURIs) // load the current size of the array
+            mstore(completeURIs, add(size, 4)) // increase the size by 4
+            mstore(add(completeURIs, mul(add(size, 1), 32)), _productName) // push _productName to the end of the array
+            mstore(add(completeURIs, mul(add(size, 2), 32)), _productBrand) // push _productBrand to the end of the array
+            mstore(add(completeURIs, mul(add(size, 3), 32)), _productCategory) // push _productCategory to the end of the array
+            mstore(add(completeURIs, mul(add(size, 4), 32)), _sku) // push _sku to the end of the array
+        }
+        emit nftMinted(
+            _productName,
+            _productBrand,
+            _productCategory,
+            _sku,
+            completeURIs
         );
-
-        emit nftMinted(_to, ++nftID, _ipfsHashWithBase);
-
-        ipfsHashFromNFTID[nftID] = _ipfsHashWithBase;
-
-        _safeMint(_to, nftID);
-
-        return nftID;
-    }
-
-    function getContractBalance() external view returns (uint256) {
-        return address(this).balance;
-    }
-
-    function harvest(address payable _contractOwner) external onlyOwner {
-        uint256 balance = address(this).balance;
-        if (balance == 0) {
-            revert NoFundsToWithdraw();
-        }
-        _contractOwner.transfer(balance);
+        _safeMint(eoaInvoker, totalMinted);
+        totalMinted++;
     }
 }
