@@ -17,6 +17,7 @@
 pragma solidity ^0.8.7;
 import {MioVision} from "./MIOVision/MioVision.sol";
 import {MioVisionFactory} from "./MIOVision/MioVisionFactory.sol";
+import {MioResale} from "./MIOResale/MioResale.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
 import "hardhat/console.sol";
