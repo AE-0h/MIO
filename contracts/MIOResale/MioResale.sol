@@ -67,7 +67,7 @@ contract MioResale is ERC721AUpgradeable, OwnableUpgradeable {
         string memory _productName,
         string memory _productBrand,
         string memory _productCategory,
-        string memory _sku,
+        string memory _uuid,
         string[] calldata _metaURIs
     ) external {
         if (totalMinted >= 1) {
@@ -89,13 +89,13 @@ contract MioResale is ERC721AUpgradeable, OwnableUpgradeable {
             mstore(add(completeURIs, mul(add(size, 1), 32)), _productName) // push _productName to the end of the array
             mstore(add(completeURIs, mul(add(size, 2), 32)), _productBrand) // push _productBrand to the end of the array
             mstore(add(completeURIs, mul(add(size, 3), 32)), _productCategory) // push _productCategory to the end of the array
-            mstore(add(completeURIs, mul(add(size, 4), 32)), _sku) // push _sku to the end of the array
+            mstore(add(completeURIs, mul(add(size, 4), 32)), _uuid) // push _uuid to the end of the array
         }
         emit nftMinted(
             _productName,
             _productBrand,
             _productCategory,
-            _sku,
+            _uuid,
             completeURIs
         );
         _safeMint(eoaInvoker, totalMinted);
