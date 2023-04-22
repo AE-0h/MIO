@@ -5,11 +5,8 @@ import {MioVision} from "./MioVision.sol";
 import {MIOCore} from "../MioCore.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract MioVisionFactory is Initializable, OwnableUpgradeable {
-    using Strings for uint256;
-
     //------------------------------------------IMMUTABLES & CONST------------------------------------------------------
 
     //--------------------------------------------Events--------------------------------------------------------
