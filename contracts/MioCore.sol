@@ -198,7 +198,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     // Create a new user Resale contract
 
     function createUserResaleContract(
-        string memory _name,
+        string memory _userResaleTokenizerName,
         string memory _symbol
     ) public {
         //error msg.sender is an existing user
@@ -206,7 +206,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
             revert UserDoesNotExist();
         }
         address newcontract = mioResaleFactory.deployUserContract(
-            _name,
+            _userResaleTokenizerName,
             _symbol,
             msg.sender
         );
@@ -308,6 +308,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
             _profilePic,
             _profileBanner
         );
+
         //set minted to true
         userExists[msg.sender] = true;
         // pay out "owner" or deployer of contract for user creation

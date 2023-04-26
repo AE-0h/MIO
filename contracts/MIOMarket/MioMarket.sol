@@ -7,10 +7,13 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "../MIOResale/MioResale.sol";
 import "../MIOKarma/MioKarma.sol";
 
-contract MioMarket is Initializable, OwnableUpgradeable {
+contract MioMarket is Karma, Initializable, OwnableUpgradeable {
     using Strings for uint256;
 
-    //------------------------------------------IMMUTABLES & CONST------------------------------------------------------
+    //------------------------------------------ERRORS------------------------------------------------------
+    error communityKarmaTooLow();
+    error onlySellerCanRemove();
+
 
     //--------------------------------------------Events--------------------------------------------------------
     event MioResaleAdded(
@@ -41,29 +44,24 @@ contract MioMarket is Initializable, OwnableUpgradeable {
     //-------------------------------------------STATE VARIABLES-------------------------------------------------------
 
     mapping(address => mapping(uint256 => MioResaleItem)) public mioResaleItems;
-    Karma public karmaContract;
     uint256 public karmaRequiredToSell;
 
     //-------------------------------------------MODIFIERS-------------------------------------------------------
 
     modifier onlyKarmaUser(address user) {
-        require(
-            karmaContract.getUserKarma(user).rating >= karmaRequiredToSell,
-            "MioMarket: user doesn't have enough karma to sell on the market"
-        );
+        uint256 averageStars = getUserKarma(user);
+        if (averageStars < karmaRequiredToSell) {
+            revert communityKarmaTooLow();
+        }
         _;
     }
 
     //-------------------------------------------FUNCTIONS-------------------------------------------------------
 
-    function initialize(
-        address _mioVisionFactory,
-        address _karmaContract
-    ) public initializer {
+    function initialize(address _eoaInvoker) public initializer {
         __Ownable_init();
-        mioVisionFactory = MioVisionFactory(_mioVisionFactory);
-        karmaContract = Karma(_karmaContract);
-        karmaRequiredToSell = 
+        karmaRequiredToSell = 30;
+        transferOwnership(_eoaInvoker);
     }
 
     function listMioResale(
@@ -88,8 +86,10 @@ contract MioMarket is Initializable, OwnableUpgradeable {
     }
 
     function removeMioResale(address _nftAddress, uint256 _tokenId) public {
-        MioResaleItem storage item = mioResaleItems[_nftAddress][_tokenId];
-        require(item.seller == msg.sender, "MioMarket: only seller can remove");
+        MioResaleItem memory item = mioResaleItems[_nftAddress][_tokenId];
+        if (item.seller != msg.sender) {
+            revert onlySellerCanRemove();
+        }
 
         MioResale(_nftAddress).safeTransferFrom(
             address(this),
@@ -107,16 +107,6 @@ contract MioMarket is Initializable, OwnableUpgradeable {
         uint256 _tokenId
     ) public payable {
         MioResaleItem storage item = mioResaleItems[_nftAddress][_tokenId];
-        require(item.seller != address(0), "MioMarket: invalid sale item");
-        require(
-            item.seller != msg.sender,
-            "MioMarket: seller can't buy their own item"
-        );
-        require(
-            msg.value >= item.price,
-            "MioMarket: not enough funds to buy item"
-        );
-
         MioResale(_nftAddress).safeTransferFrom(
             address(this),
             msg.sender,

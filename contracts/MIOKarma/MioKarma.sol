@@ -1,29 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
-contract Karma is Initializable, OwnableUpgradeable {
+contract Karma {
     struct UserKarma {
         uint256 totalStars;
         uint256 totalRatings;
     }
 
     mapping(address => UserKarma) public userKarmas;
+    uint256 private constant PRECISION = 10;
+    uint256 private constant MAX_STARS = 50; // 5.0 stars * 10 precision
 
     // Custom errors
     error InvalidRating(uint256 providedRating);
 
     event KarmaUpdated(address indexed user, uint256 averageStars);
 
-    function initialize(address _eoaInvoker) public initializer {
-        __Ownable_init();
-        transferOwnership(_eoaInvoker);
-    }
-
-    function addRating(address user, uint256 stars) external onlyOwner {
-        if (stars < 1 || stars > 5) {
+    function addRating(address user, uint256 stars) internal {
+        if (stars < PRECISION || stars > MAX_STARS) {
             revert InvalidRating(stars);
         }
 
@@ -37,8 +31,8 @@ contract Karma is Initializable, OwnableUpgradeable {
 
     function getUserKarma(
         address user
-    ) external view returns (uint256 averageStars) {
+    ) public view returns (uint256 averageStars) {
         UserKarma storage karma = userKarmas[user];
-        return (karma.totalStars / karma.totalRatings);
+        return (karma.totalStars / (karma.totalRatings));
     }
 }

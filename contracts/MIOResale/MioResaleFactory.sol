@@ -11,9 +11,15 @@ contract MioResaleFactory is Initializable, OwnableUpgradeable {
     using Strings for uint256;
 
     //------------------------------------------IMMUTABLES & CONST------------------------------------------------------
+    uint128 public nonce = 0;
 
     //--------------------------------------------Events--------------------------------------------------------
-    event ContractDeployed(address contractAddress, string name, string symbol);
+    event ContractDeployed(
+        address contractAddress,
+        string name,
+        string symbol,
+        uint128 nonce
+    );
 
     //-------------------------------------------FUNCTIONS------------------------------------------------------
     function initialize(address ownerAddress) public initializer {
@@ -28,7 +34,7 @@ contract MioResaleFactory is Initializable, OwnableUpgradeable {
     ) external onlyOwner returns (address newMioVisionContract) {
         newMioVisionContract = address(new MioResale());
         MioResale(newMioVisionContract).initialize(_name, _symbol, _eoaInvoker);
-        emit ContractDeployed(newMioVisionContract, _name, _symbol);
+        emit ContractDeployed(newMioVisionContract, _name, _symbol, nonce++);
         return newMioVisionContract;
     }
 }
