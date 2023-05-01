@@ -17,6 +17,8 @@
 pragma solidity ^0.8.7;
 import {MioThink} from "./MIOThink/MioThink.sol";
 import {MioThinkFactory} from "./MIOThink/MioThinkFactory.sol";
+import {MioMarket} from "./MIOMarket/MioMarket.sol";
+import {MioMarketFactory} from "./MIOMarket/MioMarketFactory.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
 import "hardhat/console.sol";
@@ -41,15 +43,19 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     error PostDoesNotExist();
     //throws error when a user tries to get all of there posts and there are no posts
     error NoPosts();
-    //throws an error if the msg.sender is not the owner of the mioVisual contract it i
+    // trows error when user already has one mioMarket contract deployed
+    error UserAlreadyHasMarket();
 
     //---------------------------IMMUTABLES----------------------------------------
     // address of the mioVisualFactory contract
     MioThinkFactory immutable mioThinkFactory;
+    // address of the mioMarketFactory contract
+    MioMarketFactory immutable mioMarketFactory;
 
     //--------------------------STATE VARIABLES-------------------------------------
     // mioPost unique id
     uint256 private officialPostID = 0;
+
     // mapping of user address to user nft ID
     mapping(address => bool) public userExists;
     // Mapping of user address to user struct
@@ -107,7 +113,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     // contains: -
     // - the address of the user
     // - the address of the user MioResale contract
-    event userResaleContractCreated(
+    event userMarketContractCreated(
         address indexed userAddress,
         address indexed userResaleContract
     );
@@ -115,9 +121,13 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     //--------------------------CONSTRUCTOR-------------------------------------
     // Establish the owner of the contract as the deployer
     // Set mioPost counter at 0
-    constructor(MioThinkFactory _mioThinkFactory) {
+    constructor(
+        MioThinkFactory _mioThinkFactory,
+        MioMarketFactory _mioMarketFactory
+    ) {
         officialPostID = 0;
         mioThinkFactory = _mioThinkFactory;
+        mioMarketFactory = _mioMarketFactory;
     }
 
     //--------------------------STRUCTS-------------------------------------
@@ -136,6 +146,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         string profilePic;
         string profileBanner;
         address userAddress;
+        bool marketExists;
     }
 
     struct userVisualContract {
@@ -149,9 +160,19 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
 
     //--------------------------FUNCTIONS-------------------------------------
 
-    // Create a new user visual721a contract
+    function createUserMarketContract() public {
+        //error market contract already exists
+        if (users[msg.sender].marketExists != false) {
+            revert UserAlreadyHasMarket();
+        }
+        address newcontract = mioMarketFactory.deployUserMarketContract(
+            msg.sender
+        );
 
-    function createUserVisualContract(
+        emit userMarketContractCreated(msg.sender, newcontract);
+    }
+
+    function createNewThinkContract(
         string memory _title,
         string memory _mediaContent,
         string memory _thought,
@@ -243,7 +264,8 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
             _bio,
             _profilePic,
             _profileBanner,
-            msg.sender
+            msg.sender,
+            users[msg.sender].marketExists
         );
     }
 
@@ -273,7 +295,8 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
             _bio,
             _profilePic,
             _profileBanner,
-            msg.sender
+            msg.sender,
+            false
         );
         // Increment the userNFTID and emit event
         emit userCreated(

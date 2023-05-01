@@ -17,7 +17,7 @@ contract MioMarketFactory is Initializable, OwnableUpgradeable {
         transferOwnership(mioCore);
     }
 
-    function deployUserContract(
+    function deployUserMarketContract(
         address _eoaInvoker
     ) external onlyOwner returns (address newMioMarketContract) {
         newMioMarketContract = address(new MioMarket());

@@ -4,13 +4,16 @@ const { ethers } = require("hardhat");
 
 describe("MIOCore Contract Tests", () => {
   beforeEach(async () => {
-    //deploy NFT factory contract passing in NFT contract address to constructor
-    const visualFactory = await ethers.getContractFactory("MioVisualFactory");
-    visualFactory = await visualFactory.deploy();
-    await visualFactory.deployed();
+    const thinkFactory = await ethers.getContractFactory("MioThinkFactory");
+    thinkFactory = await thinkFactory.deploy();
+    await thinkFactory.deployed();
+
+    const marketFactory = await ethers.getContractFactory("MioMarketFactory");
+    marketFactory = await marketFactory.deploy();
+    await marketFactory.deployed();
     //deploy MIOCore contract passing in NFT factory contract address to constructor
     const MIOCore = await ethers.getContractFactory("MIOCore");
-    miocore = await MIOCore.deploy(visualFactory.address);
+    miocore = await MIOCore.deploy(thinkFactory.address);
     await miocore.deployed();
     //get signers and assign to user1 and user2 on chosen network
     [user1, user2, unregisteredUser] = await ethers.getSigners();
