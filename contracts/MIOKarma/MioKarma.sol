@@ -21,7 +21,7 @@ contract Karma {
             revert InvalidRating(stars);
         }
 
-        UserKarma storage karma = userKarmas[user];
+        UserKarma memory karma = userKarmas[user];
         karma.totalStars += stars;
         karma.totalRatings++;
 
@@ -32,7 +32,7 @@ contract Karma {
     function getUserKarma(
         address user
     ) public view returns (uint256 averageStars) {
-        UserKarma storage karma = userKarmas[user];
+        UserKarma memory karma = userKarmas[user];
         return (karma.totalStars / (karma.totalRatings));
     }
 }

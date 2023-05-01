@@ -4,7 +4,7 @@ pragma solidity ^0.8.7;
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "../MIOResale/MioResale.sol";
+import "../MIOThink/MioThink.sol";
 import "../MIOKarma/MioKarma.sol";
 
 contract MioMarket is Karma, Initializable, OwnableUpgradeable {
@@ -14,18 +14,17 @@ contract MioMarket is Karma, Initializable, OwnableUpgradeable {
     error communityKarmaTooLow();
     error onlySellerCanRemove();
 
-
     //--------------------------------------------Events--------------------------------------------------------
-    event MioResaleAdded(
+    event ThoughtAdded(
         address nftAddress,
         uint256 tokenId,
         address seller,
         uint256 price
     );
 
-    event MioResaleRemoved(address nftAddress, uint256 tokenId, address seller);
+    event ThoughtRemoved(address nftAddress, uint256 tokenId, address seller);
 
-    event MioResaleSold(
+    event ThoughtSold(
         address nftAddress,
         uint256 tokenId,
         address buyer,
@@ -34,16 +33,17 @@ contract MioMarket is Karma, Initializable, OwnableUpgradeable {
 
     //-------------------------------------------STRUCTS-------------------------------------------------------
 
-    struct MioResaleItem {
-        address nftAddress;
+    struct MioThought {
+        address contractAddress;
         uint256 tokenId;
         address seller;
         uint256 price;
+        bool sold;
     }
 
     //-------------------------------------------STATE VARIABLES-------------------------------------------------------
-
-    mapping(address => mapping(uint256 => MioResaleItem)) public mioResaleItems;
+    //
+    mapping(address => mapping(uint256 => MioThought)) public mioThoughts;
     uint256 public karmaRequiredToSell;
 
     //-------------------------------------------MODIFIERS-------------------------------------------------------
@@ -65,59 +65,63 @@ contract MioMarket is Karma, Initializable, OwnableUpgradeable {
     }
 
     function listMioResale(
-        address _nftAddress,
+        address _contractAddress,
         uint256 _tokenId,
         uint256 _price
     ) public onlyKarmaUser(msg.sender) {
-        MioResale(_nftAddress).safeTransferFrom(
+        MioThink(_contractAddress).safeTransferFrom(
             msg.sender,
             address(this),
             _tokenId
         );
 
-        mioResaleItems[_nftAddress][_tokenId] = MioResaleItem({
-            nftAddress: _nftAddress,
+        mioThoughts[_contractAddress][_tokenId] = MioThought({
+            contractAddress: _contractAddress,
             tokenId: _tokenId,
             seller: msg.sender,
-            price: _price
+            price: _price,
+            sold: false
         });
 
-        emit MioResaleAdded(_nftAddress, _tokenId, msg.sender, _price);
+        emit ThoughtAdded(_contractAddress, _tokenId, msg.sender, _price);
     }
 
-    function removeMioResale(address _nftAddress, uint256 _tokenId) public {
-        MioResaleItem memory item = mioResaleItems[_nftAddress][_tokenId];
-        if (item.seller != msg.sender) {
+    function removeMioResale(
+        address _contractAddress,
+        uint256 _tokenId
+    ) public {
+        MioThought memory thought = mioThoughts[_contractAddress][_tokenId];
+        if (thought.seller != msg.sender) {
             revert onlySellerCanRemove();
         }
 
-        MioResale(_nftAddress).safeTransferFrom(
+        MioThink(_contractAddress).safeTransferFrom(
             address(this),
             msg.sender,
             _tokenId
         );
 
-        emit MioResaleRemoved(_nftAddress, _tokenId, msg.sender);
+        emit ThoughtRemoved(_contractAddress, _tokenId, msg.sender);
 
-        delete mioResaleItems[_nftAddress][_tokenId];
+        delete mioThoughts[_contractAddress][_tokenId];
     }
 
     function buyMioResale(
-        address _nftAddress,
+        address _contractAddress,
         uint256 _tokenId
     ) public payable {
-        MioResaleItem storage item = mioResaleItems[_nftAddress][_tokenId];
-        MioResale(_nftAddress).safeTransferFrom(
+        MioThought memory thought = mioThoughts[_contractAddress][_tokenId];
+        MioThink(_contractAddress).safeTransferFrom(
             address(this),
             msg.sender,
             _tokenId
         );
 
-        emit MioResaleSold(_nftAddress, _tokenId, msg.sender, item.price);
+        emit ThoughtSold(_contractAddress, _tokenId, msg.sender, thought.price);
 
-        delete mioResaleItems[_nftAddress][_tokenId];
+        thought.sold = true;
 
-        payable(item.seller).transfer(msg.value);
+        payable(thought.seller).transfer(msg.value);
     }
 
     function setKarmaRequiredToSell(

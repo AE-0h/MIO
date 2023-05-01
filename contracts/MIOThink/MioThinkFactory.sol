@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import {MioVision} from "./MioVision.sol";
+import {MioThink} from "./MioThink.sol";
 import {MIOCore} from "../MioCore.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract MioVisionFactory is Initializable, OwnableUpgradeable {
+contract MioThinkFactory is Initializable, OwnableUpgradeable {
     //------------------------------------------IMMUTABLES & CONST------------------------------------------------------
 
     //--------------------------------------------Events--------------------------------------------------------
     event ContractDeployed(
         address contractAddress,
-        string name,
-        string symbol,
+        string title,
+        string mediaContent,
+        string thought,
         uint256 totalSupply,
-        uint256 mintPrice,
-        string baseURI
+        uint256 mintPrice
     );
 
     //-------------------------------------------FUNCTIONS------------------------------------------------------
@@ -26,29 +26,31 @@ contract MioVisionFactory is Initializable, OwnableUpgradeable {
     }
 
     function deployUserContract(
-        string memory _name,
-        string memory _symbol,
+        string memory _title,
+        string memory _mediaContent,
+        string memory _thought,
+        string memory _collectionBaseURI,
         uint256 _totalSupply,
         uint256 _mintPrice,
-        string calldata _baseURI,
         address _eoaInvoker
     ) external onlyOwner returns (address newMioVisionContract) {
-        newMioVisionContract = address(new MioVision());
-        MioVision(newMioVisionContract).initialize(
-            _name,
-            _symbol,
+        newMioVisionContract = address(new MioThink());
+        MioThink(newMioVisionContract).initialize(
+            _title,
+            _mediaContent,
+            _thought,
+            _collectionBaseURI,
             _totalSupply,
             _mintPrice,
-            _baseURI,
             _eoaInvoker
         );
         emit ContractDeployed(
             newMioVisionContract,
-            _name,
-            _symbol,
+            _title,
+            _mediaContent,
+            _thought,
             _totalSupply,
-            _mintPrice,
-            _baseURI
+            _mintPrice
         );
         return newMioVisionContract;
     }

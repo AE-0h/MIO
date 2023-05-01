@@ -15,10 +15,8 @@
 ──────────────────────────────────────────────────/*/
 
 pragma solidity ^0.8.7;
-import {MioVision} from "./MIOVision/MioVision.sol";
-import {MioVisionFactory} from "./MIOVision/MioVisionFactory.sol";
-import {MioResale} from "./MIOResale/MioResale.sol";
-import {MioResaleFactory} from "./MIOResale/MioResaleFactory.sol";
+import {MioThink} from "./MIOThink/MioThink.sol";
+import {MioThinkFactory} from "./MIOThink/MioThinkFactory.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
 import "hardhat/console.sol";
@@ -47,9 +45,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
 
     //---------------------------IMMUTABLES----------------------------------------
     // address of the mioVisualFactory contract
-    MioVisionFactory immutable mioVisionFactory;
-    // address of the mioResaleFactory contract
-    MioResaleFactory immutable mioResaleFactory;
+    MioThinkFactory immutable mioThinkFactory;
 
     //--------------------------STATE VARIABLES-------------------------------------
     // mioPost unique id
@@ -119,13 +115,9 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     //--------------------------CONSTRUCTOR-------------------------------------
     // Establish the owner of the contract as the deployer
     // Set mioPost counter at 0
-    constructor(
-        MioVisionFactory _mioVisionFactory,
-        MioResaleFactory _mioResaleFactory
-    ) {
+    constructor(MioThinkFactory _mioThinkFactory) {
         officialPostID = 0;
-        mioVisionFactory = _mioVisionFactory;
-        mioResaleFactory = _mioResaleFactory;
+        mioThinkFactory = _mioThinkFactory;
     }
 
     //--------------------------STRUCTS-------------------------------------
@@ -160,11 +152,12 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     // Create a new user visual721a contract
 
     function createUserVisualContract(
-        string memory _name,
-        string memory symbol,
+        string memory _title,
+        string memory _mediaContent,
+        string memory _thought,
+        string memory _collectionBaseURI,
         uint256 _totalSupply,
-        uint256 _mintPrice,
-        string memory _baseURI
+        uint256 _mintPrice
     ) public payable {
         //must have msg.value of 1 ether
         if (msg.value != (1 * 10 ** 16 wei)) {
@@ -174,44 +167,26 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         if (!userExists[msg.sender]) {
             revert UserDoesNotExist();
         }
-        address newcontract = mioVisionFactory.deployUserContract(
-            _name,
-            symbol,
+        address newcontract = mioThinkFactory.deployUserContract(
+            _title,
+            _mediaContent,
+            _thought,
+            _collectionBaseURI,
             _totalSupply,
             _mintPrice,
-            _baseURI,
             msg.sender
         );
 
         emit userVisualContractCreated(
             msg.sender,
             newcontract,
-            _name,
-            symbol,
+            _title,
+            _mediaContent,
             _totalSupply,
             _mintPrice,
-            _baseURI
+            _collectionBaseURI
         );
         payable(owner).transfer(msg.value);
-    }
-
-    // Create a new user Resale contract
-
-    function createUserResaleContract(
-        string memory _userResaleTokenizerName,
-        string memory _symbol
-    ) public {
-        //error msg.sender is an existing user
-        if (!userExists[msg.sender]) {
-            revert UserDoesNotExist();
-        }
-        address newcontract = mioResaleFactory.deployUserContract(
-            _userResaleTokenizerName,
-            _symbol,
-            msg.sender
-        );
-
-        emit userResaleContractCreated(msg.sender, newcontract);
     }
 
     // Create a new mioPost

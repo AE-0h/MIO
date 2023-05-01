@@ -4,7 +4,7 @@ pragma solidity ^0.8.7;
 import "erc721a-upgradeable/contracts/ERC721AUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract MioVision is ERC721AUpgradeable, OwnableUpgradeable {
+contract MioThink is ERC721AUpgradeable, OwnableUpgradeable {
     //------------------------------ERRORS---------------------------------------------//
 
     error MintPriceNotPaid();
@@ -12,17 +12,29 @@ contract MioVision is ERC721AUpgradeable, OwnableUpgradeable {
     error NonExistentTokenURI();
     error NoFundsToWithdraw();
 
+    //-----------------------------Modifier-------------------------------------------//
+    // create modifier that checks if the msg.sender is the owner of the nft
+
+    modifier onlyOwnerOf(uint256 _nftID) {
+        require(
+            msg.sender == ownerOf(_nftID),
+            "MioThink: caller is not the owner of the nft"
+        );
+        _;
+    }
+
     //------------------------------EVENTS---------------------------------------------//
 
     // event fired when a nft is minted
     // contains: -
-    // - the address of the user wh
+    // - the address of the user who minted a copy of a thought
     // - user nft ID
     //
-    event nftMinted(
+    event ThoughtTokenized(
         address indexed to,
         uint256 indexed nftID,
-        string indexed ipfsHashwithBase
+        address contractAddress,
+        string thought
     );
 
     // event fired when a funds are withdrawn from user MIOVision contract
@@ -32,76 +44,58 @@ contract MioVision is ERC721AUpgradeable, OwnableUpgradeable {
     //--------------------------STATE VARIABLES---------------------------------------//
     // userNft unique id
     uint256 public nftID;
-    // mapping nftID to ipfsHash
-    mapping(uint256 => string) public ipfsHashFromNFTID;
-    uint256 public _TotalSupply;
+    uint256 supplyAvailable;
     uint256 public mintPrice;
-    uint256 public totalMinted;
     uint256 public totalHarvested;
-    string public collectionBaseURI;
+    string public title;
     address public eoaInvoker;
+    string public collectionBaseURI;
+    string public thought;
 
     //---------------------------CONSTRUCTOR----------------------------------------//
 
     function initialize(
-        string memory _name,
-        string memory _symbol,
+        string memory _title,
+        string memory _mediaContent,
+        string memory _thought,
+        string memory _collectionBaseURI,
         uint256 _totalSupply,
         uint256 _mintPrice,
-        string memory _collectionBaseURI,
         address _eoaInvoker
     ) public payable initializer initializerERC721A {
-        __ERC721A_init(_name, _symbol);
+        __ERC721A_init(_title, _mediaContent);
         __Ownable_init();
         transferOwnership(_eoaInvoker);
         nftID = 0;
-        _TotalSupply = _totalSupply;
+        supplyAvailable = _totalSupply;
         mintPrice = _mintPrice;
-        collectionBaseURI = _collectionBaseURI;
         eoaInvoker = _eoaInvoker;
+        title = _title;
+        thought = _thought;
+        collectionBaseURI = _collectionBaseURI;
     }
 
     //----------------------------FUNCTIONS-------------------------------------//
-    function _baseURI() internal view override returns (string memory) {
-        return collectionBaseURI;
-    }
 
-    function getOwnerOfNFT(uint256 _nftID) external view returns (address) {
-        return ownerOf(_nftID);
-    }
-
-    function mintNFT(
-        address _to,
-        string calldata _ipfsHash
-    ) external payable returns (uint256) {
+    function duplicateThought(address _to) external payable returns (uint256) {
         if (msg.value != mintPrice) {
             revert MintPriceNotPaid();
         }
-        if (nftID >= _TotalSupply) {
+        if (nftID >= totalSupply()) {
             revert MaxSupply();
         }
-        if (bytes(_ipfsHash).length == 0) {
-            revert NonExistentTokenURI();
-        }
-        string memory _ipfsHashWithBase = string(
-            abi.encodePacked(_baseURI(), _ipfsHash)
+
+        string memory _thoughtWithBase = string(
+            abi.encodePacked(_baseURI(), thought)
         );
 
-        emit nftMinted(_to, ++nftID, _ipfsHashWithBase);
-
-        ipfsHashFromNFTID[nftID] = _ipfsHashWithBase;
+        emit ThoughtTokenized(_to, ++nftID, address(this), _thoughtWithBase);
 
         _safeMint(_to, nftID);
-
-        totalMinted++;
 
         payable(address(this)).transfer(msg.value);
 
         return nftID;
-    }
-
-    function getContractBalance() external view returns (uint256) {
-        return address(this).balance;
     }
 
     function harvest(address payable _contractOwner) external onlyOwner {
@@ -112,5 +106,33 @@ contract MioVision is ERC721AUpgradeable, OwnableUpgradeable {
         _contractOwner.transfer(balance);
         balance += totalHarvested;
         emit contractValueWithdrawn(_contractOwner, balance);
+    }
+
+    function _baseURI() internal view override returns (string memory) {
+        return collectionBaseURI;
+    }
+
+    function totalSupply() public view virtual override returns (uint256) {
+        return supplyAvailable;
+    }
+
+    function getMediaContent(
+        uint256 _thoughtOwnershipId
+    ) external view onlyOwnerOf(_thoughtOwnershipId) returns (string memory) {
+        return name();
+    }
+
+    function getThought(
+        uint256 _thoughtOwnershipId
+    ) external view onlyOwnerOf(_thoughtOwnershipId) returns (string memory) {
+        return symbol();
+    }
+
+    function getOwnerOfNFT(uint256 _nftID) external view returns (address) {
+        return ownerOf(_nftID);
+    }
+
+    function getContractBalance() external view returns (uint256) {
+        return address(this).balance;
     }
 }
