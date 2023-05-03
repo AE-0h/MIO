@@ -99,7 +99,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
     // contains: -
     // - the address of the user
     // - the address of the user MioVision contract
-    event userVisualContractCreated(
+    event userThinkContractCreated(
         address indexed userAddress,
         address indexed userNFTContract,
         string name,
@@ -198,7 +198,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
             msg.sender
         );
 
-        emit userVisualContractCreated(
+        emit userThinkContractCreated(
             msg.sender,
             newcontract,
             _title,

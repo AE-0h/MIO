@@ -77,8 +77,8 @@ contract MioThink is ERC721AUpgradeable, OwnableUpgradeable {
 
     //----------------------------FUNCTIONS-------------------------------------//
 
-    function duplicateThought(address _to) external payable returns (uint256) {
-        if (msg.value != mintPrice) {
+    function accessThought(address _to) public payable returns (uint256) {
+        if (msg.value < mintPrice) {
             revert MintPriceNotPaid();
         }
         if (nftID >= totalSupply()) {
@@ -120,6 +120,10 @@ contract MioThink is ERC721AUpgradeable, OwnableUpgradeable {
         uint256 _thoughtOwnershipId
     ) external view onlyOwnerOf(_thoughtOwnershipId) returns (string memory) {
         return name();
+    }
+
+    function getMintPrice() external view returns (uint256) {
+        return mintPrice;
     }
 
     function getThought(
