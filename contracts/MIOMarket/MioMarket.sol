@@ -3,6 +3,8 @@ pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../MIOThink/MioThink.sol";
 import "../MIOKarma/MioKarma.sol";
@@ -15,8 +17,8 @@ contract MioMarket is Karma, Initializable, OwnableUpgradeable {
     error onlySellerCanRemove();
 
     //--------------------------------------------Events--------------------------------------------------------
-    event ThoughtAdded(
-        address nftAddress,
+    event ThoughtListed(
+        address contractAddress,
         uint256 tokenId,
         address seller,
         uint256 price
@@ -64,11 +66,20 @@ contract MioMarket is Karma, Initializable, OwnableUpgradeable {
         transferOwnership(_eoaInvoker);
     }
 
-    function listMioResale(
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) public pure returns (bytes4) {
+        return this.onERC721Received.selector;
+    }
+
+    function listThought(
         address _contractAddress,
         uint256 _tokenId,
         uint256 _price
-    ) public onlyKarmaUser(msg.sender) {
+    ) public payable onlyKarmaUser(msg.sender) {
         MioThink(_contractAddress).safeTransferFrom(
             msg.sender,
             address(this),
@@ -83,13 +94,10 @@ contract MioMarket is Karma, Initializable, OwnableUpgradeable {
             sold: false
         });
 
-        emit ThoughtAdded(_contractAddress, _tokenId, msg.sender, _price);
+        emit ThoughtListed(_contractAddress, _tokenId, msg.sender, _price);
     }
 
-    function removeMioResale(
-        address _contractAddress,
-        uint256 _tokenId
-    ) public {
+    function removeThought(address _contractAddress, uint256 _tokenId) public {
         MioThought memory thought = mioThoughts[_contractAddress][_tokenId];
         if (thought.seller != msg.sender) {
             revert onlySellerCanRemove();
@@ -106,7 +114,7 @@ contract MioMarket is Karma, Initializable, OwnableUpgradeable {
         delete mioThoughts[_contractAddress][_tokenId];
     }
 
-    function buyMioResale(
+    function buyThought(
         address _contractAddress,
         uint256 _tokenId
     ) public payable {

@@ -21,9 +21,10 @@ import {MioMarket} from "./MIOMarket/MioMarket.sol";
 import {MioMarketFactory} from "./MIOMarket/MioMarketFactory.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
 import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "hardhat/console.sol";
 
-contract MIOCore is Owned(msg.sender), ReentrancyGuard {
+contract MIOCore is OwnableUpgradeable, ReentrancyGuard {
     //----------------------------ERRORS-------------------------------------------
     // error thrown when a user tries to create a user that already exists
     error UserAlreadyExists();
@@ -130,6 +131,13 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         mioMarketFactory = _mioMarketFactory;
     }
 
+    //--------------------------INITIALIZER-------------------------------------
+
+    function initialize(address _eoaInvoker) public initializer {
+        __Ownable_init();
+        transferOwnership(_eoaInvoker);
+    }
+
     //--------------------------STRUCTS-------------------------------------
     // Define a struct mioPost with the following fields: to be used for messege structure
     struct mioPost {
@@ -170,6 +178,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         );
 
         emit userMarketContractCreated(msg.sender, newcontract);
+        users[msg.sender].marketExists = true;
     }
 
     function createNewThinkContract(
@@ -207,7 +216,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
             _mintPrice,
             _collectionBaseURI
         );
-        payable(owner).transfer(msg.value);
+        payable(owner()).transfer(msg.value);
     }
 
     // Create a new mioPost
@@ -241,7 +250,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
             msg.sender
         );
         // pay out "owner" or deployer of contract for mio post gas fee
-        payable(owner).transfer(msg.value);
+        payable(owner()).transfer(msg.value);
     }
 
     // Update user
@@ -310,7 +319,7 @@ contract MIOCore is Owned(msg.sender), ReentrancyGuard {
         //set minted to true
         userExists[msg.sender] = true;
         // pay out "owner" or deployer of contract for user creation
-        payable(owner).transfer(msg.value);
+        payable(owner()).transfer(msg.value);
     }
 
     // Get a mioPost by counterID

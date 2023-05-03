@@ -5,8 +5,8 @@ const { ethers, artifacts } = require("hardhat");
 let mioUser;
 let mioUser2;
 let miocore;
-let thinkContract;
-let marketContract;
+let thinkFactoryContract;
+let marketFactoryContract;
 let user1;
 let user2;
 let user3;
@@ -14,24 +14,27 @@ let user3;
 describe("MIOCore Contract Tests", () => {
   beforeEach(async () => {
     const thinkFactory = await ethers.getContractFactory("MioThinkFactory");
-    thinkContract = await thinkFactory.deploy();
-    await thinkContract.deployed();
+    thinkFactoryContract = await thinkFactory.deploy();
+    await thinkFactoryContract.deployed();
 
     const marketFactory = await ethers.getContractFactory("MioMarketFactory");
-    marketContract = await marketFactory.deploy();
-    await marketContract.deployed();
+    marketFactoryContract = await marketFactory.deploy();
+    await marketFactoryContract.deployed();
 
     const mioCore = await ethers.getContractFactory("MIOCore");
     miocore = await mioCore.deploy(
-      thinkContract.address,
-      marketContract.address
+      thinkFactoryContract.address,
+      marketFactoryContract.address
     );
     await miocore.deployed();
 
-    marketContract.initialize(miocore.address);
-    thinkContract.initialize(miocore.address);
-    //get signers and assign to user1 and user2 on chosen network
     [user1, user2, user3] = await ethers.getSigners();
+
+    //initialize contracts
+    miocore.initialize(user1.address);
+    marketFactoryContract.initialize(miocore.address);
+    thinkFactoryContract.initialize(miocore.address);
+    //get signers and assign to user1 and user2 on chosen network
 
     //Initialize createUser data
     username = "Miouser1";
@@ -60,7 +63,7 @@ describe("MIOCore Contract Tests", () => {
   });
 
   describe("Ownership and Users", () => {
-    it("it should save msg.sender as owner in constructor", async () => {
+    it("it should save  as owner in constructor", async () => {
       expect(await miocore.connect(user1).owner()).to.equal(user1.address);
     });
 
@@ -234,9 +237,9 @@ describe("MIOCore Contract Tests", () => {
       let content = "d834jfd48003824thjt43454";
       let thought = "dfh84hr89fh43898tyhy8043";
       let maxSupply = 200;
-      const mintPrice = ethers.utils.parseEther("0.1");
+      const mintPrice = 1;
       const baseURI = "https://ipfs.io/ipfs/";
-      //create nft contract
+      //create MioThink contract via createNewThinkContract() in MioCore.sol
       let thinkContract = await miocore
         .connect(user1)
         .createNewThinkContract(
@@ -261,7 +264,6 @@ describe("MIOCore Contract Tests", () => {
 
       //exception from mumbai to hardhat network (mumbai contract =logs[1] hardhat=logs[0])
       let thinkContractAddress = nftTxReceipt.logs[0].address;
-      console.log(thinkContractAddress);
 
       await expect(thinkContract)
         .to.emit(miocore, "userThinkContractCreated")
@@ -314,7 +316,7 @@ describe("MIOCore Contract Tests", () => {
       let thought = "dfh84hr89fh43898tyhy8043";
       let baseURI = "https://ipfs.io/ipfs/";
       let maxSupply = 200;
-      const mintPrice = ethers.utils.parseEther("0.1");
+      const mintPrice = 1;
       try {
         await miocore
           .connect(user3)
@@ -341,7 +343,7 @@ describe("MIOCore Contract Tests", () => {
   });
 
   describe("gain access to a thought by minting from a MIOThink contract", () => {
-    it("should mint a new copy of a thought for the user", async () => {
+    it("should mint an access token to a thought for the user", async () => {
       let title = "MEV ALPHA part 1";
       let content = "d834jfd48003824thjt43454";
       let thought = "dfh84hr89fh43898tyhy8043";
@@ -389,9 +391,7 @@ describe("MIOCore Contract Tests", () => {
   });
 
   describe("harvestNFTContract", () => {
-    it("should allow the owner of the NFT contract to harvest the contract value", async () => {
-      // Set up the test by creating an NFT contract, minting an NFT,
-      // and getting the user NFT address (use the code from the previous tests)
+    it("should allow the owner of the MioThink contract to harvest the contract value", async () => {
       let title = "MEV ALPHA part 1";
       let content = "d834jfd48003824thjt43454";
       let thought = "dfh84hr89fh43898tyhy8043";
@@ -399,7 +399,7 @@ describe("MIOCore Contract Tests", () => {
       const mintPrice = 1;
       const baseURI = "https://ipfs.io/ipfs/";
 
-      let x = await miocore
+      let thinkContract = await miocore
         .connect(user1)
         .createNewThinkContract(
           title,
@@ -410,36 +410,116 @@ describe("MIOCore Contract Tests", () => {
           mintPrice,
           {
             value: ethers.utils.parseEther("0.01"),
-            gasLimit: 6000000,
           }
         );
 
-      let thinkContractDeploymentViaMIOCore = await x.wait();
-      let thinkContractAddress = await thinkContractDeploymentViaMIOCore
-        .logs[0];
+      let thinkContractDeploymentViaMIOCore = await thinkContract.wait();
+      let thinkContractAddress =
+        thinkContractDeploymentViaMIOCore.logs[0].address;
       let contractArtifact = await artifacts.readArtifactSync("MioThink");
-
-      const thinkInstance = new ethers.Contract(
+      let thinkInstance = new ethers.Contract(
         thinkContractAddress,
         contractArtifact.abi,
         user1
       );
 
-      await thinkInstance.connect(user1).accessThought(user1.address, {
+      // Mint a new NFT from the think contract
+      await thinkInstance.connect(user2).accessThought(user2.address, {
         value: ethers.utils.parseEther("1"),
       });
 
       const user1BalanceBefore = await user1.getBalance();
-      console.log(user1BalanceBefore);
 
-      await nftContract.harvest();
+      await thinkInstance.connect(user1).harvest();
 
       const user1BalanceAfter = await user1.getBalance();
-      console.log(user1BalanceAfter);
-      // const contractBalance = await thinkInstance.getContractBalance();
+      const contractBalance = await ethers.provider.getBalance(
+        thinkInstance.address
+      );
 
-      // expect(user1BalanceAfter.sub(user1BalanceBefore)).to.be.gt();
-      // expect(contractBalance).to.equal(0);
+      expect(user1BalanceAfter.sub(user1BalanceBefore)).to.be.greaterThan(0);
+      expect(contractBalance).to.equal(0);
+    });
+  });
+
+  describe("marketplace", () => {
+    it("should deploy new market contract, deploy a think contract and then allow a second user to mint from think contract for user to sell thought with their marketplace", async () => {
+      let marketContract = await miocore
+        .connect(user2)
+        .createUserMarketContract({ gasLimit: 6000000 });
+
+      let title = "MEV ALPHA part 1";
+      let content = "d834jfd48003824thjt43454";
+      let thought = "dfh84hr89fh43898tyhy8043";
+      let maxSupply = 200;
+      const mintPrice = 1;
+      const baseURI = "https://ipfs.io/ipfs/";
+
+      let thinkContract = await miocore
+        .connect(user1)
+        .createNewThinkContract(
+          title,
+          content,
+          thought,
+          baseURI,
+          maxSupply,
+          mintPrice,
+          {
+            value: ethers.utils.parseEther("0.01"),
+          }
+        );
+
+      let thinkContractDeploymentViaMIOCore = await thinkContract.wait();
+      let thinkContractAddress =
+        thinkContractDeploymentViaMIOCore.logs[0].address;
+      let thinkContractArtifact = await artifacts.readArtifactSync("MioThink");
+      let thinkInstance = new ethers.Contract(
+        thinkContractAddress,
+        thinkContractArtifact.abi,
+        user1
+      );
+
+      // Mint a new NFT from the think contract
+      await thinkInstance.connect(user2).accessThought(user2.address, {
+        value: ethers.utils.parseEther("1"),
+      });
+
+      let x = await thinkInstance.connect(user2).getOwnerOfNFT(0);
+
+      let marketContractDeploymentViaMIOCore = await marketContract.wait();
+      let marketContractAddress =
+        marketContractDeploymentViaMIOCore.logs[0].address;
+      let contractArtifact = await artifacts.readArtifactSync("MioMarket");
+      let marketInstance = new ethers.Contract(
+        marketContractAddress,
+        contractArtifact.abi,
+        user1
+      );
+
+      //use chai matchers emit to check if the userMarketContractCreated event was emitted
+      expect(marketContractDeploymentViaMIOCore)
+        .to.emit(miocore, "userMarketContractCreated")
+        .withArgs(user1.address, marketContractAddress);
+
+      await thinkInstance
+        .connect(user2)
+        .setApprovalForAll(marketContractAddress, true);
+
+      await marketInstance
+        .connect(user2)
+        .listThought(thinkContractAddress, 0, ethers.utils.parseEther("2"), {
+          gasLimit: 6000000,
+        });
+
+      //use chai matchers emit to check if the thoughtListed event was emitted
+      expect(marketInstance)
+        .to.emit(marketInstance, "thoughtListed")
+        .withArgs(
+          thinkContractAddress,
+          0,
+          user2.address,
+          ethers.utils.parseEther("2")
+        );
     });
   });
 });

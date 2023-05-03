@@ -33,6 +33,10 @@ contract Karma {
         address user
     ) public view returns (uint256 averageStars) {
         UserKarma memory karma = userKarmas[user];
+        if (userKarmas[user].totalRatings == 0) {
+            karma.totalStars = 30;
+            return karma.totalStars;
+        }
         return (karma.totalStars / (karma.totalRatings));
     }
 }

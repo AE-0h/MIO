@@ -3,6 +3,7 @@ pragma solidity ^0.8.7;
 
 import "erc721a-upgradeable/contracts/ERC721AUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "hardhat/console.sol";
 
 contract MioThink is ERC721AUpgradeable, OwnableUpgradeable {
     //------------------------------ERRORS---------------------------------------------//
@@ -96,14 +97,14 @@ contract MioThink is ERC721AUpgradeable, OwnableUpgradeable {
         return nftID;
     }
 
-    function harvest(address payable _contractOwner) external onlyOwner {
+    function harvest() external onlyOwner {
         uint256 balance = address(this).balance;
         if (balance == 0) {
             revert NoFundsToWithdraw();
         }
-        _contractOwner.transfer(balance);
         balance += totalHarvested;
-        emit contractValueWithdrawn(_contractOwner, balance);
+        emit contractValueWithdrawn(msg.sender, balance);
+        payable(owner()).transfer(balance);
     }
 
     function _baseURI() internal view override returns (string memory) {
