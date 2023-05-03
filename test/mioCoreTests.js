@@ -367,28 +367,23 @@ describe("MIOCore Contract Tests", () => {
       let thinkContractDeploymentViaMIOCore = await thinkContract.wait();
       let thinkContractAddress = await thinkContractDeploymentViaMIOCore.logs[0]
         .address;
-      let y = await artifacts.readArtifactSync("MioThink");
-      let x = new ethers.Contract(thinkContractAddress, y.abi, user1);
-
-      let addr = user2.address;
-
-      let z = await x.connect(user1).getMintPrice();
-
-      console.log(z.toString());
-
-      console.log("User1 address:", user1.address);
-      console.log("User2 address:", user2.address);
-      console.log("MIOCore contract address:", miocore.address);
-      console.log("MioThink contract address:", thinkContractAddress);
+      let contractArtifact = await artifacts.readArtifactSync("MioThink");
+      let thinkInstance = new ethers.Contract(
+        thinkContractAddress,
+        contractArtifact.abi,
+        user1
+      );
 
       // Mint a new NFT from the think contract
-      await x.connect(user2).accessThought(addr, {
-        value: ethers.utils.parseEther("1"), // Updated to 1 ether
+      await thinkInstance.connect(user2).accessThought(user2.address, {
+        value: ethers.utils.parseEther("1"),
         gasLimit: 6000000,
       });
 
       // Check if the minting was successful
-      const thoughtAccessOwner = await contract.ownerOf(1); // Assuming it's the first NFT minted
+      const thoughtAccessOwner = await thinkInstance.getOwnerOfNFT(0, {
+        gasLimit: 6000000,
+      }); // Assuming it's the first NFT minted
       expect(thoughtAccessOwner).to.equal(user2.address);
     });
   });
@@ -397,20 +392,53 @@ describe("MIOCore Contract Tests", () => {
     it("should allow the owner of the NFT contract to harvest the contract value", async () => {
       // Set up the test by creating an NFT contract, minting an NFT,
       // and getting the user NFT address (use the code from the previous tests)
+      let title = "MEV ALPHA part 1";
+      let content = "d834jfd48003824thjt43454";
+      let thought = "dfh84hr89fh43898tyhy8043";
+      let maxSupply = 200;
+      const mintPrice = 1;
+      const baseURI = "https://ipfs.io/ipfs/";
 
-      const user1BalanceBefore = await user1.getBalance();
+      let x = await miocore
+        .connect(user1)
+        .createNewThinkContract(
+          title,
+          content,
+          thought,
+          baseURI,
+          maxSupply,
+          mintPrice,
+          {
+            value: ethers.utils.parseEther("0.01"),
+            gasLimit: 6000000,
+          }
+        );
 
-      await miocore.connect(user1).harvest();
+      let thinkContractDeploymentViaMIOCore = await x.wait();
+      let thinkContractAddress = await thinkContractDeploymentViaMIOCore
+        .logs[0];
+      let contractArtifact = await artifacts.readArtifactSync("MioThink");
 
-      const user1BalanceAfter = await user1.getBalance();
-      const nftContract = new ethers.Contract(
-        userNFTAddress,
-        MioNFTInterface.abi,
+      const thinkInstance = new ethers.Contract(
+        thinkContractAddress,
+        contractArtifact.abi,
         user1
       );
-      // const contractBalance = await nftContract.getContractBalance();
 
-      // expect(user1BalanceAfter.sub(user1BalanceBefore)).to.be.gt(0);
+      await thinkInstance.connect(user1).accessThought(user1.address, {
+        value: ethers.utils.parseEther("1"),
+      });
+
+      const user1BalanceBefore = await user1.getBalance();
+      console.log(user1BalanceBefore);
+
+      await nftContract.harvest();
+
+      const user1BalanceAfter = await user1.getBalance();
+      console.log(user1BalanceAfter);
+      // const contractBalance = await thinkInstance.getContractBalance();
+
+      // expect(user1BalanceAfter.sub(user1BalanceBefore)).to.be.gt();
       // expect(contractBalance).to.equal(0);
     });
   });

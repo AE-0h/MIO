@@ -93,8 +93,6 @@ contract MioThink is ERC721AUpgradeable, OwnableUpgradeable {
 
         _safeMint(_to, nftID);
 
-        payable(address(this)).transfer(msg.value);
-
         return nftID;
     }
 
