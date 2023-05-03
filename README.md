@@ -2,7 +2,7 @@
 
 <img src="public/MIOICO.svg" size="100px" >
 
-A decentralized digital public square and market with a hybrid ui/ux. Where users can tokenize their art or music as well as anything they want to resell. All posts are stored on a social graph for 24-hours unless you “Make It Official” on the Polygon Mumbai Testnet, otherwise they are wiped from storage entirely. This project aims to use a familiar social-media ux to help new adopters explore resale item tokenization as well as content tokenization. I am using chiru labs er721a upgradeable contract as well as libraries like solmate and openzeppelin. Moralis strams are also used to take event emissions and populate post queries to to the Mio social graph on supabase.  All token metadata and official post metadataare stored on ipfs and kept in references on mio social graph.
+A thought monetization platform where any actor can engage in p2p sales of thought via a familiar ui/ux adopted from some of the most used applications on the planet and battle tested contracts like chiru labs erc721a and the OpenZeppelin suite. All thought tokenization contracts and market contracts are deployed and owned by the user not MIO. We give you the power of web3 and tokenization without the hassle and technical static.
 
 ## How to use
 
