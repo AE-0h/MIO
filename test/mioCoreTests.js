@@ -500,14 +500,14 @@ describe("MIOCore Contract Tests", () => {
       expect(marketContractDeploymentViaMIOCore)
         .to.emit(miocore, "userMarketContractCreated")
         .withArgs(user1.address, marketContractAddress);
-
+      //set approval for market contract to sell the tokenized thought
       await thinkInstance
         .connect(user2)
         .setApprovalForAll(marketContractAddress, true);
-
+      //list the thought for sale on the market
       await marketInstance
         .connect(user2)
-        .listThought(thinkContractAddress, 0, ethers.utils.parseEther("2"), {
+        .listThought(thinkContractAddress, 0, 2, {
           gasLimit: 6000000,
         });
 
@@ -520,6 +520,21 @@ describe("MIOCore Contract Tests", () => {
           user2.address,
           ethers.utils.parseEther("2")
         );
+
+      await marketInstance.connect(user1).buyThought(thinkContractAddress, 0, {
+        value: ethers.utils.parseEther("2"),
+        gasLimit: 6000000,
+      });
+
+      // //use chai matchers emit to check if the thoughtBought event was emitted
+      // expect(marketInstance)
+      //   .to.emit(marketInstance, "thoughtBought")
+      //   .withArgs(
+      //     thinkContractAddress,
+      //     0,
+      //     user2.address,
+      //     ethers.utils.parseEther("2")
+      //   );
     });
   });
 });
