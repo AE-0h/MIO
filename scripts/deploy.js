@@ -1,26 +1,44 @@
-const hre = require("hardhat");
+const { ethers, upgrades } = require("hardhat");
 
 async function main() {
-  const [deployer] = await ethers.getSigners();
-  console.log("Deploying contracts with the account:", deployer.address);
+  try {
+    const [deployer] = await ethers.getSigners();
+    console.log("Deploying contracts with the account:", deployer.address);
 
-  console.log("Account balance:", (await deployer.getBalance()).toString());
-  //deploy nftContractFactory on polygon mumbai testnet
-  const NFTContractFactory = await hre.ethers.getContractFactory(
-    "MioNFTFactory"
-  );
-  const nftContractFactory = await NFTContractFactory.deploy();
-  await nftContractFactory.deployed();
-  console.log("NFTContractFactory deployed to:", nftContractFactory.address);
+    console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  //deploy MioCore and MioNFT on polygon mumbai testnet
-  const MIOCore = await hre.ethers.getContractFactory("MIOCore");
-  const mioCore = await MIOCore.deploy(nftContractFactory.address);
-  await mioCore.deployed();
-  console.log("MIOCore deployed to:", mioCore.address);
+    const ThinkContractFactory = await ethers.getContractFactory(
+      "MioThinkFactory"
+    );
+    const thinkContractFactory = await ThinkContractFactory.deploy();
+    await thinkContractFactory.deployed();
+    console.log(
+      "ThinkContractFactory deployed to:",
+      thinkContractFactory.address
+    );
+
+    const MarketContractFactory = await ethers.getContractFactory(
+      "MioMarketFactory"
+    );
+    const marketContractFactory = await MarketContractFactory.deploy();
+    await marketContractFactory.deployed();
+    console.log("MioMarketFactory deployed to:", marketContractFactory.address);
+
+    const MIOCore = await ethers.getContractFactory("MIOCore");
+    const mioCore = await upgrades.deployProxy(MIOCore, [
+      thinkContractFactory.address,
+      marketContractFactory.address,
+    ]);
+    await mioCore.deployed();
+    console.log("MIOCore deployed to:", mioCore.address);
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

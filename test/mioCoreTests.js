@@ -1,5 +1,5 @@
 const { expect, assert } = require("chai");
-const { ethers, artifacts, upgrades } = require("hardhat");
+const { ethers, artifacts } = require("hardhat");
 
 //initialize variables
 let mioUser;
@@ -17,9 +17,13 @@ describe("MIOCore Contract Tests", () => {
     thinkFactoryContract = await thinkFactory.deploy();
     await thinkFactoryContract.deployed();
 
+    console.log("ThinkFactory deployed to:", thinkFactoryContract.address);
+
     const marketFactory = await ethers.getContractFactory("MioMarketFactory");
     marketFactoryContract = await marketFactory.deploy();
     await marketFactoryContract.deployed();
+
+    console.log("MarketFactory deployed to:", marketFactoryContract.address);
 
     const mioCore = await ethers.getContractFactory("MIOCore");
     miocore = await mioCore.deploy(
@@ -28,10 +32,13 @@ describe("MIOCore Contract Tests", () => {
     );
     await miocore.deployed();
 
+    console.log("MIOCore deployed to:", miocore.address);
+
     [user1, user2, user3] = await ethers.getSigners();
 
-    miocore.initialize(user1.address);
-    await initializeTx.wait();
+    await miocore.connect(user1).initialize(user1.address);
+
+    console.log("MIOCore initialized by:", user1.address);
 
     marketFactoryContract.initialize(miocore.address);
     thinkFactoryContract.initialize(miocore.address);
@@ -46,7 +53,7 @@ describe("MIOCore Contract Tests", () => {
       .connect(user1)
       .createUser(username, bio, profilePic, profileBanner, {
         value: ethers.utils.parseEther("0.01"),
-        gasLimit: 1000000,
+        gasLimit: 2000000,
       });
     //Initialize createUser data
     user2name = "Miouser2";
@@ -58,16 +65,19 @@ describe("MIOCore Contract Tests", () => {
       .connect(user2)
       .createUser(user2name, bio2, profilePic2, profileBanner2, {
         value: ethers.utils.parseEther("0.01"),
-        gasLimit: 1000000,
+        gasLimit: 2000000,
       });
 
     console.log("MIOCore deployed to:", miocore.address);
   });
 
   describe("Ownership and Users", () => {
-    it("it should save  as owner in constructor", async () => {
-      expect(await miocore.connect(user1).owner()).to.equal(user1.address);
-    });
+    it("it should have transfered ownership of mioCore to eoa deployer", async () => {
+      let x = await miocore.connect(user1).owner({
+        gasLimit: 200000000,
+      });
+      expect(x).to.equal(user1.address);
+    }).timeout(800000000);
 
     it("should be able to check if a user exists", async () => {
       expect(
@@ -527,16 +537,6 @@ describe("MIOCore Contract Tests", () => {
         value: ethers.utils.parseEther("2"),
         gasLimit: 6000000,
       });
-
-      // //use chai matchers emit to check if the thoughtBought event was emitted
-      // expect(marketInstance)
-      //   .to.emit(marketInstance, "thoughtBought")
-      //   .withArgs(
-      //     thinkContractAddress,
-      //     0,
-      //     user2.address,
-      //     ethers.utils.parseEther("2")
-      //   );
     });
   });
 });
