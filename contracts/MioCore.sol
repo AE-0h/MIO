@@ -48,7 +48,7 @@ contract MIOCore is OwnableUpgradeable, ReentrancyGuard {
     error UserAlreadyHasMarket();
 
     //---------------------------IMMUTABLES----------------------------------------
-    // address of the mioVisualFactory contract
+
     MioThinkFactory immutable mioThinkFactory;
     // address of the mioMarketFactory contract
     MioMarketFactory immutable mioMarketFactory;
@@ -120,7 +120,6 @@ contract MIOCore is OwnableUpgradeable, ReentrancyGuard {
     );
 
     //--------------------------CONSTRUCTOR-------------------------------------
-    // Establish the owner of the contract as the deployer
     // Set mioPost counter at 0
     constructor(
         MioThinkFactory _mioThinkFactory,

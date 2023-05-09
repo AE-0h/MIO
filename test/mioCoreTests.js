@@ -1,5 +1,5 @@
 const { expect, assert } = require("chai");
-const { ethers, artifacts } = require("hardhat");
+const { ethers, artifacts, upgrades } = require("hardhat");
 
 //initialize variables
 let mioUser;
@@ -30,11 +30,11 @@ describe("MIOCore Contract Tests", () => {
 
     [user1, user2, user3] = await ethers.getSigners();
 
-    //initialize contracts
     miocore.initialize(user1.address);
+    await initializeTx.wait();
+
     marketFactoryContract.initialize(miocore.address);
     thinkFactoryContract.initialize(miocore.address);
-    //get signers and assign to user1 and user2 on chosen network
 
     //Initialize createUser data
     username = "Miouser1";
@@ -60,6 +60,8 @@ describe("MIOCore Contract Tests", () => {
         value: ethers.utils.parseEther("0.01"),
         gasLimit: 1000000,
       });
+
+    console.log("MIOCore deployed to:", miocore.address);
   });
 
   describe("Ownership and Users", () => {
@@ -263,7 +265,7 @@ describe("MIOCore Contract Tests", () => {
       );
 
       //exception from mumbai to hardhat network (mumbai contract =logs[1] hardhat=logs[0])
-      let thinkContractAddress = nftTxReceipt.logs[0].address;
+      let thinkContractAddress = nftTxReceipt.logs[1].address;
 
       await expect(thinkContract)
         .to.emit(miocore, "userThinkContractCreated")

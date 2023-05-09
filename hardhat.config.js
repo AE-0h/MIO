@@ -12,6 +12,7 @@ const PRIVATE_KEY = process.env.NEXT_PUBLIC_PRIVATE_KEY;
 const SECOND_PRIVATE_KEY = process.env.NEXT_PUBLIC_PRIVATE_KEY_TWO;
 const ALCHEMY_API_KEY_MAINNET = process.env.NEXT_PUBLIC_ALCHEMY_MAINNET_ID;
 const ETHERSCAN_KEY = process.env.NEXT_PUBLIC_ETHERSCAN_KEY;
+const INFURA_WEB3_KEY = process.env.NEXT_PUBLIC_INFURA_KEY;
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -20,7 +21,7 @@ module.exports = {
   networks: {
     hardhat: {},
     mumbai: {
-      url: `https://polygon-mumbai.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      url: `https://polygon-mumbai.infura.io/v3/${INFURA_WEB3_KEY}`,
       accounts: [PRIVATE_KEY, SECOND_PRIVATE_KEY],
     },
     polygon: {
@@ -28,8 +29,8 @@ module.exports = {
       accounts: [PRIVATE_KEY],
     },
     goerli: {
-      url: `https://eth-goerli.g.alchemy.com/v2/${AlCHEMY_API_KEY_GOERLI}`,
-      accounts: [PRIVATE_KEY],
+      url: `https://ancient-shy-gas.ethereum-goerli.discover.quiknode.pro/a8428ff11043166324f36a939ab75254969c5bbe/`,
+      accounts: [PRIVATE_KEY, SECOND_PRIVATE_KEY],
     },
   },
   etherscan: {
