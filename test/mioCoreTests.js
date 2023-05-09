@@ -25,20 +25,17 @@ describe("MIOCore Contract Tests", () => {
 
     console.log("MarketFactory deployed to:", marketFactoryContract.address);
 
+    [user1, user2, user3] = await ethers.getSigners();
+
     const mioCore = await ethers.getContractFactory("MIOCore");
-    miocore = await mioCore.deploy(
+    miocore = await upgrades.deployProxy(mioCore, [
+      user1.address,
       thinkFactoryContract.address,
-      marketFactoryContract.address
-    );
+      marketFactoryContract.address,
+    ]);
     await miocore.deployed();
 
     console.log("MIOCore deployed to:", miocore.address);
-
-    [user1, user2, user3] = await ethers.getSigners();
-
-    await miocore.connect(user1).initialize(user1.address);
-
-    console.log("MIOCore initialized by:", user1.address);
 
     marketFactoryContract.initialize(miocore.address);
     thinkFactoryContract.initialize(miocore.address);

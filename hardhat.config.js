@@ -21,9 +21,10 @@ module.exports = {
   networks: {
     hardhat: {},
     mumbai: {
-      url: `https://polygon-mumbai.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      url: `https://polygon-mumbai.infura.io/v3/${INFURA_WEB3_KEY}`,
       accounts: [PRIVATE_KEY, SECOND_PRIVATE_KEY],
-      gasPrice: 200000000000,
+      gasPrice: 900000000,
+      gasLimit: 500000,
     },
     polygon: {
       url: `https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY_MAINNET}`,

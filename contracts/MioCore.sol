@@ -20,11 +20,10 @@ import {MioThinkFactory} from "./MIOThink/MioThinkFactory.sol";
 import {MioMarket} from "./MIOMarket/MioMarket.sol";
 import {MioMarketFactory} from "./MIOMarket/MioMarketFactory.sol";
 import {Owned} from "solmate/src/auth/Owned.sol";
-import {ReentrancyGuard} from "solmate/src/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "hardhat/console.sol";
 
-contract MIOCore is OwnableUpgradeable, ReentrancyGuard {
+contract MIOCore is OwnableUpgradeable {
     //----------------------------ERRORS-------------------------------------------
     // error thrown when a user tries to create a user that already exists
     error UserAlreadyExists();
@@ -47,15 +46,25 @@ contract MIOCore is OwnableUpgradeable, ReentrancyGuard {
     // trows error when user already has one mioMarket contract deployed
     error UserAlreadyHasMarket();
 
-    //---------------------------IMMUTABLES----------------------------------------
+    //---------------------------MODIFIERS----------------------------------------
+    modifier nonReentrant() virtual {
+        require(locked == 1, "REENTRANCY");
 
-    MioThinkFactory immutable mioThinkFactory;
-    // address of the mioMarketFactory contract
-    MioMarketFactory immutable mioMarketFactory;
+        locked = 2;
+
+        _;
+
+        locked = 1;
+    }
 
     //--------------------------STATE VARIABLES-------------------------------------
+    uint256 private locked;
     // mioPost unique id
-    uint256 private officialPostID = 0;
+    uint256 private officialPostID;
+    // MioThinkFactory contract
+    MioThinkFactory public mioThinkFactory;
+    // MioMarketFactory contract
+    MioMarketFactory public mioMarketFactory;
 
     // mapping of user address to user nft ID
     mapping(address => bool) public userExists;
@@ -121,20 +130,19 @@ contract MIOCore is OwnableUpgradeable, ReentrancyGuard {
 
     //--------------------------CONSTRUCTOR-------------------------------------
     // Set mioPost counter at 0
-    constructor(
+    function initialize(
+        address _eoaInvoker,
         MioThinkFactory _mioThinkFactory,
         MioMarketFactory _mioMarketFactory
-    ) {
-        officialPostID = 0;
-        mioThinkFactory = _mioThinkFactory;
-        mioMarketFactory = _mioMarketFactory;
-    }
-
-    //--------------------------INITIALIZER-------------------------------------
-
-    function initialize(address _eoaInvoker) public initializer {
+    ) public initializer {
         __Ownable_init();
         transferOwnership(_eoaInvoker);
+
+        officialPostID = 0; // Set the initial value of `officialPostID`
+        mioThinkFactory = _mioThinkFactory;
+        mioMarketFactory = _mioMarketFactory;
+
+        locked = 1; // Set the initial value of `locked` (in ReentrancyGuard.sol)
     }
 
     //--------------------------STRUCTS-------------------------------------
@@ -187,7 +195,7 @@ contract MIOCore is OwnableUpgradeable, ReentrancyGuard {
         string memory _collectionBaseURI,
         uint256 _totalSupply,
         uint256 _mintPrice
-    ) public payable {
+    ) public payable nonReentrant {
         //must have msg.value of 1 ether
         if (msg.value != (1 * 10 ** 16 wei)) {
             revert InsufficientFunds();
