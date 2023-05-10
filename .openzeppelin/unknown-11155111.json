@@ -1,0 +1,250 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x26bf60Da3AdC4Ae3B607E31f8E06F376FACA7996",
+    "txHash": "0x55aeef1134c0250f39269cb33c26dd8df06030e64e77d74d016b28817f8095d6"
+  },
+  "proxies": [
+    {
+      "address": "0x8Aa746F44f26d71Ae2d3d405B728081B65464c8c",
+      "txHash": "0x9d388b7686f3ad9640e4e5cbb6564a7da90689953480516a533e407cf9d6fbf0",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "34505bcc399c05ed916659eae84b4d55689fc357c8f7e6339bde717b82856705": {
+      "address": "0xce68b09CE17d12310E9C2ec30794b99f7A323cf6",
+      "txHash": "0xffa5a86a1377cdebf6c77d7ed9156ee982004a3eeee8e32f426182d62b5dba1a",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "locked",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_uint256",
+            "contract": "MIOCore",
+            "src": "contracts/MioCore.sol:101"
+          },
+          {
+            "label": "officialPostID",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_uint256",
+            "contract": "MIOCore",
+            "src": "contracts/MioCore.sol:102"
+          },
+          {
+            "label": "mioThinkFactory",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_contract(MioThinkFactory)4082",
+            "contract": "MIOCore",
+            "src": "contracts/MioCore.sol:105"
+          },
+          {
+            "label": "mioMarketFactory",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_contract(MioMarketFactory)3681",
+            "contract": "MIOCore",
+            "src": "contracts/MioCore.sol:108"
+          },
+          {
+            "label": "userExists",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "MIOCore",
+            "src": "contracts/MioCore.sol:111"
+          },
+          {
+            "label": "users",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_mapping(t_address,t_struct(user)4268_storage)",
+            "contract": "MIOCore",
+            "src": "contracts/MioCore.sol:114"
+          },
+          {
+            "label": "mioPosts",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_mapping(t_uint256,t_struct(mioPost)4255_storage)",
+            "contract": "MIOCore",
+            "src": "contracts/MioCore.sol:117"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(MioMarketFactory)3681": {
+            "label": "contract MioMarketFactory",
+            "numberOfBytes": "20"
+          },
+          "t_contract(MioThinkFactory)4082": {
+            "label": "contract MioThinkFactory",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(user)4268_storage)": {
+            "label": "mapping(address => struct MIOCore.user)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(mioPost)4255_storage)": {
+            "label": "mapping(uint256 => struct MIOCore.mioPost)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(mioPost)4255_storage": {
+            "label": "struct MIOCore.mioPost",
+            "members": [
+              {
+                "label": "id",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "content",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "media",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "timeStamp",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "author",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(user)4268_storage": {
+            "label": "struct MIOCore.user",
+            "members": [
+              {
+                "label": "username",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "bio",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "profilePic",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "profileBanner",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "userAddress",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "marketExists",
+                "type": "t_bool",
+                "offset": 20,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    }
+  }
+}
