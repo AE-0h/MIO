@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "miovents": "node ./wsContractEvents/app.js"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.17",
@@ -24,6 +25,7 @@
     "dotenv-load": "^2.0.1",
     "eslint": "8.31.0",
     "eslint-config-next": "13.1.1",
+    "express": "^4.18.2",
     "framer-motion": "^10.0.0",
     "hardhat": "^2.12.5",
     "ipfs-http-client": "^60.0.0",
@@ -34,7 +36,8 @@
     "react-dom": "18.2.0",
     "react-icons": "^4.7.1",
     "solmate": "^6.7.0",
-    "wagmi": "^0.9.6"
+    "wagmi": "^0.9.6",
+    "ws": "^8.13.0"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.5",
