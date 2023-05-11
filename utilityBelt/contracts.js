@@ -1,9 +1,5 @@
 const { ethers, artifacts } = require("hardhat");
-const {
-  sepoliaProvider,
-  goerliProvider,
-  mumbaiProvider,
-} = require("./provider");
+const { sepoliaProvider } = require("./provider");
 
 // Define ABI's
 const mioCoreABI = artifacts.readArtifactSync("MIOCore");
